@@ -1,0 +1,47 @@
+# Keep-alive ping — keeps the Render free-tier backend from cold-sleeping.
+#
+# Layer 1 (this file): GitHub Actions cron every 14 minutes.
+# Layer 2: engine/api.py self-ping thread every 10 minutes inside the
+# container (Approach 3, §22).
+#
+# The job never fails the build when the backend is unreachable — during
+# Phase 0 the deployment does not exist yet, and a red cron would bury the
+# real signal.
+
+name: keep-alive
+
+on:
+  schedule:
+    - cron: "*/14 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    name: ping backend /health
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Resolve backend URL
+        id: url
+        run: echo "url=${VANTIA_BACKEND_URL:-https://vantia-engine.onrender.com}/health" >> "$GITHUB_OUTPUT"
+        env:
+          # Set VANTIA_BACKEND_URL in repository Settings > Variables.
+          VANTIA_BACKEND_URL: ${{ vars.VANTIA_BACKEND_URL }}
+
+      - name: Ping health endpoint
+        run: |
+          echo "pinging ${{ steps.url.outputs.url }}"
+          for attempt in 1 2 3; do
+            if curl -fsS --max-time 20 "${{ steps.url.outputs.url }}"; then
+              echo
+              echo "backend alive"
+              exit 0
+            fi
+            echo "attempt ${attempt} failed; retrying in 20s"
+            sleep 20
+          done
+          echo "backend unreachable (deployment may not exist yet) — not failing"
+          exit 0

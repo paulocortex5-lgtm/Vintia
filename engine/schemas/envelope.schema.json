@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vantia.ai/schemas/envelope.schema.json",
+  "title": "Vantia Artifact Envelope",
+  "description": "Universal envelope for every Vantia pipeline artifact (task 1.1). NOTE: the v3.0 spec was not available to the builder; this is a v1 design and may need revision when v3.0 is supplied.",
+  "type": "object",
+  "required": ["schema_version", "task_id", "created_at", "payload"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Envelope schema version."
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "description": "Vantia task id that produced this artifact (e.g. '2.7')."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "run_id": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Vantia run number that produced this artifact."
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Supabase auth user id (v4.0 R34). Empty when anonymous."
+    },
+    "workspace_id": {
+      "type": "string",
+      "description": "Workspace id for RLS isolation (v4.0 R35). Empty when anonymous."
+    },
+    "provider": {
+      "type": "string",
+      "description": "LLM provider used (e.g. groq, nvidia_nim)."
+    },
+    "model": {
+      "type": "string",
+      "description": "Model used (e.g. llama-3.3-70b)."
+    },
+    "tokens_in": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "tokens_out": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "cost_usd": {
+      "type": "number",
+      "minimum": 0
+    },
+    "prev_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "Hash of the previous record in the run chain."
+    },
+    "hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 of the canonicalized payload."
+    },
+    "payload": {
+      "type": "object",
+      "description": "Artifact body. Validated against the artifact-specific schema.",
+      "additionalProperties": true
+    },
+    "warnings": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Non-fatal issues raised during generation (schema violations, truncation, etc.)."
+    }
+  }
+}

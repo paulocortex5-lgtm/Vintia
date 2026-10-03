@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vantia.ai/schemas/ats_score.schema.json",
+  "title": "ATS Score",
+  "type": "object",
+  "required": ["resume_id", "job_id", "overall_score", "category_scores", "keyword_coverage", "missing_keywords"],
+  "properties": {
+    "resume_id": {"type": "string"},
+    "job_id": {"type": "string"},
+    "overall_score": {"type": "number", "minimum": 0, "maximum": 100},
+    "category_scores": {
+      "type": "object",
+      "properties": {
+        "formatting": {"type": "number"},
+        "contact_info": {"type": "number"},
+        "keyword_match": {"type": "number"},
+        "job_title_match": {"type": "number"},
+        "years_experience": {"type": "number"},
+        "skills_match": {"type": "number"},
+        "education_match": {"type": "number"},
+        "certifications_match": {"type": "number"},
+        "language_match": {"type": "number"},
+        "location_match": {"type": "number"},
+        "employment_gaps": {"type": "number"},
+        "overall_impact": {"type": "number"}
+      },
+      "additionalProperties": false
+    },
+    "keyword_coverage": {"type": "number", "minimum": 0, "maximum": 1, "description": "0-1 fraction of required keywords matched"},
+    "matched_keywords": {"type": "array", "items": {"type": "string"}},
+    "missing_keywords": {"type": "array", "items": {"type": "string"}},
+    "improvement_suggestions": {"type": "array", "items": {"type": "object", "required": ["category", "suggestion"], "properties": {"category": {"type": "string"}, "suggestion": {"type": "string"}, "priority": {"type": "string", "enum": ["high", "medium", "low"]}}}},
+    "parser_metadata": {"type": "object", "description": "parser_version, extraction_confidence, file_size_bytes"}
+  }
+}

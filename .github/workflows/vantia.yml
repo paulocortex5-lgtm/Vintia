@@ -1,0 +1,53 @@
+# Vantia build workflow — bootstrap, install, import check, tests.
+# Free-tier only: ubuntu-latest shared runners, no matrix, short timeout.
+
+name: vantia
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "engine/**"
+      - "tests/**"
+      - "schemas/**"
+      - "requirements*.txt"
+      - "pyproject.toml"
+      - "bootstrap.sh"
+      - ".github/workflows/vantia.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: bootstrap + test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Bootstrap project structure
+        run: bash bootstrap.sh
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Verify engine imports
+        run: python -c "import engine; print('engine', engine.__version__)"
+
+      - name: Lint (non-blocking until Phase 6)
+        run: ruff check engine
+        continue-on-error: true
+
+      - name: Run tests
+        run: pytest -q --maxfail=10
