@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vantia.ai/schemas/sop.schema.json",
+  "title": "Statement of Purpose",
+  "type": "object",
+  "description": "Generated SOP for a scholarship or graduate program (task 1.2).",
+  "required": ["applicant_id", "content", "sections", "metadata"],
+  "properties": {
+    "applicant_id": {
+      "type": "string",
+      "description": "Vantia applicant profile id the SOP was written for."
+    },
+    "program_id": {
+      "type": "string",
+      "description": "Target program id (empty when applying for a scholarship only)."
+    },
+    "scholarship_id": {
+      "type": "string",
+      "description": "Target scholarship id, when the SOP targets one."
+    },
+    "content": {
+      "type": "string",
+      "description": "Full SOP as plain text",
+      "minLength": 200
+    },
+    "sections": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["heading", "body"],
+        "properties": {
+          "heading": {
+            "type": "string",
+            "description": "Section name: Motivation, Background, Fit, Career Goals, Closing"
+          },
+          "body": {"type": "string"},
+          "word_count": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["total_word_count", "generated_at"],
+      "properties": {
+        "total_word_count": {"type": "integer", "minimum": 0},
+        "generated_at": {"type": "string", "format": "date-time"},
+        "model": {"type": "string"},
+        "tone": {"type": "string", "enum": ["formal", "professional", "narrative", "confident"]},
+        "target_program": {"type": "string"},
+        "target_scholarship": {"type": "string"},
+        "language": {"type": "string"}
+      }
+    }
+  }
+}

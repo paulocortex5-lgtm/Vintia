@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://vantia.ai/schemas/envelope.schema.json",
   "title": "Vantia Artifact Envelope",
-  "description": "Universal envelope for every Vantia pipeline artifact (task 1.1). NOTE: the v3.0 spec was not available to the builder; this is a v1 design and may need revision when v3.0 is supplied.",
+  "description": "Universal envelope for every Vantia pipeline artifact (task 1.1, R24). The emitted keys are exactly engine.llm.client.ENVELOPE_FIELDS and this schema is validated against real runtime envelopes in tests/test_schemas.py. The artifact body lives in `payload` and is validated separately against its own artifact schema (ats_score, sop, research_proposal, cv_improvement, cover_letter).",
   "type": "object",
   "required": ["schema_version", "task_id", "created_at", "payload"],
   "additionalProperties": false,
@@ -22,17 +22,8 @@
       "format": "date-time"
     },
     "run_id": {
-      "type": "integer",
-      "minimum": 1,
-      "description": "Vantia run number that produced this artifact."
-    },
-    "user_id": {
-      "type": "string",
-      "description": "Supabase auth user id (v4.0 R34). Empty when anonymous."
-    },
-    "workspace_id": {
-      "type": "string",
-      "description": "Workspace id for RLS isolation (v4.0 R35). Empty when anonymous."
+      "type": ["integer", "string"],
+      "description": "Vantia run number (integer) or run token (string) that produced this artifact."
     },
     "provider": {
       "type": "string",
@@ -41,6 +32,15 @@
     "model": {
       "type": "string",
       "description": "Model used (e.g. llama-3.3-70b)."
+    },
+    "prompt_version": {
+      "type": "string",
+      "description": "Prompt template version that produced the payload (e.g. '1.0.0')."
+    },
+    "temperature": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Sampling temperature used for the call (Vantia pins 0.0)."
     },
     "tokens_in": {
       "type": "integer",
@@ -54,25 +54,33 @@
       "type": "number",
       "minimum": 0
     },
-    "prev_hash": {
-      "type": "string",
-      "pattern": "^[0-9a-f]{64}$",
-      "description": "Hash of the previous record in the run chain."
+    "dry_run": {
+      "type": "boolean",
+      "description": "True when VANTIA_DRY_RUN short-circuited the call (R25)."
     },
-    "hash": {
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 8,
+      "description": "Key that makes re-running the same task a no-op (R5)."
+    },
+    "prev_hash": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "envelope_hash of the previous record in the run chain (null for the first)."
+    },
+    "artifact_hash": {
       "type": "string",
       "pattern": "^[0-9a-f]{64}$",
-      "description": "SHA-256 of the canonicalized payload."
+      "description": "SHA-256 of canonical_json(payload) — identifies the artifact body."
+    },
+    "envelope_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 over every other envelope field — tamper-evident."
     },
     "payload": {
-      "type": "object",
-      "description": "Artifact body. Validated against the artifact-specific schema.",
-      "additionalProperties": true
-    },
-    "warnings": {
-      "type": "array",
-      "items": {"type": "string"},
-      "description": "Non-fatal issues raised during generation (schema violations, truncation, etc.)."
+      "type": ["object", "array", "string"],
+      "description": "Artifact body. Validated against the artifact-specific schema."
     }
   }
 }

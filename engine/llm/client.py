@@ -1,6 +1,6 @@
 """Unified LLM client — every call in the engine goes through here (R26).
 
-Deliverable of task 1.7 (master prompt v4.0).
+Deliverable of task 1.7 (master prompt v6.0).
 
 Responsibilities
   * translate a conversation into the payload style of any registered
@@ -23,6 +23,7 @@ from __future__ import annotations
 import hashlib
 import os
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from typing import Any
 
 import httpx
@@ -43,17 +44,26 @@ DEFAULT_TIMEOUT_SEC = 120.0
 # R25 — dry-run stub; deterministic, zero cost, no network.
 DRY_RUN_STUB = '{"dry_run": true, "note": "VANTIA_DRY_RUN=1; no LLM call was made"}'
 
-# R24 — every artifact envelope records these fields.
+# R24 — every artifact envelope carries exactly these keys (task 1.1);
+# engine/schemas/envelope.schema.json is kept in sync with this tuple.
 ENVELOPE_FIELDS = (
+    "schema_version",
+    "task_id",
+    "created_at",
+    "payload",
     "provider",
     "model",
     "prompt_version",
-    "schema_version",
     "temperature",
     "idempotency_key",
     "run_id",
+    "tokens_in",
+    "tokens_out",
+    "cost_usd",
+    "dry_run",
     "artifact_hash",
     "prev_hash",
+    "envelope_hash",
 )
 
 #: Transient provider faults that justify moving to the next provider.
@@ -369,35 +379,52 @@ class LLMClient:
 
 
 # ── Artifact envelope (R24) ──────────────────────────────────────────────
+def _utc_now() -> str:
+    """Second-precision UTC timestamp (matches the state file format)."""
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
 def build_envelope(
     content: Any,
     result: LLMResult,
     *,
+    task_id: str,
     run_id: str,
     prompt_version: str,
-    schema_version: str,
     idempotency_key: str,
+    schema_version: int = 1,
     prev_hash: str | None = None,
+    created_at: str | None = None,
 ) -> dict[str, Any]:
     """Wrap LLM-generated content in the hash-chained envelope (R24).
 
-    ``artifact_hash = sha256(canonical_json(content))`` chained with
-    ``prev_hash`` so the run log is tamper-evident.
+    The emitted keys are exactly :data:`ENVELOPE_FIELDS`, so the result
+    validates against ``engine/schemas/envelope.schema.json``:
+
+    * ``artifact_hash = sha256(canonical_json(payload))``
+    * ``envelope_hash = sha256(canonical_json(every field except envelope_hash))``
+    * ``prev_hash`` links to the previous envelope in the run chain, making
+      the artifact log tamper-evident.
     """
     from ..json_utils import canonical_json
 
-    content_hash = hashlib.sha256(canonical_json(content).encode("utf-8")).hexdigest()
     envelope: dict[str, Any] = {
+        "schema_version": int(schema_version),
+        "task_id": task_id,
+        "created_at": created_at or _utc_now(),
+        "payload": content,
         "provider": result.provider,
         "model": result.model,
         "prompt_version": prompt_version,
-        "schema_version": schema_version,
         "temperature": 0.0,
         "idempotency_key": idempotency_key,
         "run_id": run_id,
-        "artifact_hash": content_hash,
+        "tokens_in": result.tokens_in,
+        "tokens_out": result.tokens_out,
+        "cost_usd": result.cost_usd,
+        "dry_run": result.dry_run,
+        "artifact_hash": hashlib.sha256(canonical_json(content).encode("utf-8")).hexdigest(),
         "prev_hash": prev_hash,
-        "content": content,
     }
     envelope["envelope_hash"] = hashlib.sha256(
         canonical_json({k: v for k, v in envelope.items() if k != "envelope_hash"}).encode("utf-8")

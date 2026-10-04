@@ -7,6 +7,7 @@ the envelope is hash-chained (R24). No real provider calls.
 """
 
 import hashlib
+from pathlib import Path
 
 import httpx
 import pytest
@@ -20,9 +21,10 @@ from engine.errors import (
     LLMProviderFailure,
     LLMTimeoutError,
 )
-from engine.json_utils import canonical_json
+from engine.json_utils import canonical_json, load_json, validate
 from engine.llm.client import (
     DRY_RUN_STUB,
+    ENVELOPE_FIELDS,
     RETRYABLE,
     LLMClient,
     build_envelope,
@@ -31,6 +33,8 @@ from engine.llm.client import (
 )
 from engine.llm.quota import QuotaTracker
 from engine.llm.router import LLMModel, LLMProvider
+
+SCHEMAS = Path(__file__).parent.parent / "engine" / "schemas"
 
 MESSAGES = [{"role": "user", "content": "hello world"}]
 OPENAI_OK = {
@@ -315,7 +319,7 @@ def _priced_client(budget_usd, calls: int = 2):
             for _ in range(calls)
         )
     )
-    return LLMClient(http_client=http, budget_usd=budget_usd), provider
+    return LLMClient(http_client=http, budget_usd=budget_usd), provider  # type: ignore[arg-type]
 
 
 def test_budget_is_cumulative_across_calls():
@@ -349,11 +353,16 @@ def test_build_envelope_hash_chains_content_and_metadata(tmp_path):
     envelope = build_envelope(
         content,
         result,
+        task_id="2.1",
         run_id="run-1",
         prompt_version="1.0.0",
-        schema_version="1",
         idempotency_key="k" * 64,
     )
+    assert envelope["payload"] == content
+    assert envelope["schema_version"] == 1
+    assert envelope["created_at"].endswith("Z")
+    assert envelope["tokens_in"] == result.tokens_in
+    assert envelope["cost_usd"] == result.cost_usd
     assert (
         envelope["artifact_hash"]
         == hashlib.sha256(canonical_json(content).encode("utf-8")).hexdigest()
@@ -373,9 +382,9 @@ def test_build_envelope_hash_chains_content_and_metadata(tmp_path):
 def test_build_envelope_is_tamper_evident(tmp_path):
     result, _, _ = _dry_run_result(tmp_path)
     kwargs = {
+        "task_id": "2.1",
         "run_id": "run-1",
         "prompt_version": "1.0.0",
-        "schema_version": "1",
         "idempotency_key": "k" * 64,
     }
     first = build_envelope({"score": 87}, result, **kwargs)
@@ -390,10 +399,40 @@ def test_build_envelope_links_to_the_previous_artifact(tmp_path):
     envelope = build_envelope(
         {"x": 1},
         result,
+        task_id="2.1",
         prev_hash=prev,
         run_id="run-2",
         prompt_version="1.0.0",
-        schema_version="1",
         idempotency_key="k" * 64,
     )
     assert envelope["prev_hash"] == prev
+
+
+def test_build_envelope_emits_exactly_envelope_fields(tmp_path):
+    result, _, _ = _dry_run_result(tmp_path)
+    envelope = build_envelope(
+        {"x": 1},
+        result,
+        task_id="2.1",
+        run_id="run-1",
+        prompt_version="1.0.0",
+        idempotency_key="k" * 64,
+        created_at="2026-10-04T00:00:00Z",
+    )
+    assert tuple(envelope) == ENVELOPE_FIELDS
+
+
+def test_runtime_envelope_validates_against_the_schema(tmp_path):
+    """R24: envelopes produced at runtime must pass the shipped schema."""
+    result, _, _ = _dry_run_result(tmp_path)
+    envelope = build_envelope(
+        {"overall_score": 72.5},
+        result,
+        task_id="2.1",
+        run_id="run-1",
+        prompt_version="1.0.0",
+        idempotency_key="k" * 64,
+        created_at="2026-10-04T00:00:00Z",
+    )
+    schema = load_json(str(SCHEMAS / "envelope.schema.json"))
+    assert validate(envelope, schema) == []

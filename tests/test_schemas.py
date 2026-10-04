@@ -10,7 +10,7 @@ SCHEMAS = Path(__file__).parent.parent / "engine" / "schemas"
 
 def test_every_schema_parses():
     schemas = sorted(SCHEMAS.glob("*.schema.json"))
-    assert len(schemas) >= 4
+    assert len(schemas) >= 6
     for path in schemas:
         schema = load_json(str(path))
         assert schema["$schema"].startswith("https://json-schema.org/draft/2020-12")
@@ -128,5 +128,78 @@ def test_cover_letter_schema_roundtrip():
     try:
         validate(instance, schema)
         assert False, "expected SchemaValidationError for short content"
+    except SchemaValidationError as exc:
+        assert exc.code == "schema_violation"
+
+
+def test_sop_schema_roundtrip():
+    schema = load_json(str(SCHEMAS / "sop.schema.json"))
+    instance = {
+        "applicant_id": "1.3",
+        "program_id": "2.4",
+        "scholarship_id": "3.1",
+        "content": "x" * 200,
+        "sections": [
+            {"heading": "Motivation", "body": "the turning point", "word_count": 4},
+            {"heading": "Background", "body": "the evidence", "word_count": 3},
+            {"heading": "Career Goals", "body": "the ask", "word_count": 3},
+        ],
+        "metadata": {
+            "total_word_count": 700,
+            "generated_at": "2026-10-04T00:00:00Z",
+            "tone": "narrative",
+            "target_program": "Vantia MSc",
+        },
+    }
+    assert validate(instance, schema) == []
+    instance["metadata"]["tone"] = "cheerful"
+    try:
+        validate(instance, schema)
+        assert False, "expected SchemaValidationError for bad tone enum"
+    except SchemaValidationError as exc:
+        assert exc.code == "schema_violation"
+    instance["sections"] = instance["sections"][:2]
+    try:
+        validate(instance, schema)
+        assert False, "expected SchemaValidationError for too few sections"
+    except SchemaValidationError as exc:
+        assert exc.code == "schema_violation"
+
+
+def test_research_proposal_schema_roundtrip():
+    schema = load_json(str(SCHEMAS / "research_proposal.schema.json"))
+    instance = {
+        "applicant_id": "1.3",
+        "program_id": "2.4",
+        "title": "Measuring resume readability for ATS pipelines",
+        "research_question": "Which resume structures survive ATS parsing intact?",
+        "abstract": "a" * 50,
+        "content": "b" * 400,
+        "keywords": ["ATS", "parsing", "CV", "NLP"],
+        "methodology": "parser sweep over a labelled resume corpus",
+        "timeline": [{"phase": "Pilot", "duration_months": 3, "milestones": ["parser sweep"]}],
+        "sections": [
+            {"heading": "Background", "body": "known and unknown", "word_count": 5},
+            {"heading": "Methodology", "body": "data and evaluation", "word_count": 5},
+            {"heading": "Impact", "body": "who benefits", "word_count": 4},
+        ],
+        "metadata": {
+            "total_word_count": 1000,
+            "generated_at": "2026-10-04T00:00:00Z",
+            "degree_level": "MSc",
+            "target_program": "Vantia MSc",
+        },
+    }
+    assert validate(instance, schema) == []
+    instance["keywords"] = ["ATS"]
+    try:
+        validate(instance, schema)
+        assert False, "expected SchemaValidationError for too few keywords"
+    except SchemaValidationError as exc:
+        assert exc.code == "schema_violation"
+    instance["timeline"][0]["duration_months"] = 0
+    try:
+        validate(instance, schema)
+        assert False, "expected SchemaValidationError for a zero-month phase"
     except SchemaValidationError as exc:
         assert exc.code == "schema_violation"
