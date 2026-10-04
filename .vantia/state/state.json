@@ -3,7 +3,7 @@
   "master_prompt_version": "4.0",
   "schema_version": 4,
   "created_at": "2026-10-03T22:15:00Z",
-  "updated_at": "2026-10-04T08:00:30Z",
+  "updated_at": "2026-10-04T08:15:10Z",
   "run_count": 2,
   "last_completed_task": "1.7",
   "in_progress_task": null,
@@ -1276,7 +1276,7 @@
       "completed_at": null
     },
     "12.1": {
-      "name": "Stripe account + product setup",
+      "name": "Paddle account + product setup",
       "phase": 12,
       "status": "pending",
       "depends_on": [
@@ -1289,7 +1289,7 @@
       "completed_at": null
     },
     "12.2": {
-      "name": "Stripe Checkout session endpoint",
+      "name": "Paddle Checkout endpoint",
       "phase": 12,
       "status": "pending",
       "depends_on": [
@@ -1302,7 +1302,7 @@
       "completed_at": null
     },
     "12.3": {
-      "name": "Stripe webhook handler",
+      "name": "Paddle webhook handler",
       "phase": 12,
       "status": "pending",
       "depends_on": [
@@ -1342,7 +1342,7 @@
       "completed_at": null
     },
     "12.6": {
-      "name": "Stripe webhook E2E test",
+      "name": "Paddle webhook E2E test",
       "phase": 12,
       "status": "pending",
       "depends_on": [
