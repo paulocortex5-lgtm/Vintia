@@ -333,7 +333,7 @@ Tasks marked complete in `state.json` but failing verification:
 | 1.5 `providers.yaml` | 22 providers (12 free / 10 paid) with openai / gemini / anthropic / cohere payload styles; add a provider = edit YAML only (R38) |
 | 1.6 router + quota | `pick()` free-before-paid chain (R27), skips providers without keys or with exhausted quota; `QuotaTracker` daily rollover, rpd/rpm caps, optional Supabase `llm_usage` mirror |
 | 1.7 client + json_utils | `LLMClient.complete()` / `run_chain()` failover (429 → next provider), dry-run with zero network I/O (R25), `VANTIA_MAX_COST_USD` ceiling (R18), hash-chained envelope (R24); `strip_fences`, `canonical_json`, `safe_parse` |
-| 0.0 Stripe → Paddle | Every `STRIPE_*` reference removed repo-wide; added `PaddleError`, `paddle_client` (checkout transactions), `paddle_webhook` (HMAC-SHA256 + 5 s replay window + `paddle_events` idempotency), `docs/PADDLE_SETUP.md` |
+| 0.0 Stripe → Paddle | Every `STRIPE_*` reference removed repo-wide; added `PaddleError`, `paddle_client` (checkout transactions), `paddle_webhook` (HMAC-SHA256 + 5 s replay window + `paddle_events` idempotency), `docs/PADDLE_SETUP.md`. Follow-up: the Phase-12 catalogue task names in `engine/seed/state.json` + `.vantia/state/state.json` were still "Stripe …" and are now renamed to Paddle (12.1/12.2/12.3/12.6) |
 | Bug found & fixed | `QuotaTracker.usage_snapshot()` held a non-reentrant `threading.Lock` while calling `remaining_rpd()` / `check_quota()`, which re-acquire it → deadlock that hung the test run. Switched to `threading.RLock` |
 | Tests | 18 files / 165 passing / 91% `engine/` line coverage (`pytest --cov=engine -q`) |
 | Lint & types | All new + touched files: `ruff check` clean, `ruff format --check` clean. Repo-wide debt in untouched modules is tracked in §12 |
@@ -366,7 +366,7 @@ _(Earlier sessions populated above during Phase 0.)_
 | LLM provider rate limits | Task failure | Multi-provider failover chain |
 | Paddle live keys not configured | No purchases possible | Defer until launch; use sandbox mode |
 | Vercel free tier non-commercial | Legal issue if monetized | Document; upgrade when revenue starts |
-| Master prompt header says 98 tasks, catalog lists 88 | Progress denominator confusion | state.json + catalog agree on 88; use 88 |
+| Master prompt header says 98 tasks (v6.0 assessment: 99, incl. Task 0.0), catalog lists 88 | Progress denominator confusion | `state.json` + `engine/seed/state.json` both define 88 tasks; use 88 until the prompt's catalog is re-cut. Task 0.0 (Stripe purge) was executed as cross-cutting work and is recorded in §10, not as a catalogue row |
 | Provider/infra credentials are REPLACE_ME placeholders | Network-success paths untested | Insert real keys during launch prep |
 | Pre-existing ruff/mypy debt in modules untouched this run (api.py, execute_step.py, retry.py, state_manager.py, test_execute_step.py) | Repo-wide lint/type gate not clean | New code passes `ruff check` + `ruff format --check`; sweep alongside Phase 4 hardening |
 
