@@ -4,6 +4,8 @@ Every HTTP exchange goes through ``httpx.MockTransport`` — zero network I/O.
 Clock and sleep are faked so no test ever waits in real time.
 """
 
+import json
+
 import httpx
 import pytest
 
@@ -340,3 +342,55 @@ def test_close_leaves_injected_client_open_and_closes_owned():
     owned = Fetcher()
     owned.close()
     assert owned._client is None
+
+
+def test_post_sends_json_through_the_same_pipeline():
+    seen: dict[str, object] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/robots.txt":
+            return httpx.Response(404)
+        seen["method"] = request.method
+        seen["body"] = request.content
+        return httpx.Response(
+            200, text='{"ok": true}', headers={"content-type": "application/json"}
+        )
+
+    fetcher, _ = build(handler, retries=1)
+    result = fetcher.post("https://jobs.example/wday/cxs/acme/site/jobs", json={"limit": 20})
+    assert result.status_code == 200
+    assert seen["method"] == "POST"
+    assert json.loads(seen["body"]) == {"limit": 20}  # type: ignore[arg-type]
+    assert result.content == '{"ok": true}'
+
+
+def test_post_is_gated_by_robots_too():
+    calls: list[int] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/robots.txt":
+            return httpx.Response(200, text="User-agent: *\nDisallow: /private\n")
+        calls.append(1)
+        return httpx.Response(200, text="{}")
+
+    fetcher, _ = build(handler, retries=1)
+    with pytest.raises(RobotsDisallowed):
+        fetcher.post("https://jobs.example/private/jobs", json={})
+    assert calls == []
+
+
+def test_post_5xx_is_retried_like_get():
+    pages: list[int] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/robots.txt":
+            return httpx.Response(404)
+        pages.append(1)
+        return (
+            httpx.Response(503, text="busy") if len(pages) < 2 else httpx.Response(200, text="{}")
+        )
+
+    fetcher, sleeps = build(handler, retries=2)
+    assert fetcher.post("https://jobs.example/api", json={}).status_code == 200
+    assert len(pages) == 2
+    assert len(sleeps) == 1

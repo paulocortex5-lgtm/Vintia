@@ -6,8 +6,9 @@ Request pipeline:
 2. robots.txt gate (:class:`~engine.sources.robots.RobotsCache`);
 3. per-domain rate limiter (:class:`~engine.sources.ratelimit.DomainRateLimiter`)
    — consulted before **every** attempt, including retries;
-4. GET with retry + exponential backoff on 5xx / timeouts / network errors
-   (:class:`TransientFetchError` via :func:`engine.retry.retry_with_backoff`);
+4. GET/POST with retry + exponential backoff on 5xx / timeouts / network
+   errors (:class:`TransientFetchError` via
+   :func:`engine.retry.retry_with_backoff`);
    4xx and 429 are terminal (:class:`FetchError` / :class:`RateLimitError`);
 5. size cap — bodies above ``max_bytes`` are refused.
 
@@ -171,12 +172,38 @@ class Fetcher:
         params: Mapping[str, Any] | None = None,
         headers: Mapping[str, str] | None = None,
     ) -> FetchResult:
-        """Fetch ``url`` or raise a :class:`FetchError` subclass.
+        """GET ``url`` or raise a :class:`FetchError` subclass.
 
         Raises :class:`RobotsDisallowed` before any network I/O, and
         :class:`RateLimitError` when the local daily budget or an upstream
         429 stops us.
         """
+        return self._request("GET", url, params=params, headers=headers)
+
+    def post(
+        self,
+        url: str,
+        *,
+        json: Any,
+        headers: Mapping[str, str] | None = None,
+    ) -> FetchResult:
+        """POST a JSON body through the exact same pipeline as :meth:`fetch`.
+
+        The robots gate, the per-domain rate limiter, the retry/backoff
+        classification and the size cap all apply unchanged (task 2.2 —
+        the Workday portal API is POST-only).
+        """
+        return self._request("POST", url, json=json, headers=headers)
+
+    def _request(
+        self,
+        method: str,
+        url: str,
+        *,
+        params: Mapping[str, Any] | None = None,
+        json: Any = None,
+        headers: Mapping[str, str] | None = None,
+    ) -> FetchResult:
         parts = urlsplit(url)
         if parts.scheme not in ("http", "https") or not parts.netloc:
             raise FetchError(f"unsupported URL (http/https only): {url}", url=url)
@@ -187,7 +214,7 @@ class Fetcher:
                 robots_txt=RobotsCache.robots_url(url),
             )
         return retry_with_backoff(
-            lambda: self._attempt(url, params=params, headers=headers),
+            lambda: self._attempt(method, url, params=params, json=json, headers=headers),
             attempts=max(1, self.retries),
             base_sec=self.backoff_base_sec,
             retryable=(TransientFetchError,),
@@ -196,18 +223,22 @@ class Fetcher:
 
     def _attempt(
         self,
+        method: str,
         url: str,
         *,
         params: Mapping[str, Any] | None,
+        json: Any,
         headers: Mapping[str, str] | None,
     ) -> FetchResult:
         domain = urlsplit(url).netloc
         self.limiter.acquire(domain)  # every attempt, retries included
         started = time.monotonic()
         try:
-            resp = self._http().get(
+            resp = self._http().request(
+                method,
                 url,
                 params=dict(params) if params else None,
+                json=json,
                 headers=self._headers(headers),
                 timeout=self.timeout_sec,
             )
