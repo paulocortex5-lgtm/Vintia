@@ -37,6 +37,12 @@
      the test run. Fixed with `threading.RLock`.
 - Version-controlled: first commit on `origin/main` and the orphan
   `origin/vantia-state` branch, both pushed.
+- **Not pushed (new):** `279c3ca` on `main` and `76867be` on
+  `vantia-state` are committed locally but the push was rejected with
+  HTTP 403 — the environment's cached GitHub credential belongs to an
+  account without access to `paulocortex5-lgtm/Vintia` (no `gh` CLI, no
+  stored token). Push with the inline credential per `docs/RUNBOOK.md`:
+  `git push https://oauth2:<token>@github.com/paulocortex5-lgtm/Vintia.git main vantia-state`.
 
 ## What's Left
 - Phase 1 (4 left): schemas 1.1/1.2/1.3 and prompts 1.4

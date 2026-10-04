@@ -1,6 +1,6 @@
 # VANTIA — PLATFORM STATE
 
-**Last updated:** 2026-10-04T07:33:50Z
+**Last updated:** 2026-10-04T08:03:45Z
 **Master prompt:** v6.0
 **Session count:** 3
 **Overall readiness:** 13%
@@ -72,9 +72,9 @@
 | 1.2 | SOP schema | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
 | 1.3 | Research proposal schema | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
 | 1.4 | Prompt templates v1 | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 1.5 | LLM provider registry (providers.yaml) | ✅ Complete | — | engine/llm/providers.yaml (22 providers: 12 free / 10 paid), engine/llm/router.py, engine/llm/__init__.py, tests/test_llm_router.py | ✅ | ❌ | ✅ |
-| 1.6 | LLM router + multi-provider failover | ✅ Complete | — | engine/llm/quota.py, tests/test_quota.py | ✅ | ❌ | ✅ |
-| 1.7 | LLM client + fence stripper + quota | ✅ Complete | — | engine/llm/client.py, engine/json_utils.py, engine/llm/__init__.py, tests/test_llm_client.py, tests/test_json_utils.py | ✅ | ❌ | ✅ |
+| 1.5 | LLM provider registry (providers.yaml) | ✅ Complete | `279c3ca` | engine/llm/providers.yaml (22 providers: 12 free / 10 paid), engine/llm/router.py, engine/llm/__init__.py, tests/test_llm_router.py | ✅ | ❌ | ✅ |
+| 1.6 | LLM router + multi-provider failover | ✅ Complete | `279c3ca` | engine/llm/quota.py, tests/test_quota.py | ✅ | ❌ | ✅ |
+| 1.7 | LLM client + fence stripper + quota | ✅ Complete | `279c3ca` | engine/llm/client.py, engine/json_utils.py, engine/llm/__init__.py, tests/test_llm_client.py, tests/test_json_utils.py | ✅ | ❌ | ✅ |
 
 ### Phase 2 — Jobs Trail
 
@@ -307,6 +307,20 @@ Tasks marked complete in `state.json` but failing verification:
 | Commit | Task | Message | Pushed to main | Pushed to vantia-state |
 |---|---|---|---|---|
 | `4c84504` | — | vantia: phase 0 baseline - engine core, 96-test suite, workflows, tracking layer | ✅ | — |
+| `974dde8` | — | vantia: phase 0 tracking update (run 1) | ✅ | — |
+| `279c3ca` | 0.0, 1.5–1.7 | vantia(0.0,1.5,1.6,1.7): LLM stack + Paddle migration (run 1) | ⏳ blocked | — |
+| `76867be` | state | vantia(state): 1.5-1.7 complete (run 2, 279c3ca) | — | ⏳ blocked |
+
+> ⏳ **Push blocked this session.** The environment's cached GitHub
+> credential belongs to an account without access to
+> `paulocortex5-lgtm/Vintia` (HTTP 403, no `gh` CLI, no stored token).
+> Both commits exist locally and are ready to push with the inline
+> credential documented in `docs/RUNBOOK.md`:
+>
+> ```bash
+> git push https://oauth2:<token>@github.com/paulocortex5-lgtm/Vintia.git main
+> git push https://oauth2:<token>@github.com/paulocortex5-lgtm/Vintia.git vantia-state
+> ```
 
 ---
 
@@ -323,7 +337,7 @@ Tasks marked complete in `state.json` but failing verification:
 | Bug found & fixed | `QuotaTracker.usage_snapshot()` held a non-reentrant `threading.Lock` while calling `remaining_rpd()` / `check_quota()`, which re-acquire it → deadlock that hung the test run. Switched to `threading.RLock` |
 | Tests | 18 files / 165 passing / 91% `engine/` line coverage (`pytest --cov=engine -q`) |
 | Lint & types | All new + touched files: `ruff check` clean, `ruff format --check` clean. Repo-wide debt in untouched modules is tracked in §12 |
-| Push | `origin/main` — see §9 |
+| Push | ❌ blocked (403 — cached credential lacks access to `paulocortex5-lgtm/Vintia`); commits `279c3ca` (main) and `76867be` (vantia-state) are ready locally — see §9 |
 
 _(Earlier sessions populated above during Phase 0.)_
 

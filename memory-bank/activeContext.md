@@ -50,3 +50,7 @@ should be verified/claimed before new work begins.
 - Pre-existing ruff/mypy debt in modules untouched by the LLM/Paddle
   work (api.py, execute_step.py, retry.py, state_manager.py,
   test_execute_step.py); new code is `ruff check` + `ruff format` clean.
+- Local commits `279c3ca` (main) and `76867be` (vantia-state) are **not
+  pushed**: the cached GitHub credential in this environment lacks access
+  to `paulocortex5-lgtm/Vintia` (403). Use the inline-token URL from
+  `docs/RUNBOOK.md` to push.
