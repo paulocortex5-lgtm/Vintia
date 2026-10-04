@@ -71,6 +71,12 @@ class RobotsDisallowed(FetchError):
     code = "robots_disallowed"
 
 
+class TransientFetchError(FetchError):
+    """5xx or network failure while fetching — safe to retry with backoff (§8)."""
+
+    code = "fetch_transient"
+
+
 class InjectionDetectedError(VantiaError):
     """Prompt-injection classifier flagged the input (§18)."""
 

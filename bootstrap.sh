@@ -50,7 +50,7 @@ done
 
 # Ensure Python packages are importable.
 for pkg in engine engine/persistence engine/auth engine/workspace engine/ats \
-           engine/improve engine/credits engine/llm; do
+           engine/improve engine/credits engine/llm engine/sources; do
   [ -f "$pkg/__init__.py" ] || : > "$pkg/__init__.py"
 done
 
