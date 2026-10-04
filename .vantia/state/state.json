@@ -3,9 +3,9 @@
   "master_prompt_version": "4.0",
   "schema_version": 4,
   "created_at": "2026-10-03T22:15:00Z",
-  "updated_at": "2026-10-04T08:15:10Z",
-  "run_count": 2,
-  "last_completed_task": "1.7",
+  "updated_at": "2026-10-04T10:34:16Z",
+  "run_count": 3,
+  "last_completed_task": "1.4",
   "in_progress_task": null,
   "consecutive_failures": {},
   "deployment": {
@@ -366,56 +366,69 @@
     "1.1": {
       "name": "Envelope + ATS schema",
       "phase": 1,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "0.5"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/schemas/envelope.schema.json",
+        "engine/schemas/ats_score.schema.json",
+        "tests/test_schemas.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "001b78e122855a56d038458e77e3fc65e4a94b65",
+      "started_at": "2026-10-04T10:34:16Z",
+      "completed_at": "2026-10-04T10:34:16Z"
     },
     "1.2": {
       "name": "SOP schema",
       "phase": 1,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "1.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/schemas/sop.schema.json"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "001b78e122855a56d038458e77e3fc65e4a94b65",
+      "started_at": "2026-10-04T10:34:16Z",
+      "completed_at": "2026-10-04T10:34:16Z"
     },
     "1.3": {
       "name": "Research proposal schema",
       "phase": 1,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "1.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/schemas/research_proposal.schema.json"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "001b78e122855a56d038458e77e3fc65e4a94b65",
+      "started_at": "2026-10-04T10:34:16Z",
+      "completed_at": "2026-10-04T10:34:16Z"
     },
     "1.4": {
       "name": "Prompt templates v1",
       "phase": 1,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "1.1",
         "1.2",
         "1.3"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/prompts/v1_ats_score.md",
+        "engine/prompts/v1_sop.md",
+        "engine/prompts/v1_research_proposal.md",
+        "tests/test_prompts.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "001b78e122855a56d038458e77e3fc65e4a94b65",
+      "started_at": "2026-10-04T10:34:16Z",
+      "completed_at": "2026-10-04T10:34:16Z"
     },
     "1.5": {
       "name": "LLM provider registry (providers.yaml)",
@@ -1445,7 +1458,8 @@
   "cost_summary": {
     "total_usd": 0.0,
     "by_run": {
-      "2": 0.0
+      "2": 0.0,
+      "3": 0.0
     },
     "by_task": {}
   },
@@ -1466,6 +1480,23 @@
         "out": 0
       },
       "notes": "Phase 1 LLM core (1.5-1.7) + Stripe->Paddle purge (task 0.0). 165 tests pass, 91% engine line coverage, ruff clean on new files. No live LLM spend (dry-run / stubbed HTTP only)."
+    },
+    {
+      "run": 3,
+      "started_at": "2026-10-04T10:34:16Z",
+      "tasks": [
+        "1.1",
+        "1.2",
+        "1.3",
+        "1.4"
+      ],
+      "finished_at": "2026-10-04T10:34:16Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Phase 1 closeout (1.1-1.4): envelope/SOP/research-proposal schemas, 5 prompt templates, envelope<->ENVELOPE_FIELDS sync. 172 tests pass, 91% engine coverage, ruff+mypy clean on touched files. No LLM spend."
     }
   ],
   "notes": "Seed v4.0. 98 tasks across 14 phases. Free-tier only. Session 1 closeout: Phase 0 verified and committed. 96/96 unit tests pass, 97% engine coverage. 0.2 vantia-state commit is aa0f228; other Phase 0 tasks commit to main 4c84504."
