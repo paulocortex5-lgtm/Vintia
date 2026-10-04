@@ -1,9 +1,9 @@
 # VANTIA — PLATFORM STATE
 
-**Last updated:** 2026-10-04T08:03:45Z
+**Last updated:** 2026-10-04T10:37:28Z
 **Master prompt:** v6.0
-**Session count:** 3
-**Overall readiness:** 13%
+**Session count:** 4
+**Overall readiness:** 18%
 
 ---
 
@@ -11,10 +11,10 @@
 
 | Metric | Value |
 |---|---|
-| Tasks complete | 12/88 |
+| Tasks complete | 16/88 |
 | Tasks in progress | 0 |
 | Tasks blocked | 0 |
-| Tasks pending | 76 |
+| Tasks pending | 72 |
 | Audit failures | 0 |
 | Live previews passing | 0 |
 | E2E tests passing | 0/14 |
@@ -32,7 +32,7 @@
 | Phase | Name | Complete | In Progress | Blocked | Pending | % |
 |---|---|---|---|---|---|---|
 | 0 | Scaffold | 9/9 | 0 | 0 | 0 | 100% |
-| 1 | Schemas + Prompts + LLM Router | 3/7 | 0 | 0 | 4 | 43% |
+| 1 | Schemas + Prompts + LLM Router | 7/7 | 0 | 0 | 0 | 100% |
 | 2 | Jobs Trail | 0/9 | 0 | 0 | 9 | 0% |
 | 3 | Scholarship Engine | 0/7 | 0 | 0 | 7 | 0% |
 | 4 | Verification & Hardening | 0/5 | 0 | 0 | 5 | 0% |
@@ -68,10 +68,10 @@
 
 | ID | Name | Status | Commit | Files | Tested | Previewed | Verified |
 |---|---|---|---|---|---|---|---|
-| 1.1 | Envelope + ATS schema | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 1.2 | SOP schema | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 1.3 | Research proposal schema | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 1.4 | Prompt templates v1 | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
+| 1.1 | Envelope + ATS schema | ✅ Complete | `001b78e` | engine/schemas/envelope.schema.json (in sync with `ENVELOPE_FIELDS`, 17 keys), engine/schemas/ats_score.schema.json, engine/llm/client.py, tests/test_schemas.py, tests/test_llm_client.py | ✅ | ❌ | ✅ |
+| 1.2 | SOP schema | ✅ Complete | `001b78e` | engine/schemas/sop.schema.json, tests/test_schemas.py | ✅ | ❌ | ✅ |
+| 1.3 | Research proposal schema | ✅ Complete | `001b78e` | engine/schemas/research_proposal.schema.json, tests/test_schemas.py | ✅ | ❌ | ✅ |
+| 1.4 | Prompt templates v1 | ✅ Complete | `001b78e` | engine/prompts/v1_ats_score.md, engine/prompts/v1_sop.md, engine/prompts/v1_research_proposal.md (plus pre-existing v1_cv_improve.md / v1_cover_letter.md), tests/test_prompts.py | ✅ | ❌ | ✅ |
 | 1.5 | LLM provider registry (providers.yaml) | ✅ Complete | `279c3ca` | engine/llm/providers.yaml (22 providers: 12 free / 10 paid), engine/llm/router.py, engine/llm/__init__.py, tests/test_llm_router.py | ✅ | ❌ | ✅ |
 | 1.6 | LLM router + multi-provider failover | ✅ Complete | `279c3ca` | engine/llm/quota.py, tests/test_quota.py | ✅ | ❌ | ✅ |
 | 1.7 | LLM client + fence stripper + quota | ✅ Complete | `279c3ca` | engine/llm/client.py, engine/json_utils.py, engine/llm/__init__.py, tests/test_llm_client.py, tests/test_json_utils.py | ✅ | ❌ | ✅ |
@@ -279,8 +279,8 @@
 | User onboarding | tests/e2e/test_user_onboarding.py | — | ⏳ | — (not created) |
 | Full user journey | tests/e2e/test_full_journey.py | — | ⏳ | — (not created) |
 
-> Unit tests (separate from E2E): 18 files / 165 passing / 91% engine
-> line coverage (1420 statements, 123 missed). Verified via
+> Unit tests (separate from E2E): 18 files / 172 passing / 91% engine
+> line coverage (1422 statements, 123 missed). Verified via
 > `python -m pytest --cov=engine -q`.
 
 ---
@@ -310,12 +310,17 @@ Tasks marked complete in `state.json` but failing verification:
 | `974dde8` | — | vantia: phase 0 tracking update (run 1) | ✅ | — |
 | `279c3ca` | 0.0, 1.5–1.7 | vantia(0.0,1.5,1.6,1.7): LLM stack + Paddle migration (run 1) | ⏳ blocked | — |
 | `76867be` | state | vantia(state): 1.5-1.7 complete (run 2, 279c3ca) | — | ⏳ blocked |
+| `3a672e7` | docs | vantia(docs): record run-1 LLM stack + Paddle migration (1.5-1.7, task 0.0) | ⏳ blocked | — |
+| `1707db2` | 0.0 | vantia(0.0): finish Stripe purge - Phase-12 catalogue names -> Paddle | ⏳ blocked | — |
+| `6c3458e` | state | vantia(state): Phase-12 catalogue names Stripe -> Paddle | — | ⏳ blocked |
+| `001b78e` | 1.1–1.4 | vantia(1.1,1.2,1.3,1.4): schemas + prompt templates v1 (run 3) | ⏳ blocked | — |
+| `98ffe3d` | state | vantia(state): 1.1-1.4 complete (run 3, 001b78e) | — | ⏳ blocked |
 
-> ⏳ **Push blocked this session.** The environment's cached GitHub
-> credential belongs to an account without access to
-> `paulocortex5-lgtm/Vintia` (HTTP 403, no `gh` CLI, no stored token).
-> Both commits exist locally and are ready to push with the inline
-> credential documented in `docs/RUNBOOK.md`:
+> ⏳ **Push blocked this session (and session 3).** The environment's
+> cached GitHub credential is `denisprosperous`, an account without
+> access to `paulocortex5-lgtm/Vintia` (HTTP 403, no `gh` CLI, no
+> stored token). All commits exist locally and are ready to push with
+> the inline credential documented in `docs/RUNBOOK.md`:
 >
 > ```bash
 > git push https://oauth2:<token>@github.com/paulocortex5-lgtm/Vintia.git main
@@ -339,16 +344,29 @@ Tasks marked complete in `state.json` but failing verification:
 | Lint & types | All new + touched files: `ruff check` clean, `ruff format --check` clean. Repo-wide debt in untouched modules is tracked in §12 |
 | Push | ❌ blocked (403 — cached credential lacks access to `paulocortex5-lgtm/Vintia`); commits `279c3ca` (main) and `76867be` (vantia-state) are ready locally — see §9 |
 
+### Session 4 — 2026-10-04 — Phase 1 closeout (1.1–1.4): schemas + prompt templates v1
+
+| Item | Outcome |
+|---|---|
+| 1.1 Envelope + ATS schema | `envelope.schema.json` reworked to the exact runtime contract: required keys are `ENVELOPE_FIELDS` (17) in emission order, `artifact_hash` (payload) vs `envelope_hash` (tamper-evident) split, nullable `prev_hash`; `build_envelope()` now emits `schema_version`/`task_id`/`created_at`/`payload` plus token/cost/dry-run fields. `ats_score.schema.json` (shipped in phase 0) unchanged |
+| 1.2 SOP schema | `sop.schema.json`: content ≥ 200 chars, ≥ 3 sections, tone enum (formal/professional/narrative/confident); round-trip + 2 negative tests |
+| 1.3 Research proposal schema | `research_proposal.schema.json`: title/research_question/abstract length floors, 3–10 keywords, timeline phases 1–48 months, degree_level enum; round-trip + 3 negative tests |
+| 1.4 Prompt templates v1 | 3 new templates (`v1_ats_score`, `v1_sop`, `v1_research_proposal`) join the 2 pre-existing ones; all 5 carry the `<security>` block, DATA-not-instructions and honesty guards; schema↔prompt tests assert the ATS prompt teaches all 12 category keys |
+| Tooling | `ruff check` + `ruff format --check` clean on all touched files; `mypy` clean on touched files (fixed pre-existing `arg-type` error in `tests/test_llm_client.py`); standalone verification script `ALL CHECKS PASSED` |
+| Tests | 18 files / 172 passing / 91% `engine/` line coverage (1422 statements, 123 missed) |
+| State | run 3 recorded via `VantiaState` (lock → begin/complete → end_run); `run_manifest.json` backfilled with runs 2 + 3 (session 3 had left it at run 1 only) |
+| Push | ❌ still blocked (403 — cached credential `denisprosperous`, no access to `paulocortex5-lgtm/Vintia`); commits `001b78e` (main) and `98ffe3d` (vantia-state) are ready locally — see §9 |
+
 _(Earlier sessions populated above during Phase 0.)_
 
 ---
 
 ## 11. NEXT SESSION ACTIONS
 
-1. 1.1 — Envelope + ATS schema (`engine/schemas/`)
-2. 1.2 — SOP schema
-3. 1.3 — Research proposal schema
-4. 1.4 — Prompt templates v1 (`engine/prompts/v1_*.md`)
+1. 2.1 — Fetch base + robots.txt + rate limit (`engine/sources/`)
+2. 2.2 — Portal adapters (W/G/L)
+3. 2.3 — Visa register fetchers (UK/DE/AU)
+4. 2.4 — Credential equivalence lookup
 
 > Dependency note for Phase 11: `engine/credits/ledger.py` does not exist
 > yet, so `handle_webhook()` records Paddle top-ups with status
