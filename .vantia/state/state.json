@@ -3,9 +3,9 @@
   "master_prompt_version": "4.0",
   "schema_version": 4,
   "created_at": "2026-10-03T22:15:00Z",
-  "updated_at": "2026-10-04T11:40:27Z",
-  "run_count": 4,
-  "last_completed_task": "2.1",
+  "updated_at": "2026-10-04T21:38:46Z",
+  "run_count": 5,
+  "last_completed_task": "2.2",
   "in_progress_task": null,
   "consecutive_failures": {},
   "deployment": {
@@ -506,15 +506,25 @@
     "2.2": {
       "name": "Portal adapters (W/G/L)",
       "phase": 2,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "2.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/sources/portals/__init__.py",
+        "engine/sources/portals/base.py",
+        "engine/sources/portals/greenhouse.py",
+        "engine/sources/portals/lever.py",
+        "engine/sources/portals/workday.py",
+        "engine/sources/__init__.py",
+        "engine/sources/fetch.py",
+        "tests/test_portals.py",
+        "tests/test_sources.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "8dbcdec7b0c1a929ddc9e8eae4b1a7f8f9d2ea1",
+      "started_at": "2026-10-04T21:38:46Z",
+      "completed_at": "2026-10-04T21:38:46Z"
     },
     "2.3": {
       "name": "Visa register fetchers (UK/DE/AU)",
@@ -1467,7 +1477,8 @@
     "by_run": {
       "2": 0.0,
       "3": 0.0,
-      "4": 0.0
+      "4": 0.0,
+      "5": 0.0
     },
     "by_task": {}
   },
@@ -1519,6 +1530,20 @@
         "out": 0
       },
       "notes": "Fetch base: robots gate (per-origin cache, documented status policy), per-domain rate limiter (interval + daily cap), retry/backoff on 5xx, size cap, scheme allow-list. 190 tests pass, 91% engine coverage, ruff+mypy clean on new files. Zero network I/O in tests (MockTransport)."
+    },
+    {
+      "run": 5,
+      "started_at": "2026-10-04T21:38:46Z",
+      "tasks": [
+        "2.2"
+      ],
+      "finished_at": "2026-10-04T21:38:46Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Portal adapters W/G/L (Workday, Greenhouse, Lever): unified search/load via Fetcher incl. POST support, normalizing parsers, HTML strip + ISO dates, registry. 207 tests pass, 92pct coverage, ruff+mypy clean."
     }
   ],
   "notes": "Seed v4.0. 98 tasks across 14 phases. Free-tier only. Session 1 closeout: Phase 0 verified and committed. 96/96 unit tests pass, 97% engine coverage. 0.2 vantia-state commit is aa0f228; other Phase 0 tasks commit to main 4c84504."
