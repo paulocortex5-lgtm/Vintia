@@ -13,7 +13,7 @@ recruitment agencies with a direct, verified pipeline for:
 8. Cover letter generation aligned to job postings
 9. Per-user workspaces with private storage and isolated data
 10. Token-based credit system with tier enforcement
-11. Credit purchasing via Stripe (when ready)
+11. Credit purchasing via Paddle Billing (sandbox at launch)
 
 > **Product promise:** *Every application Vantia produces is targeted, verified,
 > and free of third-party intermediaries.*

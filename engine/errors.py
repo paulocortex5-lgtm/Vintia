@@ -2,7 +2,8 @@
 
 Every error carries a stable machine-readable ``code`` used in logs, JSON
 responses, the cost ledger, and GitHub issues opened for blocked tasks.
-v4.0 adds :class:`InsufficientCredits` (R46) and :class:`StripeError`.
+v4.0 adds :class:`InsufficientCredits` (R46). v6.0 replaces the legacy
+payment error with :class:`PaddleError`.
 """
 
 from __future__ import annotations
@@ -100,6 +101,47 @@ class LLMProviderFailure(LLMError):
     code = "llm_provider_failure"
 
 
+class LLMNetworkError(LLMError):
+    """Connection/DNS failure talking to a provider (§14, retry 3x)."""
+
+    code = "llm_network_error"
+
+
+class LLMTimeoutError(LLMError):
+    """Provider did not answer within the per-call timeout (R17)."""
+
+    code = "llm_timeout"
+
+
+class LLMEmptyResponseError(LLMError):
+    """Provider returned a successful status with no usable content."""
+
+    code = "llm_empty_response"
+
+
+class AllProvidersExhausted(LLMError):
+    """Every provider in the chain failed or is out of quota (R35)."""
+
+    code = "all_providers_exhausted"
+
+    def __init__(self, message: str = "", *, attempts: list[str] | None = None) -> None:
+        super().__init__(message, attempts=attempts or [])
+        self.attempts = attempts or []
+
+
+class BudgetExceeded(VantiaError):
+    """Run budget (VANTIA_MAX_COST_USD / R18) would be exceeded."""
+
+    code = "budget_exceeded"
+
+    def __init__(self, used_usd: float, budget_usd: float) -> None:
+        super().__init__(
+            f"budget exceeded: used=${used_usd:.4f} budget=${budget_usd:.4f}",
+            used_usd=round(float(used_usd), 8),
+            budget_usd=round(float(budget_usd), 8),
+        )
+
+
 class CircuitOpenError(VantiaError):
     """Circuit breaker is open; calls are short-circuited (§14)."""
 
@@ -119,7 +161,7 @@ class InsufficientCredits(VantiaError):
         )
 
 
-class StripeError(VantiaError):
-    """v4.0 §14: Stripe checkout / webhook failure."""
+class PaddleError(VantiaError):
+    """v6.0 §14: Paddle checkout / webhook processing failure."""
 
-    code = "stripe_error"
+    code = "paddle_error"

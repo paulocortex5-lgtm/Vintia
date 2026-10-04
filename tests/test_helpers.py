@@ -5,26 +5,35 @@ import json
 from engine.errors import (
     CircuitOpenError,
     InsufficientCredits,
-    StripeError,
+    PaddleError,
     VantiaError,
 )
 from engine.hash_chain import HashChain
 from engine.json_utils import atomic_write_json, load_json
-from engine.logging_config import JsonLineFormatter, configure_logging, get_run_id, log_data, utc_now
+from engine.logging_config import (
+    JsonLineFormatter,
+    configure_logging,
+    get_run_id,
+    log_data,
+    utc_now,
+)
 from engine.retry import CircuitBreaker, retry_with_backoff
-
 
 # ── v4.0 error taxonomy (§14) ─────────────────────────────────────────
 
 
 def test_error_codes_and_serialisation():
-    for error in [VantiaError("base"), InsufficientCredits(10000, 80000), StripeError("checkout failed")]:
+    for error in [
+        VantiaError("base"),
+        InsufficientCredits(10000, 80000),
+        PaddleError("checkout failed"),
+    ]:
         assert error.message
         assert isinstance(error.code, str)
         assert "error" in error.as_dict()
     assert InsufficientCredits(1, 2).context == {"balance": 1, "required": 2}
     assert InsufficientCredits(10000, 80000).code == "insufficient_credits"
-    assert StripeError("x").code == "stripe_error"
+    assert PaddleError("x").code == "paddle_error"
 
 
 # ── JSON helpers ──────────────────────────────────────────────────────
@@ -73,7 +82,9 @@ def test_formatter_is_json_lines():
     import logging
 
     formatter = JsonLineFormatter()
-    record = logging.makeLogRecord({"msg": "hello", "levelno": 20, "levelname": "INFO", "name": "vantia"})
+    record = logging.makeLogRecord(
+        {"msg": "hello", "levelno": 20, "levelname": "INFO", "name": "vantia"}
+    )
     formatter.format(record)
     parsed = json.loads(formatter.format(record))
     assert parsed["msg"] == "hello"
@@ -119,9 +130,7 @@ def test_retry_skips_non_retryable_exceptions():
 
 def test_circuit_breaker_opens_and_recovers():
     now = {"t": 0.0}
-    breaker = CircuitBreaker(
-        failure_threshold=3, reset_after_sec=100.0, clock=lambda: now["t"]
-    )
+    breaker = CircuitBreaker(failure_threshold=3, reset_after_sec=100.0, clock=lambda: now["t"])
     assert breaker.state == "closed"
     breaker.allow()
     for _ in range(2):

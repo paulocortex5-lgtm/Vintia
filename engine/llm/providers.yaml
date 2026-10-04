@@ -1,0 +1,326 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Vantia LLM provider registry — task 1.5 (master prompt v4.0)
+#
+# Adding a provider requires ONLY editing this file (R38). The router
+# (engine/llm/router.py) and the client (engine/llm/client.py) are
+# provider-agnostic.
+#
+# Schema
+#   id            : stable machine id; used in logs, quotas, cost ledger
+#   display       : human-readable name
+#   tier          : free | paid
+#                     paid entries are skipped unless VANTIA_ALLOW_PAID_LLM=1
+#                     (R27: free providers are exhausted in order first)
+#   base_url      : full chat endpoint; {model} / {account_id} / {project} /
+#                     {region} placeholders are expanded from url_vars
+#   url_vars      : {placeholder: ENV_VAR} — value read at call time;
+#                     an empty value ("" ) means "fill with the selected
+#                     model id" (used for the {model} placeholder)
+#   query_params  : {name: ENV_VAR} — extra URL query params, same "" rule
+#   api_key_env   : env var holding the credential; "" = no key required
+#   auth_header   : "Bearer {key}" style template, or null
+#   api_key_header: for providers that authenticate via a plain header
+#                     (e.g. x-api-key); mutually exclusive with auth_header
+#   extra_headers : static request headers sent on every call
+#   payload_style : openai | gemini | anthropic | cohere
+#   limits        : rpm / rpd — enforced by engine/llm/quota.py
+#   models        : list; models[0] is the default. per-1M-token USD pricing
+#                     (0 = free tier), `ctx` = context window, `max_tokens`
+#                     = default output cap
+#
+# CHAIN ORDER = ORDER IN THIS FILE. Free block first, paid block second.
+# ─────────────────────────────────────────────────────────────────────────────
+version: "1.0"
+
+# profile -> list of tiers eligible for the chain (VANTIA_LLM_PROFILE)
+profiles:
+  free_only: [free]
+  paid: [free, paid]
+
+providers:
+  # ══════════════════ FREE TIER (12 providers) ══════════════════
+  - id: nvidia_nim
+    display: "NVIDIA NIM"
+    tier: free
+    base_url: "https://integrate.api.nvidia.com/v1/chat/completions"
+    api_key_env: NVIDIA_NIM_API_KEY
+    auth_header: "Bearer {key}"
+    payload_style: openai
+    limits: { rpm: 400, rpd: 100000 }
+    models:
+      - { id: "meta/llama-3.1-70b-instruct", max_tokens: 2048, ctx: 131072, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+      - { id: "mistralai/mixtral-8x22b-instruct-v0.1", max_tokens: 2048, ctx: 65536, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+      - { id: "google/gemini-2.0-flash-001", max_tokens: 2048, ctx: 32768, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+
+  - id: groq
+    display: "Groq"
+    tier: free
+    base_url: "https://api.groq.com/openai/v1/chat/completions"
+    api_key_env: GROQ_API_KEY
+    auth_header: "Bearer {key}"
+    payload_style: openai
+    limits: { rpm: 3000, rpd: 14400 }
+    models:
+      - { id: "llama-3.3-70b-versatile", max_tokens: 8192, ctx: 131072, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+      - { id: "llama-3.1-8b-instant", max_tokens: 8192, ctx: 131072, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+      - { id: "gemma2-9b-it", max_tokens: 8192, ctx: 8192, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+
+  - id: cerebras
+    display: "Cerebras"
+    tier: free
+    base_url: "https://api.cerebras.ai/v1/chat/completions"
+    api_key_env: CEREBRAS_API_KEY
+    auth_header: "Bearer {key}"
+    payload_style: openai
+    limits: { rpm: 60, rpd: 2000 }
+    models:
+      - { id: "llama3.1-70b", max_tokens: 2048, ctx: 65536, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+      - { id: "llama3.3-70b", max_tokens: 2048, ctx: 128000, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+      - { id: "qwen3-32b", max_tokens: 2048, ctx: 32768, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+
+  - id: sambanova
+    display: "SambaNova"
+    tier: free
+    base_url: "https://api.sambanova.ai/v1/chat/completions"
+    api_key_env: SAMBANOVA_API_KEY
+    auth_header: "Bearer {key}"
+    payload_style: openai
+    limits: { rpm: 60, rpd: 1000 }
+    models:
+      - { id: "Meta-Llama-3.1-70B-Instruct", max_tokens: 2048, ctx: 131072, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+      - { id: "DeepSeek-V3-0324", max_tokens: 2048, ctx: 65536, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+      - { id: "DeepSeek-R1", max_tokens: 2048, ctx: 65536, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+
+  - id: gemini
+    display: "Google Gemini"
+    tier: free
+    base_url: "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+    url_vars: { model: "" }
+    api_key_env: GOOGLE_GEMINI_API_KEY
+    payload_style: gemini
+    query_params: { key: GOOGLE_GEMINI_API_KEY }
+    limits: { rpm: 15, rpd: 1000 }
+    models:
+      - { id: "gemini-2.0-flash", max_tokens: 2048, ctx: 1048576, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+      - { id: "gemini-2.0-flash-lite", max_tokens: 2048, ctx: 1048576, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+      - { id: "gemini-1.5-flash", max_tokens: 2048, ctx: 1000000, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+
+  - id: openrouter
+    display: "OpenRouter"
+    tier: free
+    base_url: "https://openrouter.ai/api/v1/chat/completions"
+    api_key_env: OPENROUTER_API_KEY
+    auth_header: "Bearer {key}"
+    payload_style: openai
+    limits: { rpm: 20, rpd: 1000 }
+    models:
+      - { id: "meta-llama/llama-3.3-70b-instruct:free", max_tokens: 2048, ctx: 131072, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+      - { id: "mistralai/mistral-7b-instruct:free", max_tokens: 2048, ctx: 32768, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+      - { id: "deepseek/deepseek-v3:free", max_tokens: 2048, ctx: 65536, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+
+  - id: mistral
+    display: "Mistral (free tier)"
+    tier: free
+    base_url: "https://api.mistral.ai/v1/chat/completions"
+    api_key_env: MISTRAL_API_KEY
+    auth_header: "Bearer {key}"
+    payload_style: openai
+    limits: { rpm: 1000, rpd: 50000 }
+    models:
+      - { id: "mistral-small-latest", max_tokens: 2048, ctx: 32768, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+      - { id: "codestral-latest", max_tokens: 2048, ctx: 256000, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+      - { id: "open-mistral-7b", max_tokens: 2048, ctx: 32768, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+
+  - id: cloudflare
+    display: "Cloudflare Workers AI"
+    tier: free
+    base_url: "https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/v1/chat/completions"
+    url_vars: { account_id: CLOUDFLARE_ACCOUNT_ID }
+    api_key_env: CLOUDFLARE_API_KEY
+    auth_header: "Bearer {key}"
+    payload_style: openai
+    limits: { rpm: 100, rpd: 30000 }
+    models:
+      - { id: "@cf/meta/llama-3.1-8b-instruct", max_tokens: 2048, ctx: 4096, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+      - { id: "@cf/openai/llama-3-70b-instruct", max_tokens: 2048, ctx: 8192, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+      - { id: "@cf/deepseek-v3", max_tokens: 2048, ctx: 32768, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+
+  - id: github_models
+    display: "GitHub Models"
+    tier: free
+    base_url: "https://api.github.com/models/chat/completions"
+    api_key_env: GITHUB_MODELS_TOKEN
+    auth_header: "Bearer {key}"
+    payload_style: openai
+    limits: { rpm: 15, rpd: 3000 }
+    models:
+      - { id: "openai/gpt-4o-mini", max_tokens: 2048, ctx: 128000, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+      - { id: "openai/gpt-4.1-nano", max_tokens: 2048, ctx: 1047572, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+      - { id: "gpt-5-mini", max_tokens: 2048, ctx: 400000, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+
+  - id: together
+    display: "Together AI (free tier)"
+    tier: free
+    base_url: "https://api.together.xyz/v1/chat/completions"
+    api_key_env: TOGETHER_API_KEY
+    auth_header: "Bearer {key}"
+    payload_style: openai
+    limits: { rpm: 20, rpd: 1000 }
+    models:
+      - { id: "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free", max_tokens: 2048, ctx: 131072, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+      - { id: "deepseek-ai/DeepSeek-V3-0324", max_tokens: 2048, ctx: 65536, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+      - { id: "Qwen/Qwen2.5-72B-Instruct", max_tokens: 2048, ctx: 32768, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+
+  - id: huggingface
+    display: "HuggingFace Inference"
+    tier: free
+    base_url: "https://router.huggingface.co/v1/chat/completions"
+    api_key_env: HUGGINGFACE_API_KEY
+    auth_header: "Bearer {key}"
+    payload_style: openai
+    limits: { rpm: 60, rpd: 30000 }
+    models:
+      - { id: "meta-llama/Meta-Llama-3.1-8B-Instruct", max_tokens: 2048, ctx: 4096, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+      - { id: "mistralai/Mistral-7B-Instruct-v0.3", max_tokens: 2048, ctx: 32768, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+      - { id: "HuggingFaceTB/SmolLM2-1.6B-Instruct", max_tokens: 2048, ctx: 4096, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+
+  - id: cohere
+    display: "Cohere (free tier)"
+    tier: free
+    base_url: "https://api.cohere.ai/v2/chat"
+    api_key_env: COHERE_API_KEY
+    auth_header: "Bearer {key}"
+    payload_style: cohere
+    limits: { rpm: 180, rpd: 10000 }
+    models:
+      - { id: "command-r", max_tokens: 2048, ctx: 128000, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+      - { id: "command-r-plus", max_tokens: 2048, ctx: 128000, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+      - { id: "aya-exploratory-8b", max_tokens: 2048, ctx: 32768, in_usd_per_mtok: 0, out_usd_per_mtok: 0 }
+
+  # ══════════════════ PAID TIER (10 providers) ══════════════════
+  # Skipped unless VANTIA_ALLOW_PAID_LLM=1 (R40 / R27). Pricing is USD
+  # per 1M tokens and feeds engine/cost_tracker.py + R18 budget checks.
+  - id: openai
+    display: "OpenAI"
+    tier: paid
+    base_url: "https://api.openai.com/v1/chat/completions"
+    api_key_env: OPENAI_API_KEY
+    auth_header: "Bearer {key}"
+    payload_style: openai
+    limits: { rpm: 500, rpd: 500000 }
+    models:
+      - { id: "gpt-4.1-nano", max_tokens: 2048, ctx: 1047572, in_usd_per_mtok: 0.10, out_usd_per_mtok: 0.40 }
+      - { id: "gpt-4.1-mini", max_tokens: 2048, ctx: 1047572, in_usd_per_mtok: 0.40, out_usd_per_mtok: 1.60 }
+      - { id: "gpt-4o-mini", max_tokens: 2048, ctx: 128000, in_usd_per_mtok: 0.15, out_usd_per_mtok: 0.60 }
+
+  - id: anthropic
+    display: "Anthropic"
+    tier: paid
+    base_url: "https://api.anthropic.com/v1/messages"
+    api_key_env: ANTHROPIC_API_KEY
+    api_key_header: x-api-key
+    payload_style: anthropic
+    extra_headers: { "anthropic-version": "2023-06-01" }
+    limits: { rpm: 50, rpd: 4000 }
+    models:
+      - { id: "claude-3-5-haiku-latest", max_tokens: 2048, ctx: 200000, in_usd_per_mtok: 0.80, out_usd_per_mtok: 4.00 }
+      - { id: "claude-3-5-sonnet-latest", max_tokens: 2048, ctx: 200000, in_usd_per_mtok: 3.00, out_usd_per_mtok: 15.00 }
+      - { id: "claude-opus-4-1", max_tokens: 2048, ctx: 200000, in_usd_per_mtok: 15.00, out_usd_per_mtok: 75.00 }
+
+  - id: google_vertex
+    display: "Google Vertex AI"
+    tier: paid
+    base_url: "https://aiplatform.googleapis.com/v1/projects/{project}/locations/{region}/publishers/google/models/{model}:generateContent?alt=sdk"
+    url_vars: { project: GOOGLE_VERTEX_PROJECT, region: GOOGLE_VERTEX_REGION, model: "" }
+    api_key_env: GOOGLE_VERTEX_API_KEY
+    query_params: { key: GOOGLE_VERTEX_API_KEY }
+    payload_style: gemini
+    limits: { rpm: 60, rpd: 10000 }
+    models:
+      - { id: "gemini-2.0-flash-001", max_tokens: 2048, ctx: 1048576, in_usd_per_mtok: 0.15, out_usd_per_mtok: 0.60 }
+      - { id: "gemini-2.5-pro-preview-06-05", max_tokens: 2048, ctx: 1048576, in_usd_per_mtok: 1.25, out_usd_per_mtok: 5.00 }
+
+  - id: deepseek
+    display: "DeepSeek"
+    tier: paid
+    base_url: "https://api.deepseek.com/v1/chat/completions"
+    api_key_env: DEEPSEEK_API_KEY
+    auth_header: "Bearer {key}"
+    payload_style: openai
+    limits: { rpm: 500, rpd: 500000 }
+    models:
+      - { id: "deepseek-chat", max_tokens: 2048, ctx: 65536, in_usd_per_mtok: 0.27, out_usd_per_mtok: 1.10 }
+      - { id: "deepseek-reasoner", max_tokens: 2048, ctx: 65536, in_usd_per_mtok: 0.55, out_usd_per_mtok: 2.19 }
+
+  - id: xai
+    display: "xAI"
+    tier: paid
+    base_url: "https://api.x.ai/v1/chat/completions"
+    api_key_env: XAI_API_KEY
+    auth_header: "Bearer {key}"
+    payload_style: openai
+    limits: { rpm: 60, rpd: 10000 }
+    models:
+      - { id: "grok-3-mini-beta", max_tokens: 2048, ctx: 131072, in_usd_per_mtok: 0.15, out_usd_per_mtok: 0.60 }
+      - { id: "grok-3", max_tokens: 2048, ctx: 131072, in_usd_per_mtok: 3.00, out_usd_per_mtok: 15.00 }
+
+  - id: mistral_paid
+    display: "Mistral (paid tier)"
+    tier: paid
+    base_url: "https://api.mistral.ai/v1/chat/completions"
+    api_key_env: MISTRAL_API_KEY
+    auth_header: "Bearer {key}"
+    payload_style: openai
+    limits: { rpm: 1000, rpd: 500000 }
+    models:
+      - { id: "mistral-large-latest", max_tokens: 2048, ctx: 128000, in_usd_per_mtok: 0.65, out_usd_per_mtok: 0.65 }
+      - { id: "magistral-small-latest", max_tokens: 2048, ctx: 128000, in_usd_per_mtok: 2.00, out_usd_per_mtok: 6.00 }
+
+  - id: cohere_paid
+    display: "Cohere (paid tier)"
+    tier: paid
+    base_url: "https://api.cohere.ai/v2/chat"
+    api_key_env: COHERE_API_KEY
+    auth_header: "Bearer {key}"
+    payload_style: cohere
+    limits: { rpm: 60, rpd: 10000 }
+    models:
+      - { id: "command-r-plus", max_tokens: 2048, ctx: 128000, in_usd_per_mtok: 2.50, out_usd_per_mtok: 10.00 }
+      - { id: "command-a-03-2025", max_tokens: 2048, ctx: 256000, in_usd_per_mtok: 2.50, out_usd_per_mtok: 10.00 }
+
+  - id: together_paid
+    display: "Together AI (paid tier)"
+    tier: paid
+    base_url: "https://api.together.xyz/v1/chat/completions"
+    api_key_env: TOGETHER_API_KEY
+    auth_header: "Bearer {key}"
+    payload_style: openai
+    limits: { rpm: 100, rpd: 100000 }
+    models:
+      - { id: "meta-llama/Llama-3.3-70B-Instruct-Turbo", max_tokens: 2048, ctx: 131072, in_usd_per_mtok: 0.55, out_usd_per_mtok: 1.65 }
+      - { id: "deepseek-ai/DeepSeek-V3-0324", max_tokens: 2048, ctx: 65536, in_usd_per_mtok: 0.27, out_usd_per_mtok: 1.10 }
+
+  - id: fireworks
+    display: "Fireworks AI"
+    tier: paid
+    base_url: "https://api.fireworks.ai/v1/chat/completions"
+    api_key_env: FIREWORKS_API_KEY
+    auth_header: "Bearer {key}"
+    payload_style: openai
+    limits: { rpm: 200, rpd: 200000 }
+    models:
+      - { id: "accounts/fireworks/models/llama-v3p3-70b-instruct", max_tokens: 2048, ctx: 131072, in_usd_per_mtok: 0.55, out_usd_per_mtok: 1.65 }
+      - { id: "deepseek-v3", max_tokens: 2048, ctx: 65536, in_usd_per_mtok: 0.27, out_usd_per_mtok: 1.10 }
+
+  - id: perplexity
+    display: "Perplexity"
+    tier: paid
+    base_url: "https://api.perplexity.ai/chat/completions"
+    api_key_env: PERPLEXITY_API_KEY
+    auth_header: "Bearer {key}"
+    payload_style: openai
+    limits: { rpm: 60, rpd: 20000 }
+    models:
+      - { id: "sonar", max_tokens: 2048, ctx: 128000, in_usd_per_mtok: 0.20, out_usd_per_mtok: 0.60 }
+      - { id: "sonar-pro", max_tokens: 2048, ctx: 204800, in_usd_per_mtok: 1.00, out_usd_per_mtok: 5.00 }
+      - { id: "sonar-reasoning-pro", max_tokens: 2048, ctx: 204800, in_usd_per_mtok: 2.00, out_usd_per_mtok: 8.00 }

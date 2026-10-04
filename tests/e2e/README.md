@@ -14,8 +14,8 @@ per the v4.0 spec:
   stays authoritative (graceful degradation, §0.7).
 * **`test_keep_alive_cron`** — the GitHub Actions cron hits `/health` on a
   14-minute cadence.
-* **`test_stripe_checkout`** — the v4.0 credits/Stripe checkout flow
-  (placeholder: requires test-mode Stripe keys).
+* **`test_paddle_checkout`** — the v6.0 credits/Paddle checkout flow
+  (placeholder: requires sandbox Paddle keys).
 
 Until Phase 6 lands, this directory holds no executable tests and the unit
 suite does not collect it. Add tests here as the pipeline tasks ship.

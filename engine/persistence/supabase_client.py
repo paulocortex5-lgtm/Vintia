@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import urllib.parse
 from typing import Any
 
 import httpx
@@ -95,6 +96,40 @@ class SupabaseClient:
             )
             return False
         return True
+
+    def query(
+        self,
+        table: str,
+        filters: dict[str, str],
+        select: str = "*",
+        *,
+        service: bool = False,
+    ) -> list[dict[str, Any]]:
+        """Fetch matching rows via ``GET /rest/v1/<table>``; ``[]`` on failure.
+
+        ``filters`` maps column -> "op.value" (e.g. ``{"event_id": "eq.x"}``).
+        Used for webhook idempotency lookups (R50); RLS still applies on the
+        server, so use ``service=True`` for engine-internal reads.
+        """
+        if not self.configured:
+            return []
+        params = urllib.parse.urlencode({**filters, "select": select})
+        try:
+            resp = httpx.get(
+                f"{self.url}/rest/v1/{table}?{params}",
+                headers=self._headers(service),
+                timeout=self.timeout,
+            )
+        except httpx.HTTPError as exc:
+            LOGGER.warning("supabase query %s failed: %s", table, exc)
+            return []
+        if resp.status_code >= 400:
+            LOGGER.warning(
+                "supabase query %s returned %s: %s", table, resp.status_code,
+                resp.text[:200],
+            )
+            return []
+        return list(resp.json())
 
     # ── Domain helpers ────────────────────────────────────────────
     def sync_state(self, state: dict[str, Any]) -> bool:

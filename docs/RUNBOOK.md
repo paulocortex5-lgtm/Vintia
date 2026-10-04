@@ -6,7 +6,7 @@ loop, the three-layer keep-alive, deployment, recovery, and rollback.
 > Scope: this runbook covers **Phase 0** concerns (scaffold, CI,
 > keep-alive, recovery). Phase 6 adds the deployment runbooks
 > (`RENDER_DEPLOY.md`, `VERCEL_DEPLOY.md`, `SUPABASE_SETUP.md`,
-> `KEEP_ALIVE.md`) and the Stripe runbook.
+> `KEEP_ALIVE.md`) and the Paddle runbook.
 
 ---
 
@@ -124,7 +124,7 @@ cron is expected and deliberately not treated as a failure signal.
 2. **Frontend** → Vercel Hobby, root `web/`, build via `vercel.json`.
 3. **Database** → Supabase free tier; apply `docs/SUPABASE_SETUP.md`.
    Never use Render's free Postgres — it expires after 30 days.
-4. **Payments** → Stripe in test mode until launch.
+4. **Payments** → Paddle in sandbox mode until launch.
 
 See Phase 6 runbooks for per-platform detail.
 

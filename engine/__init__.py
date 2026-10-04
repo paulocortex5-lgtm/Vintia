@@ -11,7 +11,7 @@ the v4.0 master prompt:
 * :mod:`engine.execute_step`  — task execution bookkeeping (§0.1 STEP G)
 
 Heavy optional extras are imported lazily by the modules that need them
-(PDF/DOCX parsing in Phase 9, Stripe in Phase 12), so ``import engine``
+(PDF/DOCX parsing in Phase 9, Paddle in Phase 12), so ``import engine``
 stays light and succeeds even with the minimal runtime installed.
 """
 

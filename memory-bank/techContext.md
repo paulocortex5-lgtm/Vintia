@@ -4,7 +4,7 @@
 Python 3.12 (local venv is 3.14.4 at /tmp/vantia-venv), FastAPI,
 Uvicorn, supabase-py, Pydantic v2, jsonschema, httpx, Click, structlog,
 tenacity, pytest, pytest-cov, ruff, mypy, pdfplumber, python-docx,
-pycountry, dnspython, filelock, tiktoken, rapidfuzz, stripe-python.
+pycountry, dnspython, filelock, tiktoken, rapidfuzz, paddle-python-sdk.
 
 ## Frontend
 Next.js 14, TypeScript, Tailwind CSS, shadcn/ui, @supabase/supabase-js,
@@ -28,13 +28,17 @@ Paid, Together Paid, Fireworks, Perplexity.
 ## Deployment
 Render free tier (backend Docker container), Vercel Hobby (frontend),
 Supabase free tier (database), GitHub Actions (keep-alive + build),
-Stripe (payments, test mode until launch).
+Paddle Billing (payments, sandbox until launch).
 
 ## Local Dev Notes (established Session 1)
 - Package is installed editable (`pip install -e .`), so the `vantia`
   console script works. venv lives at `/tmp/vantia-venv`.
-- Test suite: `python -m pytest --cov=engine -q` → 96 tests, 97%
-  line coverage of engine/.
+- Test suite: `python -m pytest --cov=engine -q` → 165 tests, 91%
+  line coverage of engine/ (18 test files).
+- Payments: Paddle Billing only (Merchant of Record) via
+  `paddle-python-sdk`; Stripe is absent from the repo by design
+  (task 0.0, R56–R60). Webhook signature checks use stdlib
+  `hmac`/`hashlib` — no extra dependency.
 - `engine/api.py` uses the deprecated `@app.on_event("startup")`; a
   later task should migrate to the FastAPI lifespan context manager.
 - GitHub push uses an inline `oauth2:<token>@github.com/...` URL so the

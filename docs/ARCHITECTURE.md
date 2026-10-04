@@ -37,7 +37,7 @@ the state mirror lives in `.vantia/` committed to the `vantia-state` branch.
 - `engine/workspace/`  — workspace RLS + Supabase Storage
 - `engine/ats/`        — resume parser, 12-point scorer, keyword matcher
 - `engine/improve/`    — CV improver + cover letter generator
-- `engine/credits/`    — credit ledger, token metering, tiers, Stripe
+- `engine/credits/`    — credit ledger, token metering, tiers, Paddle
 
 ## Runtime files (`.vantia/`)
 

@@ -20,4 +20,4 @@ letters aligned to specific job descriptions.
 6. Improve CV with AI (8,000 credits)
 7. Generate cover letter (5,000 credits)
 8. Download both as PDF
-9. Buy more credits with Stripe when needed
+9. Buy more credits with Paddle when needed

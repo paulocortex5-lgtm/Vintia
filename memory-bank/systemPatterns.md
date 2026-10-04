@@ -23,7 +23,7 @@
 - Every LLM call deducts tokens from user balance
 - Insufficient balance blocks the call with InsufficientCredits error
 - Monthly reset via GitHub Actions cron on the 1st of each month
-- Stripe webhook idempotency via payment_intent.id
+- Paddle webhook idempotency via event_id
 
 ## State & Branch Model (Vantia-specific, established Session 1)
 - `.vantia/` is gitignored on `main`; it is intentionally excluded from

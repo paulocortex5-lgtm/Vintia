@@ -1,9 +1,9 @@
 # VANTIA — PLATFORM STATE
 
-**Last updated:** 2026-10-04T00:04:27Z
-**Master prompt:** v4.0
-**Session count:** 2
-**Overall readiness:** 10%
+**Last updated:** 2026-10-04T07:33:50Z
+**Master prompt:** v6.0
+**Session count:** 3
+**Overall readiness:** 13%
 
 ---
 
@@ -11,10 +11,10 @@
 
 | Metric | Value |
 |---|---|
-| Tasks complete | 9/88 |
+| Tasks complete | 12/88 |
 | Tasks in progress | 0 |
 | Tasks blocked | 0 |
-| Tasks pending | 79 |
+| Tasks pending | 76 |
 | Audit failures | 0 |
 | Live previews passing | 0 |
 | E2E tests passing | 0/14 |
@@ -32,7 +32,7 @@
 | Phase | Name | Complete | In Progress | Blocked | Pending | % |
 |---|---|---|---|---|---|---|
 | 0 | Scaffold | 9/9 | 0 | 0 | 0 | 100% |
-| 1 | Schemas + Prompts + LLM Router | 0/7 | 0 | 0 | 7 | 0% |
+| 1 | Schemas + Prompts + LLM Router | 3/7 | 0 | 0 | 4 | 43% |
 | 2 | Jobs Trail | 0/9 | 0 | 0 | 9 | 0% |
 | 3 | Scholarship Engine | 0/7 | 0 | 0 | 7 | 0% |
 | 4 | Verification & Hardening | 0/5 | 0 | 0 | 5 | 0% |
@@ -72,9 +72,9 @@
 | 1.2 | SOP schema | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
 | 1.3 | Research proposal schema | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
 | 1.4 | Prompt templates v1 | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 1.5 | LLM provider registry (providers.yaml) | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 1.6 | LLM router + multi-provider failover | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 1.7 | LLM client + fence stripper + quota | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
+| 1.5 | LLM provider registry (providers.yaml) | ✅ Complete | — | engine/llm/providers.yaml (22 providers: 12 free / 10 paid), engine/llm/router.py, engine/llm/__init__.py, tests/test_llm_router.py | ✅ | ❌ | ✅ |
+| 1.6 | LLM router + multi-provider failover | ✅ Complete | — | engine/llm/quota.py, tests/test_quota.py | ✅ | ❌ | ✅ |
+| 1.7 | LLM client + fence stripper + quota | ✅ Complete | — | engine/llm/client.py, engine/json_utils.py, engine/llm/__init__.py, tests/test_llm_client.py, tests/test_json_utils.py | ✅ | ❌ | ✅ |
 
 ### Phase 2 — Jobs Trail
 
@@ -190,12 +190,12 @@
 
 | ID | Name | Status | Commit | Files | Tested | Previewed | Verified |
 |---|---|---|---|---|---|---|---|
-| 12.1 | Stripe account + product setup | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 12.2 | Stripe Checkout session endpoint | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 12.3 | Stripe webhook handler | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
+| 12.1 | Paddle account + product setup | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
+| 12.2 | Paddle Checkout endpoint | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
+| 12.3 | Paddle webhook handler | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
 | 12.4 | Credit top-up logic + idempotency | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
 | 12.5 | Credit purchase UI | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 12.6 | Stripe webhook E2E test | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
+| 12.6 | Paddle webhook E2E test | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
 
 ### Phase 13 — Workspace UI + Full Journey
 
@@ -224,7 +224,7 @@
 | Generate cover letter | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Download improved CV | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Download cover letter | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Buy credits with Stripe | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Buy credits with Paddle | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | View credit balance + history | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Browse visa-sponsored jobs | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Browse funded scholarships | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -279,8 +279,9 @@
 | User onboarding | tests/e2e/test_user_onboarding.py | — | ⏳ | — (not created) |
 | Full user journey | tests/e2e/test_full_journey.py | — | ⏳ | — (not created) |
 
-> Unit tests (separate from E2E): 13 files / 96 passing / 97% engine
-> line coverage. Verified via `python -m pytest --cov=engine -q`.
+> Unit tests (separate from E2E): 18 files / 165 passing / 91% engine
+> line coverage (1420 statements, 123 missed). Verified via
+> `python -m pytest --cov=engine -q`.
 
 ---
 ## 7. AUDIT FAILURES
@@ -311,15 +312,34 @@ Tasks marked complete in `state.json` but failing verification:
 
 ## 10. SESSION LOG
 
-_(Populated at the end of each session.)_
+### Session 3 — 2026-10-04 — Phase 1 LLM stack (1.5/1.6/1.7) + Stripe→Paddle purge (task 0.0)
+
+| Item | Outcome |
+|---|---|
+| 1.5 `providers.yaml` | 22 providers (12 free / 10 paid) with openai / gemini / anthropic / cohere payload styles; add a provider = edit YAML only (R38) |
+| 1.6 router + quota | `pick()` free-before-paid chain (R27), skips providers without keys or with exhausted quota; `QuotaTracker` daily rollover, rpd/rpm caps, optional Supabase `llm_usage` mirror |
+| 1.7 client + json_utils | `LLMClient.complete()` / `run_chain()` failover (429 → next provider), dry-run with zero network I/O (R25), `VANTIA_MAX_COST_USD` ceiling (R18), hash-chained envelope (R24); `strip_fences`, `canonical_json`, `safe_parse` |
+| 0.0 Stripe → Paddle | Every `STRIPE_*` reference removed repo-wide; added `PaddleError`, `paddle_client` (checkout transactions), `paddle_webhook` (HMAC-SHA256 + 5 s replay window + `paddle_events` idempotency), `docs/PADDLE_SETUP.md` |
+| Bug found & fixed | `QuotaTracker.usage_snapshot()` held a non-reentrant `threading.Lock` while calling `remaining_rpd()` / `check_quota()`, which re-acquire it → deadlock that hung the test run. Switched to `threading.RLock` |
+| Tests | 18 files / 165 passing / 91% `engine/` line coverage (`pytest --cov=engine -q`) |
+| Lint & types | All new + touched files: `ruff check` clean, `ruff format --check` clean. Repo-wide debt in untouched modules is tracked in §12 |
+| Push | `origin/main` — see §9 |
+
+_(Earlier sessions populated above during Phase 0.)_
 
 ---
 
 ## 11. NEXT SESSION ACTIONS
 
-1. 1.5 — LLM provider registry (`engine/llm/providers.yaml`)
-2. 1.6 — LLM router + quota (`engine/llm/router.py`, `engine/llm/quota.py`)
-3. 1.7 — LLM client + fence stripping + quota integration
+1. 1.1 — Envelope + ATS schema (`engine/schemas/`)
+2. 1.2 — SOP schema
+3. 1.3 — Research proposal schema
+4. 1.4 — Prompt templates v1 (`engine/prompts/v1_*.md`)
+
+> Dependency note for Phase 11: `engine/credits/ledger.py` does not exist
+> yet, so `handle_webhook()` records Paddle top-ups with status
+> `ledger_pending` instead of crediting the balance. Acceptable until
+> Phase 11 wires the ledger in (`topup_from_paddle`).
 
 ---
 
@@ -330,8 +350,9 @@ _(Populated at the end of each session.)_
 | Render cold starts during keep-alive gaps | User-perceived latency | Two-layer keep-alive; add third layer if needed |
 | Supabase free tier 7-day inactivity pause | Platform unusable | Keep-alive cron also pings Supabase |
 | LLM provider rate limits | Task failure | Multi-provider failover chain |
-| Stripe live keys not configured | No purchases possible | Defer until launch; use test mode |
+| Paddle live keys not configured | No purchases possible | Defer until launch; use sandbox mode |
 | Vercel free tier non-commercial | Legal issue if monetized | Document; upgrade when revenue starts |
 | Master prompt header says 98 tasks, catalog lists 88 | Progress denominator confusion | state.json + catalog agree on 88; use 88 |
 | Provider/infra credentials are REPLACE_ME placeholders | Network-success paths untested | Insert real keys during launch prep |
+| Pre-existing ruff/mypy debt in modules untouched this run (api.py, execute_step.py, retry.py, state_manager.py, test_execute_step.py) | Repo-wide lint/type gate not clean | New code passes `ruff check` + `ruff format --check`; sweep alongside Phase 4 hardening |
 
