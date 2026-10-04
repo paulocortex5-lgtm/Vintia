@@ -3,9 +3,9 @@
   "master_prompt_version": "4.0",
   "schema_version": 4,
   "created_at": "2026-10-03T22:15:00Z",
-  "updated_at": "2026-10-03T22:15:00Z",
-  "run_count": 0,
-  "last_completed_task": null,
+  "updated_at": "2026-10-03T23:58:00Z",
+  "run_count": 1,
+  "last_completed_task": "0.9",
   "in_progress_task": null,
   "consecutive_failures": {},
   "deployment": {
@@ -33,7 +33,13 @@
     "isolation": "rls",
     "storage_bucket": "user-workspaces",
     "max_file_size_mb": 10,
-    "allowed_file_types": ["pdf", "docx", "doc", "txt", "md"]
+    "allowed_file_types": [
+      "pdf",
+      "docx",
+      "doc",
+      "txt",
+      "md"
+    ]
   },
   "credits": {
     "enabled": true,
@@ -41,9 +47,21 @@
     "pro_tier_tokens": 100000,
     "business_tier_tokens": 1000000,
     "credit_packs": [
-      {"id": "pack_10k", "tokens": 10000, "price_usd": 5.0},
-      {"id": "pack_50k", "tokens": 50000, "price_usd": 20.0},
-      {"id": "pack_250k", "tokens": 250000, "price_usd": 80.0}
+      {
+        "id": "pack_10k",
+        "tokens": 10000,
+        "price_usd": 5.0
+      },
+      {
+        "id": "pack_50k",
+        "tokens": 50000,
+        "price_usd": 20.0
+      },
+      {
+        "id": "pack_250k",
+        "tokens": 250000,
+        "price_usd": 80.0
+      }
     ],
     "token_costs": {
       "cv_scan": 2000,
@@ -57,120 +75,1365 @@
   "llm_policy": {
     "profile": "free_only",
     "allow_paid": false,
-    "free_providers": ["nvidia_nim","groq","cerebras","sambanova","google_gemini","openrouter","mistral","cloudflare_workers_ai","github_models","together_ai","huggingface","cohere"],
-    "paid_providers": ["openai","anthropic","google_vertex","deepseek","xai","mistral_paid","cohere_paid","together_paid","fireworks","perplexity"],
-    "chain_generation": ["nvidia_nim","groq","cerebras","sambanova","google_gemini","openrouter","mistral","together_ai","cloudflare_workers_ai","github_models","huggingface","cohere"],
-    "chain_classification": ["nvidia_nim","groq","google_gemini","cloudflare_workers_ai","github_models","cerebras","sambanova","openrouter"],
-    "chain_paid_generation": ["openai_gpt4o_mini","anthropic_haiku","google_flash_lite","deepseek_flash","openai_gpt4o","anthropic_sonnet","google_flash","deepseek_pro","openai_gpt41","anthropic_opus","xai_grok","mistral_large","cohere_command_a","together_llama70b","fireworks_llama70b","perplexity_sonar"],
-    "chain_paid_classification": ["openai_gpt4o_mini","anthropic_haiku","google_flash_lite","deepseek_flash","openai_gpt4o"]
+    "free_providers": [
+      "nvidia_nim",
+      "groq",
+      "cerebras",
+      "sambanova",
+      "google_gemini",
+      "openrouter",
+      "mistral",
+      "cloudflare_workers_ai",
+      "github_models",
+      "together_ai",
+      "huggingface",
+      "cohere"
+    ],
+    "paid_providers": [
+      "openai",
+      "anthropic",
+      "google_vertex",
+      "deepseek",
+      "xai",
+      "mistral_paid",
+      "cohere_paid",
+      "together_paid",
+      "fireworks",
+      "perplexity"
+    ],
+    "chain_generation": [
+      "nvidia_nim",
+      "groq",
+      "cerebras",
+      "sambanova",
+      "google_gemini",
+      "openrouter",
+      "mistral",
+      "together_ai",
+      "cloudflare_workers_ai",
+      "github_models",
+      "huggingface",
+      "cohere"
+    ],
+    "chain_classification": [
+      "nvidia_nim",
+      "groq",
+      "google_gemini",
+      "cloudflare_workers_ai",
+      "github_models",
+      "cerebras",
+      "sambanova",
+      "openrouter"
+    ],
+    "chain_paid_generation": [
+      "openai_gpt4o_mini",
+      "anthropic_haiku",
+      "google_flash_lite",
+      "deepseek_flash",
+      "openai_gpt4o",
+      "anthropic_sonnet",
+      "google_flash",
+      "deepseek_pro",
+      "openai_gpt41",
+      "anthropic_opus",
+      "xai_grok",
+      "mistral_large",
+      "cohere_command_a",
+      "together_llama70b",
+      "fireworks_llama70b",
+      "perplexity_sonar"
+    ],
+    "chain_paid_classification": [
+      "openai_gpt4o_mini",
+      "anthropic_haiku",
+      "google_flash_lite",
+      "deepseek_flash",
+      "openai_gpt4o"
+    ]
   },
   "llm_usage": {
     "date": "2026-10-03",
-    "nvidia_nim": {"calls": 0, "rpd_limit": 1000},
-    "groq": {"calls": 0, "rpd_limit": 1000},
-    "cerebras": {"calls": 0, "rpd_limit": 14400},
-    "sambanova": {"calls": 0, "rpd_limit": 20},
-    "google_gemini": {"calls": 0, "rpd_limit": 1500},
-    "openrouter": {"calls": 0, "rpd_limit": 50},
-    "mistral": {"calls": 0, "rpd_limit": 1000},
-    "cloudflare_workers_ai": {"calls": 0, "rpd_limit": 150},
-    "github_models": {"calls": 0, "rpd_limit": 150},
-    "together_ai": {"calls": 0, "rpd_limit": 500},
-    "huggingface": {"calls": 0, "rpd_limit": 100},
-    "cohere": {"calls": 0, "rpd_limit": 33}
+    "nvidia_nim": {
+      "calls": 0,
+      "rpd_limit": 1000
+    },
+    "groq": {
+      "calls": 0,
+      "rpd_limit": 1000
+    },
+    "cerebras": {
+      "calls": 0,
+      "rpd_limit": 14400
+    },
+    "sambanova": {
+      "calls": 0,
+      "rpd_limit": 20
+    },
+    "google_gemini": {
+      "calls": 0,
+      "rpd_limit": 1500
+    },
+    "openrouter": {
+      "calls": 0,
+      "rpd_limit": 50
+    },
+    "mistral": {
+      "calls": 0,
+      "rpd_limit": 1000
+    },
+    "cloudflare_workers_ai": {
+      "calls": 0,
+      "rpd_limit": 150
+    },
+    "github_models": {
+      "calls": 0,
+      "rpd_limit": 150
+    },
+    "together_ai": {
+      "calls": 0,
+      "rpd_limit": 500
+    },
+    "huggingface": {
+      "calls": 0,
+      "rpd_limit": 100
+    },
+    "cohere": {
+      "calls": 0,
+      "rpd_limit": 33
+    }
   },
   "tasks": {
-    "0.1": {"name": "Init repo structure", "phase": 0, "status": "pending", "depends_on": [], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "0.2": {"name": "Create vantia-state orphan branch", "phase": 0, "status": "pending", "depends_on": ["0.1"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "0.3": {"name": "Write state seed + state_manager", "phase": 0, "status": "pending", "depends_on": ["0.1"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "0.4": {"name": "Add GitHub Actions workflows", "phase": 0, "status": "pending", "depends_on": ["0.2","0.3"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "0.5": {"name": "Idempotency + hash chain + locking", "phase": 0, "status": "pending", "depends_on": ["0.3"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "0.6": {"name": "Logging + cost tracker + errors", "phase": 0, "status": "pending", "depends_on": ["0.3"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "0.7": {"name": "Supabase integration", "phase": 0, "status": "pending", "depends_on": ["0.3"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "0.8": {"name": "FastAPI /health + self-ping keep-alive", "phase": 0, "status": "pending", "depends_on": ["0.6"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "0.9": {"name": "Keep-alive GitHub Actions workflow", "phase": 0, "status": "pending", "depends_on": ["0.4","0.8"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "1.1": {"name": "Envelope + ATS schema", "phase": 1, "status": "pending", "depends_on": ["0.5"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "1.2": {"name": "SOP schema", "phase": 1, "status": "pending", "depends_on": ["1.1"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "1.3": {"name": "Research proposal schema", "phase": 1, "status": "pending", "depends_on": ["1.1"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "1.4": {"name": "Prompt templates v1", "phase": 1, "status": "pending", "depends_on": ["1.1","1.2","1.3"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "1.5": {"name": "LLM provider registry (providers.yaml)", "phase": 1, "status": "pending", "depends_on": ["0.6"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "1.6": {"name": "LLM router + multi-provider failover", "phase": 1, "status": "pending", "depends_on": ["1.5","0.7"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "1.7": {"name": "LLM client + fence stripper + quota", "phase": 1, "status": "pending", "depends_on": ["1.6"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "2.1": {"name": "Fetch base + robots.txt + rate limit", "phase": 2, "status": "pending", "depends_on": ["0.6"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "2.2": {"name": "Portal adapters (W/G/L)", "phase": 2, "status": "pending", "depends_on": ["2.1"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "2.3": {"name": "Visa register fetchers (UK/DE/AU)", "phase": 2, "status": "pending", "depends_on": ["2.1"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "2.4": {"name": "Credential equivalence lookup", "phase": 2, "status": "pending", "depends_on": ["2.1"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "2.5": {"name": "Fraud filter (domain/fee/middleman)", "phase": 2, "status": "pending", "depends_on": ["2.1"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "2.6": {"name": "Injection + PII redactor", "phase": 2, "status": "pending", "depends_on": ["1.7"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "2.7": {"name": "ATS resume generator", "phase": 2, "status": "pending", "depends_on": ["1.7","2.2","2.4"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "2.8": {"name": "pipeline.py: run_job_pipeline", "phase": 2, "status": "pending", "depends_on": ["2.3","2.5","2.7"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "2.9": {"name": "E2E job pipeline test", "phase": 2, "status": "pending", "depends_on": ["2.8"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "3.1": {"name": "Scholarship database (5 programs)", "phase": 3, "status": "pending", "depends_on": ["0.6"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "3.2": {"name": "SOP generator", "phase": 3, "status": "pending", "depends_on": ["1.7","3.1"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "3.3": {"name": "Research proposal generator", "phase": 3, "status": "pending", "depends_on": ["1.7","3.1"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "3.4": {"name": "Academic credential mapper", "phase": 3, "status": "pending", "depends_on": ["2.4"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "3.5": {"name": "Application window tracker", "phase": 3, "status": "pending", "depends_on": ["3.1"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "3.6": {"name": "pipeline.py: run_scholarship_pipeline", "phase": 3, "status": "pending", "depends_on": ["3.2","3.3","3.4","3.5"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "3.7": {"name": "E2E scholarship pipeline test", "phase": 3, "status": "pending", "depends_on": ["3.6"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "4.1": {"name": "Domain verification (DNS + CNAME)", "phase": 4, "status": "pending", "depends_on": ["2.5"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "4.2": {"name": "Idempotency registry persistence", "phase": 4, "status": "pending", "depends_on": ["0.5","0.7"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "4.3": {"name": "Cross-run SHA-256 hash chain", "phase": 4, "status": "pending", "depends_on": ["0.5","0.7"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "4.4": {"name": "Circuit breaker + GitHub issue", "phase": 4, "status": "pending", "depends_on": ["0.6","0.7"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "4.5": {"name": "Supabase schema migration + RLS", "phase": 4, "status": "pending", "depends_on": ["0.7"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "5.1": {"name": "CLI: apply/status/resume/verify/reset", "phase": 5, "status": "pending", "depends_on": ["2.9","3.7"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "5.2": {"name": "Golden-file CLI tests", "phase": 5, "status": "pending", "depends_on": ["5.1"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "5.3": {"name": "Web UI skeleton (Next.js)", "phase": 5, "status": "pending", "depends_on": ["5.1"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "5.4": {"name": "SEO: schema.org + sitemap", "phase": 5, "status": "pending", "depends_on": ["5.3"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "5.5": {"name": "SEO landing pages (6)", "phase": 5, "status": "pending", "depends_on": ["5.4"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "5.6": {"name": "Waitlist + double opt-in", "phase": 5, "status": "pending", "depends_on": ["5.3"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "6.1": {"name": "Structured logging (run_id, hashes)", "phase": 6, "status": "pending", "depends_on": ["0.6"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "6.2": {"name": "Public status page", "phase": 6, "status": "pending", "depends_on": ["5.3","6.1"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "6.3": {"name": "Docker + reproducibility", "phase": 6, "status": "pending", "depends_on": ["0.1"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "6.4": {"name": "Render deployment config (render.yaml)", "phase": 6, "status": "pending", "depends_on": ["0.8"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "6.5": {"name": "Vercel deployment config", "phase": 6, "status": "pending", "depends_on": ["5.3"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "6.6": {"name": "Supabase setup guide + SQL migration", "phase": 6, "status": "pending", "depends_on": ["4.5"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "6.7": {"name": "Keep-alive documentation", "phase": 6, "status": "pending", "depends_on": ["0.9","0.8"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "7.1": {"name": "Acceptance demo (full E2E)", "phase": 7, "status": "pending", "depends_on": ["5.2","6.2","6.3","6.4","6.5"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "7.2": {"name": "Multi-provider failover E2E test", "phase": 7, "status": "pending", "depends_on": ["1.7"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "7.3": {"name": "Paid model switching E2E test", "phase": 7, "status": "pending", "depends_on": ["1.7"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "8.1": {"name": "Supabase Auth integration", "phase": 8, "status": "pending", "depends_on": ["0.7"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "8.2": {"name": "User profile + workspace tables", "phase": 8, "status": "pending", "depends_on": ["8.1","4.5"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "8.3": {"name": "Workspace RLS policies + JWT hook", "phase": 8, "status": "pending", "depends_on": ["8.2"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "8.4": {"name": "Private file storage (Supabase Storage)", "phase": 8, "status": "pending", "depends_on": ["8.3"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "8.5": {"name": "Workspace isolation E2E test", "phase": 8, "status": "pending", "depends_on": ["8.4"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "9.1": {"name": "Resume parser (PDF/DOCX extraction)", "phase": 9, "status": "pending", "depends_on": ["8.4"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "9.2": {"name": "ATS scoring engine (12-point)", "phase": 9, "status": "pending", "depends_on": ["9.1"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "9.3": {"name": "Keyword matcher + gap analysis", "phase": 9, "status": "pending", "depends_on": ["9.2"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "9.4": {"name": "ATS score schema + API", "phase": 9, "status": "pending", "depends_on": ["9.3"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "9.5": {"name": "ATS scan pipeline integration", "phase": 9, "status": "pending", "depends_on": ["9.4","8.5"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "9.6": {"name": "ATS scan E2E test", "phase": 9, "status": "pending", "depends_on": ["9.5"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "10.1": {"name": "CV improvement prompt + schema", "phase": 10, "status": "pending", "depends_on": ["1.7","9.4"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "10.2": {"name": "CV improver engine", "phase": 10, "status": "pending", "depends_on": ["10.1"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "10.3": {"name": "Cover letter prompt + schema", "phase": 10, "status": "pending", "depends_on": ["1.7","9.4"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "10.4": {"name": "Cover letter generator", "phase": 10, "status": "pending", "depends_on": ["10.3"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "10.5": {"name": "CV improvement E2E test", "phase": 10, "status": "pending", "depends_on": ["10.2"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "10.6": {"name": "Cover letter E2E test", "phase": 10, "status": "pending", "depends_on": ["10.4"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "11.1": {"name": "Credit ledger + balance tables", "phase": 11, "status": "pending", "depends_on": ["8.2"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "11.2": {"name": "Token metering middleware", "phase": 11, "status": "pending", "depends_on": ["11.1","1.7"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "11.3": {"name": "Tier definitions + enforcement", "phase": 11, "status": "pending", "depends_on": ["11.1"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "11.4": {"name": "Credit deduction on task completion", "phase": 11, "status": "pending", "depends_on": ["11.2","11.3"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "11.5": {"name": "Credit balance API + UI data", "phase": 11, "status": "pending", "depends_on": ["11.4"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "11.6": {"name": "Credit system E2E test", "phase": 11, "status": "pending", "depends_on": ["11.5"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "12.1": {"name": "Stripe account + product setup", "phase": 12, "status": "pending", "depends_on": ["11.5"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "12.2": {"name": "Stripe Checkout session endpoint", "phase": 12, "status": "pending", "depends_on": ["12.1"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "12.3": {"name": "Stripe webhook handler", "phase": 12, "status": "pending", "depends_on": ["12.2"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "12.4": {"name": "Credit top-up logic + idempotency", "phase": 12, "status": "pending", "depends_on": ["12.3"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "12.5": {"name": "Credit purchase UI", "phase": 12, "status": "pending", "depends_on": ["12.4","5.3"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "12.6": {"name": "Stripe webhook E2E test", "phase": 12, "status": "pending", "depends_on": ["12.5"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "13.1": {"name": "Workspace dashboard UI", "phase": 13, "status": "pending", "depends_on": ["8.5","5.3"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "13.2": {"name": "ATS scan UI (upload + score view)", "phase": 13, "status": "pending", "depends_on": ["9.6","13.1"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "13.3": {"name": "CV improvement UI", "phase": 13, "status": "pending", "depends_on": ["10.5","13.1"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "13.4": {"name": "Cover letter UI", "phase": 13, "status": "pending", "depends_on": ["10.6","13.1"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "13.5": {"name": "Credits dashboard UI", "phase": 13, "status": "pending", "depends_on": ["11.6","13.1"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null},
-    "13.6": {"name": "Full user journey E2E test", "phase": 13, "status": "pending", "depends_on": ["13.2","13.3","13.4","13.5"], "artifacts": [], "attempts": 0, "commit_sha": null, "started_at": null, "completed_at": null}
+    "0.1": {
+      "name": "Init repo structure",
+      "phase": 0,
+      "status": "complete",
+      "depends_on": [],
+      "artifacts": [
+        "pyproject.toml",
+        "requirements.txt",
+        "requirements-dev.txt",
+        ".gitignore",
+        ".gitattributes",
+        ".dockerignore",
+        ".env.example",
+        "README.md",
+        "LICENSE",
+        "CHANGELOG.md",
+        "Dockerfile",
+        "bootstrap.sh"
+      ],
+      "attempts": 1,
+      "commit_sha": "4c8450408f5db367527633eb360d09712ec8e1c4",
+      "started_at": "2026-10-03T23:00:00Z",
+      "completed_at": "2026-10-03T23:58:00Z"
+    },
+    "0.2": {
+      "name": "Create vantia-state orphan branch",
+      "phase": 0,
+      "status": "complete",
+      "depends_on": [
+        "0.1"
+      ],
+      "artifacts": [
+        ".vantia/state/state.json",
+        ".vantia/artifacts/.gitkeep",
+        ".vantia/run_manifest.json",
+        ".vantia/README.md"
+      ],
+      "attempts": 1,
+      "commit_sha": "aa0f228c094991c84454e5b1f4f957d30101bf9b",
+      "started_at": "2026-10-03T23:00:00Z",
+      "completed_at": "2026-10-03T23:58:00Z"
+    },
+    "0.3": {
+      "name": "Write state seed + state_manager",
+      "phase": 0,
+      "status": "complete",
+      "depends_on": [
+        "0.1"
+      ],
+      "artifacts": [
+        "engine/seed/state.json",
+        "engine/state_manager.py",
+        "engine/locking.py"
+      ],
+      "attempts": 1,
+      "commit_sha": "4c8450408f5db367527633eb360d09712ec8e1c4",
+      "started_at": "2026-10-03T23:00:00Z",
+      "completed_at": "2026-10-03T23:58:00Z"
+    },
+    "0.4": {
+      "name": "Add GitHub Actions workflows",
+      "phase": 0,
+      "status": "complete",
+      "depends_on": [
+        "0.2",
+        "0.3"
+      ],
+      "artifacts": [
+        ".github/workflows/vantia.yml",
+        ".github/workflows/ci.yml",
+        ".github/workflows/keep-alive.yml",
+        "docs/RUNBOOK.md"
+      ],
+      "attempts": 1,
+      "commit_sha": "4c8450408f5db367527633eb360d09712ec8e1c4",
+      "started_at": "2026-10-03T23:00:00Z",
+      "completed_at": "2026-10-03T23:58:00Z"
+    },
+    "0.5": {
+      "name": "Idempotency + hash chain + locking",
+      "phase": 0,
+      "status": "complete",
+      "depends_on": [
+        "0.3"
+      ],
+      "artifacts": [
+        "engine/idempotency.py",
+        "engine/hash_chain.py"
+      ],
+      "attempts": 1,
+      "commit_sha": "4c8450408f5db367527633eb360d09712ec8e1c4",
+      "started_at": "2026-10-03T23:00:00Z",
+      "completed_at": "2026-10-03T23:58:00Z"
+    },
+    "0.6": {
+      "name": "Logging + cost tracker + errors",
+      "phase": 0,
+      "status": "complete",
+      "depends_on": [
+        "0.3"
+      ],
+      "artifacts": [
+        "engine/logging_config.py",
+        "engine/cost_tracker.py",
+        "engine/errors.py",
+        "engine/retry.py"
+      ],
+      "attempts": 1,
+      "commit_sha": "4c8450408f5db367527633eb360d09712ec8e1c4",
+      "started_at": "2026-10-03T23:00:00Z",
+      "completed_at": "2026-10-03T23:58:00Z"
+    },
+    "0.7": {
+      "name": "Supabase integration",
+      "phase": 0,
+      "status": "complete",
+      "depends_on": [
+        "0.3"
+      ],
+      "artifacts": [
+        "engine/persistence/supabase_client.py",
+        "engine/persistence/fallback.py"
+      ],
+      "attempts": 1,
+      "commit_sha": "4c8450408f5db367527633eb360d09712ec8e1c4",
+      "started_at": "2026-10-03T23:00:00Z",
+      "completed_at": "2026-10-03T23:58:00Z"
+    },
+    "0.8": {
+      "name": "FastAPI /health + self-ping keep-alive",
+      "phase": 0,
+      "status": "complete",
+      "depends_on": [
+        "0.6"
+      ],
+      "artifacts": [
+        "engine/api.py",
+        "engine/keep_alive.py"
+      ],
+      "attempts": 1,
+      "commit_sha": "4c8450408f5db367527633eb360d09712ec8e1c4",
+      "started_at": "2026-10-03T23:00:00Z",
+      "completed_at": "2026-10-03T23:58:00Z"
+    },
+    "0.9": {
+      "name": "Keep-alive GitHub Actions workflow",
+      "phase": 0,
+      "status": "complete",
+      "depends_on": [
+        "0.4",
+        "0.8"
+      ],
+      "artifacts": [
+        ".github/workflows/keep-alive.yml"
+      ],
+      "attempts": 1,
+      "commit_sha": "4c8450408f5db367527633eb360d09712ec8e1c4",
+      "started_at": "2026-10-03T23:00:00Z",
+      "completed_at": "2026-10-03T23:58:00Z"
+    },
+    "1.1": {
+      "name": "Envelope + ATS schema",
+      "phase": 1,
+      "status": "pending",
+      "depends_on": [
+        "0.5"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "1.2": {
+      "name": "SOP schema",
+      "phase": 1,
+      "status": "pending",
+      "depends_on": [
+        "1.1"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "1.3": {
+      "name": "Research proposal schema",
+      "phase": 1,
+      "status": "pending",
+      "depends_on": [
+        "1.1"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "1.4": {
+      "name": "Prompt templates v1",
+      "phase": 1,
+      "status": "pending",
+      "depends_on": [
+        "1.1",
+        "1.2",
+        "1.3"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "1.5": {
+      "name": "LLM provider registry (providers.yaml)",
+      "phase": 1,
+      "status": "pending",
+      "depends_on": [
+        "0.6"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "1.6": {
+      "name": "LLM router + multi-provider failover",
+      "phase": 1,
+      "status": "pending",
+      "depends_on": [
+        "1.5",
+        "0.7"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "1.7": {
+      "name": "LLM client + fence stripper + quota",
+      "phase": 1,
+      "status": "pending",
+      "depends_on": [
+        "1.6"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "2.1": {
+      "name": "Fetch base + robots.txt + rate limit",
+      "phase": 2,
+      "status": "pending",
+      "depends_on": [
+        "0.6"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "2.2": {
+      "name": "Portal adapters (W/G/L)",
+      "phase": 2,
+      "status": "pending",
+      "depends_on": [
+        "2.1"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "2.3": {
+      "name": "Visa register fetchers (UK/DE/AU)",
+      "phase": 2,
+      "status": "pending",
+      "depends_on": [
+        "2.1"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "2.4": {
+      "name": "Credential equivalence lookup",
+      "phase": 2,
+      "status": "pending",
+      "depends_on": [
+        "2.1"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "2.5": {
+      "name": "Fraud filter (domain/fee/middleman)",
+      "phase": 2,
+      "status": "pending",
+      "depends_on": [
+        "2.1"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "2.6": {
+      "name": "Injection + PII redactor",
+      "phase": 2,
+      "status": "pending",
+      "depends_on": [
+        "1.7"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "2.7": {
+      "name": "ATS resume generator",
+      "phase": 2,
+      "status": "pending",
+      "depends_on": [
+        "1.7",
+        "2.2",
+        "2.4"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "2.8": {
+      "name": "pipeline.py: run_job_pipeline",
+      "phase": 2,
+      "status": "pending",
+      "depends_on": [
+        "2.3",
+        "2.5",
+        "2.7"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "2.9": {
+      "name": "E2E job pipeline test",
+      "phase": 2,
+      "status": "pending",
+      "depends_on": [
+        "2.8"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "3.1": {
+      "name": "Scholarship database (5 programs)",
+      "phase": 3,
+      "status": "pending",
+      "depends_on": [
+        "0.6"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "3.2": {
+      "name": "SOP generator",
+      "phase": 3,
+      "status": "pending",
+      "depends_on": [
+        "1.7",
+        "3.1"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "3.3": {
+      "name": "Research proposal generator",
+      "phase": 3,
+      "status": "pending",
+      "depends_on": [
+        "1.7",
+        "3.1"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "3.4": {
+      "name": "Academic credential mapper",
+      "phase": 3,
+      "status": "pending",
+      "depends_on": [
+        "2.4"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "3.5": {
+      "name": "Application window tracker",
+      "phase": 3,
+      "status": "pending",
+      "depends_on": [
+        "3.1"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "3.6": {
+      "name": "pipeline.py: run_scholarship_pipeline",
+      "phase": 3,
+      "status": "pending",
+      "depends_on": [
+        "3.2",
+        "3.3",
+        "3.4",
+        "3.5"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "3.7": {
+      "name": "E2E scholarship pipeline test",
+      "phase": 3,
+      "status": "pending",
+      "depends_on": [
+        "3.6"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "4.1": {
+      "name": "Domain verification (DNS + CNAME)",
+      "phase": 4,
+      "status": "pending",
+      "depends_on": [
+        "2.5"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "4.2": {
+      "name": "Idempotency registry persistence",
+      "phase": 4,
+      "status": "pending",
+      "depends_on": [
+        "0.5",
+        "0.7"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "4.3": {
+      "name": "Cross-run SHA-256 hash chain",
+      "phase": 4,
+      "status": "pending",
+      "depends_on": [
+        "0.5",
+        "0.7"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "4.4": {
+      "name": "Circuit breaker + GitHub issue",
+      "phase": 4,
+      "status": "pending",
+      "depends_on": [
+        "0.6",
+        "0.7"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "4.5": {
+      "name": "Supabase schema migration + RLS",
+      "phase": 4,
+      "status": "pending",
+      "depends_on": [
+        "0.7"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "5.1": {
+      "name": "CLI: apply/status/resume/verify/reset",
+      "phase": 5,
+      "status": "pending",
+      "depends_on": [
+        "2.9",
+        "3.7"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "5.2": {
+      "name": "Golden-file CLI tests",
+      "phase": 5,
+      "status": "pending",
+      "depends_on": [
+        "5.1"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "5.3": {
+      "name": "Web UI skeleton (Next.js)",
+      "phase": 5,
+      "status": "pending",
+      "depends_on": [
+        "5.1"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "5.4": {
+      "name": "SEO: schema.org + sitemap",
+      "phase": 5,
+      "status": "pending",
+      "depends_on": [
+        "5.3"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "5.5": {
+      "name": "SEO landing pages (6)",
+      "phase": 5,
+      "status": "pending",
+      "depends_on": [
+        "5.4"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "5.6": {
+      "name": "Waitlist + double opt-in",
+      "phase": 5,
+      "status": "pending",
+      "depends_on": [
+        "5.3"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "6.1": {
+      "name": "Structured logging (run_id, hashes)",
+      "phase": 6,
+      "status": "pending",
+      "depends_on": [
+        "0.6"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "6.2": {
+      "name": "Public status page",
+      "phase": 6,
+      "status": "pending",
+      "depends_on": [
+        "5.3",
+        "6.1"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "6.3": {
+      "name": "Docker + reproducibility",
+      "phase": 6,
+      "status": "pending",
+      "depends_on": [
+        "0.1"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "6.4": {
+      "name": "Render deployment config (render.yaml)",
+      "phase": 6,
+      "status": "pending",
+      "depends_on": [
+        "0.8"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "6.5": {
+      "name": "Vercel deployment config",
+      "phase": 6,
+      "status": "pending",
+      "depends_on": [
+        "5.3"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "6.6": {
+      "name": "Supabase setup guide + SQL migration",
+      "phase": 6,
+      "status": "pending",
+      "depends_on": [
+        "4.5"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "6.7": {
+      "name": "Keep-alive documentation",
+      "phase": 6,
+      "status": "pending",
+      "depends_on": [
+        "0.9",
+        "0.8"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "7.1": {
+      "name": "Acceptance demo (full E2E)",
+      "phase": 7,
+      "status": "pending",
+      "depends_on": [
+        "5.2",
+        "6.2",
+        "6.3",
+        "6.4",
+        "6.5"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "7.2": {
+      "name": "Multi-provider failover E2E test",
+      "phase": 7,
+      "status": "pending",
+      "depends_on": [
+        "1.7"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "7.3": {
+      "name": "Paid model switching E2E test",
+      "phase": 7,
+      "status": "pending",
+      "depends_on": [
+        "1.7"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "8.1": {
+      "name": "Supabase Auth integration",
+      "phase": 8,
+      "status": "pending",
+      "depends_on": [
+        "0.7"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "8.2": {
+      "name": "User profile + workspace tables",
+      "phase": 8,
+      "status": "pending",
+      "depends_on": [
+        "8.1",
+        "4.5"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "8.3": {
+      "name": "Workspace RLS policies + JWT hook",
+      "phase": 8,
+      "status": "pending",
+      "depends_on": [
+        "8.2"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "8.4": {
+      "name": "Private file storage (Supabase Storage)",
+      "phase": 8,
+      "status": "pending",
+      "depends_on": [
+        "8.3"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "8.5": {
+      "name": "Workspace isolation E2E test",
+      "phase": 8,
+      "status": "pending",
+      "depends_on": [
+        "8.4"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "9.1": {
+      "name": "Resume parser (PDF/DOCX extraction)",
+      "phase": 9,
+      "status": "pending",
+      "depends_on": [
+        "8.4"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "9.2": {
+      "name": "ATS scoring engine (12-point)",
+      "phase": 9,
+      "status": "pending",
+      "depends_on": [
+        "9.1"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "9.3": {
+      "name": "Keyword matcher + gap analysis",
+      "phase": 9,
+      "status": "pending",
+      "depends_on": [
+        "9.2"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "9.4": {
+      "name": "ATS score schema + API",
+      "phase": 9,
+      "status": "pending",
+      "depends_on": [
+        "9.3"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "9.5": {
+      "name": "ATS scan pipeline integration",
+      "phase": 9,
+      "status": "pending",
+      "depends_on": [
+        "9.4",
+        "8.5"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "9.6": {
+      "name": "ATS scan E2E test",
+      "phase": 9,
+      "status": "pending",
+      "depends_on": [
+        "9.5"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "10.1": {
+      "name": "CV improvement prompt + schema",
+      "phase": 10,
+      "status": "pending",
+      "depends_on": [
+        "1.7",
+        "9.4"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "10.2": {
+      "name": "CV improver engine",
+      "phase": 10,
+      "status": "pending",
+      "depends_on": [
+        "10.1"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "10.3": {
+      "name": "Cover letter prompt + schema",
+      "phase": 10,
+      "status": "pending",
+      "depends_on": [
+        "1.7",
+        "9.4"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "10.4": {
+      "name": "Cover letter generator",
+      "phase": 10,
+      "status": "pending",
+      "depends_on": [
+        "10.3"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "10.5": {
+      "name": "CV improvement E2E test",
+      "phase": 10,
+      "status": "pending",
+      "depends_on": [
+        "10.2"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "10.6": {
+      "name": "Cover letter E2E test",
+      "phase": 10,
+      "status": "pending",
+      "depends_on": [
+        "10.4"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "11.1": {
+      "name": "Credit ledger + balance tables",
+      "phase": 11,
+      "status": "pending",
+      "depends_on": [
+        "8.2"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "11.2": {
+      "name": "Token metering middleware",
+      "phase": 11,
+      "status": "pending",
+      "depends_on": [
+        "11.1",
+        "1.7"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "11.3": {
+      "name": "Tier definitions + enforcement",
+      "phase": 11,
+      "status": "pending",
+      "depends_on": [
+        "11.1"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "11.4": {
+      "name": "Credit deduction on task completion",
+      "phase": 11,
+      "status": "pending",
+      "depends_on": [
+        "11.2",
+        "11.3"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "11.5": {
+      "name": "Credit balance API + UI data",
+      "phase": 11,
+      "status": "pending",
+      "depends_on": [
+        "11.4"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "11.6": {
+      "name": "Credit system E2E test",
+      "phase": 11,
+      "status": "pending",
+      "depends_on": [
+        "11.5"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "12.1": {
+      "name": "Stripe account + product setup",
+      "phase": 12,
+      "status": "pending",
+      "depends_on": [
+        "11.5"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "12.2": {
+      "name": "Stripe Checkout session endpoint",
+      "phase": 12,
+      "status": "pending",
+      "depends_on": [
+        "12.1"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "12.3": {
+      "name": "Stripe webhook handler",
+      "phase": 12,
+      "status": "pending",
+      "depends_on": [
+        "12.2"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "12.4": {
+      "name": "Credit top-up logic + idempotency",
+      "phase": 12,
+      "status": "pending",
+      "depends_on": [
+        "12.3"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "12.5": {
+      "name": "Credit purchase UI",
+      "phase": 12,
+      "status": "pending",
+      "depends_on": [
+        "12.4",
+        "5.3"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "12.6": {
+      "name": "Stripe webhook E2E test",
+      "phase": 12,
+      "status": "pending",
+      "depends_on": [
+        "12.5"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "13.1": {
+      "name": "Workspace dashboard UI",
+      "phase": 13,
+      "status": "pending",
+      "depends_on": [
+        "8.5",
+        "5.3"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "13.2": {
+      "name": "ATS scan UI (upload + score view)",
+      "phase": 13,
+      "status": "pending",
+      "depends_on": [
+        "9.6",
+        "13.1"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "13.3": {
+      "name": "CV improvement UI",
+      "phase": 13,
+      "status": "pending",
+      "depends_on": [
+        "10.5",
+        "13.1"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "13.4": {
+      "name": "Cover letter UI",
+      "phase": 13,
+      "status": "pending",
+      "depends_on": [
+        "10.6",
+        "13.1"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "13.5": {
+      "name": "Credits dashboard UI",
+      "phase": 13,
+      "status": "pending",
+      "depends_on": [
+        "11.6",
+        "13.1"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    },
+    "13.6": {
+      "name": "Full user journey E2E test",
+      "phase": 13,
+      "status": "pending",
+      "depends_on": [
+        "13.2",
+        "13.3",
+        "13.4",
+        "13.5"
+      ],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": null,
+      "started_at": null,
+      "completed_at": null
+    }
   },
   "blocked": [],
-  "cost_summary": {"total_usd": 0.0, "by_run": {}, "by_task": {}},
+  "cost_summary": {
+    "total_usd": 0.0,
+    "by_run": {},
+    "by_task": {}
+  },
   "run_history": [],
-  "notes": "Seed v4.0. 98 tasks across 14 phases. Free-tier only."
+  "notes": "Seed v4.0. 98 tasks across 14 phases. Free-tier only. Session 1 closeout: Phase 0 verified and committed. 96/96 unit tests pass, 97% engine coverage. 0.2 vantia-state commit is aa0f228; other Phase 0 tasks commit to main 4c84504."
 }
