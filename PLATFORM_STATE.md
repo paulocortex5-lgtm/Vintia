@@ -1,9 +1,9 @@
 # VANTIA — PLATFORM STATE
 
-**Last updated:** 2026-10-04T10:37:28Z
+**Last updated:** 2026-10-04T11:43:44Z
 **Master prompt:** v6.0
-**Session count:** 4
-**Overall readiness:** 18%
+**Session count:** 5
+**Overall readiness:** 19%
 
 ---
 
@@ -11,10 +11,10 @@
 
 | Metric | Value |
 |---|---|
-| Tasks complete | 16/88 |
+| Tasks complete | 17/88 |
 | Tasks in progress | 0 |
 | Tasks blocked | 0 |
-| Tasks pending | 72 |
+| Tasks pending | 71 |
 | Audit failures | 0 |
 | Live previews passing | 0 |
 | E2E tests passing | 0/14 |
@@ -33,7 +33,7 @@
 |---|---|---|---|---|---|---|
 | 0 | Scaffold | 9/9 | 0 | 0 | 0 | 100% |
 | 1 | Schemas + Prompts + LLM Router | 7/7 | 0 | 0 | 0 | 100% |
-| 2 | Jobs Trail | 0/9 | 0 | 0 | 9 | 0% |
+| 2 | Jobs Trail | 1/9 | 0 | 0 | 8 | 11% |
 | 3 | Scholarship Engine | 0/7 | 0 | 0 | 7 | 0% |
 | 4 | Verification & Hardening | 0/5 | 0 | 0 | 5 | 0% |
 | 5 | Product Surface | 0/6 | 0 | 0 | 6 | 0% |
@@ -80,7 +80,7 @@
 
 | ID | Name | Status | Commit | Files | Tested | Previewed | Verified |
 |---|---|---|---|---|---|---|---|
-| 2.1 | Fetch base + robots.txt + rate limit | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
+| 2.1 | Fetch base + robots.txt + rate limit | ✅ Complete | `902c115` | engine/sources/fetch.py, engine/sources/robots.py, engine/sources/ratelimit.py, engine/sources/__init__.py, engine/errors.py (TransientFetchError), tests/test_sources.py, .env.example, bootstrap.sh | ✅ | ❌ | ✅ |
 | 2.2 | Portal adapters (W/G/L) | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
 | 2.3 | Visa register fetchers (UK/DE/AU) | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
 | 2.4 | Credential equivalence lookup | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
@@ -279,8 +279,8 @@
 | User onboarding | tests/e2e/test_user_onboarding.py | — | ⏳ | — (not created) |
 | Full user journey | tests/e2e/test_full_journey.py | — | ⏳ | — (not created) |
 
-> Unit tests (separate from E2E): 18 files / 172 passing / 91% engine
-> line coverage (1422 statements, 123 missed). Verified via
+> Unit tests (separate from E2E): 19 files / 190 passing / 91% engine
+> line coverage (1655 statements, 142 missed). Verified via
 > `python -m pytest --cov=engine -q`.
 
 ---
@@ -315,6 +315,9 @@ Tasks marked complete in `state.json` but failing verification:
 | `6c3458e` | state | vantia(state): Phase-12 catalogue names Stripe -> Paddle | — | ⏳ blocked |
 | `001b78e` | 1.1–1.4 | vantia(1.1,1.2,1.3,1.4): schemas + prompt templates v1 (run 3) | ⏳ blocked | — |
 | `98ffe3d` | state | vantia(state): 1.1-1.4 complete (run 3, 001b78e) | — | ⏳ blocked |
+| `0c95ef6` | docs | vantia(docs): record run-3 Phase 1 closeout (1.1-1.4) | ⏳ blocked | — |
+| `902c115` | 2.1 | vantia(2.1): fetch base + robots.txt + rate limiting (run 4) | ⏳ blocked | — |
+| `afd352c` | state | vantia(state): 2.1 complete (run 4, 902c115) | — | ⏳ blocked |
 
 > ⏳ **Push blocked this session (and session 3).** The environment's
 > cached GitHub credential is `denisprosperous`, an account without
@@ -357,16 +360,28 @@ Tasks marked complete in `state.json` but failing verification:
 | State | run 3 recorded via `VantiaState` (lock → begin/complete → end_run); `run_manifest.json` backfilled with runs 2 + 3 (session 3 had left it at run 1 only) |
 | Push | ❌ still blocked (403 — cached credential `denisprosperous`, no access to `paulocortex5-lgtm/Vintia`); commits `001b78e` (main) and `98ffe3d` (vantia-state) are ready locally — see §9 |
 
+### Session 5 — 2026-10-04 — Phase 2 start: fetch base (task 2.1)
+
+| Item | Outcome |
+|---|---|
+| 2.1 Fetch base | New `engine/sources/` package: `Fetcher.fetch()` pipeline = scheme allow-list → robots gate → per-domain rate limit (before **every** attempt incl. retries) → GET with exponential backoff on 5xx/timeout (`TransientFetchError`, added to the §14 error taxonomy) → size cap; 4xx and upstream 429 are terminal. `FetchResult` carries url/final_url/status/content/content_type/fetched_at/elapsed_ms |
+| robots.txt | `RobotsCache`: one fetch per origin (TTL 6 h), documented status policy — 200 parse/enforce, 401/403 disallow-all, 404/410 allow-all, 5xx/429/network fail-open with a warning; robots.txt itself is fetched through the rate limiter, never through the gate |
+| Rate limit | `DomainRateLimiter`: min-interval spacing + per-domain daily budget (UTC rollover), slot reserved under lock / slept outside it, `RateLimitError` with `resets_at` context when the budget is gone. All knobs env-configurable (`VANTIA_FETCH_*`, documented in `.env.example`) |
+| Tests | +18 in `tests/test_sources.py` — 19 files / 190 passing / 91% coverage (1655 statements). Zero network I/O (`httpx.MockTransport`) and zero real sleeps (fake clock) |
+| Tooling | `ruff check` + `ruff format --check` + `mypy` clean on all new/touched files; `bash -n bootstrap.sh` OK. Known repo-wide ruff debt unchanged (§12) |
+| Follow-ups | HTTP response cache for `.vantia/cache/fetches` deferred (candidate for 2.8); portal-specific parsing lands in 2.2 |
+| Push | ❌ still blocked (403, `denisprosperous`); `902c115` (main) + `afd352c` (vantia-state) ready locally — see §9 |
+
 _(Earlier sessions populated above during Phase 0.)_
 
 ---
 
 ## 11. NEXT SESSION ACTIONS
 
-1. 2.1 — Fetch base + robots.txt + rate limit (`engine/sources/`)
-2. 2.2 — Portal adapters (W/G/L)
-3. 2.3 — Visa register fetchers (UK/DE/AU)
-4. 2.4 — Credential equivalence lookup
+1. 2.2 — Portal adapters (W/G/L) — build on `engine/sources.Fetcher`
+2. 2.3 — Visa register fetchers (UK/DE/AU)
+3. 2.4 — Credential equivalence lookup
+4. 2.5 — Fraud filter (domain/fee/middleman)
 
 > Dependency note for Phase 11: `engine/credits/ledger.py` does not exist
 > yet, so `handle_webhook()` records Paddle top-ups with status
