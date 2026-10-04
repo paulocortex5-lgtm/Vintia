@@ -104,4 +104,3 @@ def test_state_manager_exposes_the_lock(tmp_path):
     assert lock.acquire(owner="test")
     assert not VantiaState(state_dir=str(tmp_path / ".vantia" / "state")).lock().acquire()
     lock.release()
-

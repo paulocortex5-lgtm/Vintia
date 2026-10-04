@@ -10,7 +10,6 @@ committed on the ``vantia-state`` branch (§29).
 from __future__ import annotations
 
 import hashlib
-import os
 
 from .json_utils import atomic_write_json, load_json
 from .logging_config import utc_now

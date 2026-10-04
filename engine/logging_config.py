@@ -18,7 +18,7 @@ import logging
 import os
 import sys
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 _RUN_ID: str | None = None
 
@@ -33,7 +33,7 @@ def get_run_id() -> str:
 
 def utc_now() -> str:
     """Current UTC time as ``YYYY-MM-DDTHH:MM:SSZ``."""
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 class JsonLineFormatter(logging.Formatter):
@@ -41,7 +41,7 @@ class JsonLineFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
         entry: dict[str, object] = {
-            "ts": datetime.fromtimestamp(record.created, timezone.utc).isoformat(),
+            "ts": datetime.fromtimestamp(record.created, UTC).isoformat(),
             "level": record.levelname,
             "logger": record.name,
             "run_id": getattr(record, "run_id", None) or _RUN_ID,

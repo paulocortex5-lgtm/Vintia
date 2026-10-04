@@ -12,7 +12,8 @@ from __future__ import annotations
 import logging
 import random
 import time
-from typing import Callable, TypeVar
+from collections.abc import Callable
+from typing import TypeVar
 
 from .errors import CircuitOpenError, VantiaError
 
@@ -42,7 +43,7 @@ def retry_with_backoff(
     for attempt in range(1, attempts + 1):
         try:
             return fn()
-        except retryable as exc:  # noqa: PERF203
+        except retryable as exc:
             last = exc
             if attempt >= attempts:
                 break

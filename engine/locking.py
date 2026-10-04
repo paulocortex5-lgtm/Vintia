@@ -37,9 +37,7 @@ class StateLock:
     def _is_stale(self, holder: dict) -> bool:
         return (time.time() - float(holder.get("acquired_at", 0))) >= self.stale_after_sec
 
-    def acquire(
-        self, owner: str = "", run_id: str | None = None, *, steal: bool = False
-    ) -> bool:
+    def acquire(self, owner: str = "", run_id: str | None = None, *, steal: bool = False) -> bool:
         """Try to take the lock. Returns True on success.
 
         With ``steal=True`` a stale lock is removed before acquiring.

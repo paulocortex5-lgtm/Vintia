@@ -128,4 +128,3 @@ def test_sha256_hex_is_stable():
 
 def test_missing_chain_file_is_empty(tmp_path):
     assert HashChain(str(tmp_path / "missing.json")).length == 0
-

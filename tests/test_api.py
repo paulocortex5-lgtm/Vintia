@@ -58,4 +58,3 @@ def test_self_ping_starts_a_daemon_and_is_idempotent(monkeypatch):
     assert thread.name == "vantia-self-ping"
     assert keep_alive.start_self_ping() is thread
     monkeypatch.setattr(keep_alive, "_thread", None)
-

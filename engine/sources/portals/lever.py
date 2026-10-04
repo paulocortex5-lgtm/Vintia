@@ -16,7 +16,15 @@ from urllib.parse import urlsplit
 
 from ...errors import FetchError
 from ..fetch import FetchResult
-from .base import JobListing, PortalAdapter, epoch_ms_date, strip_html
+from .base import (
+    JobListing,
+    PortalAdapter,
+    ensure_active,
+    epoch_ms_date,
+    filter_active,
+    iso_date,
+    strip_html,
+)
 
 API_GLOBAL = "https://api.lever.co/v0/postings"
 API_EU = "https://api.eu.lever.co/v0/postings"
@@ -37,7 +45,7 @@ class LeverAdapter(PortalAdapter):
             raise FetchError(
                 f"unexpected Lever list response for {company}", url=str(result.final_url)
             )
-        return [self._parse(posting, company) for posting in postings[:limit]]
+        return filter_active([self._parse(posting, company) for posting in postings[:limit]])
 
     def load(self, url: str) -> JobListing:
         company, uuid = self._split(url)
@@ -46,7 +54,7 @@ class LeverAdapter(PortalAdapter):
         payload = _json(result)
         if not isinstance(payload, dict):
             raise FetchError(f"unexpected Lever posting response for {url}", url=url)
-        return self._parse(payload, company)
+        return ensure_active(self._parse(payload, company))
 
     # ── internals ──────────────────────────────────────────────────────
     @staticmethod
@@ -74,6 +82,9 @@ class LeverAdapter(PortalAdapter):
             url=posting.get("hostedUrl") or "",
             posted_at=epoch_ms_date(created_ms) if isinstance(created_ms, (int, float)) else None,
             description=strip_html(description),
+            closes_at=iso_date(
+                posting.get("closes_at") or posting.get("deadline") or posting.get("closeDate")
+            ),
             extra={
                 key: str(value)
                 for key, value in (

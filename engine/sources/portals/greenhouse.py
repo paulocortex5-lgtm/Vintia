@@ -17,7 +17,7 @@ from urllib.parse import urlsplit
 
 from ...errors import FetchError
 from ..fetch import FetchResult
-from .base import JobListing, PortalAdapter, iso_date, strip_html
+from .base import JobListing, PortalAdapter, ensure_active, filter_active, iso_date, strip_html
 
 API = "https://boards-api.greenhouse.io/v1/boards"
 
@@ -35,7 +35,7 @@ class GreenhouseAdapter(PortalAdapter):
                 f"unexpected Greenhouse list response for {token}", url=str(result.final_url)
             )
         jobs = payload.get("jobs", [])
-        return [self._parse(job, token) for job in jobs[:limit]]
+        return filter_active([self._parse(job, token) for job in jobs[:limit]])
 
     def load(self, url: str) -> JobListing:
         token, job_id = self._split(url)
@@ -43,7 +43,7 @@ class GreenhouseAdapter(PortalAdapter):
         payload = _json(result)
         if not isinstance(payload, dict):
             raise FetchError(f"unexpected Greenhouse job response for {url}", url=url)
-        return self._parse(payload, token)
+        return ensure_active(self._parse(payload, token))
 
     # ── internals ──────────────────────────────────────────────────────
     @staticmethod
@@ -69,6 +69,9 @@ class GreenhouseAdapter(PortalAdapter):
             url=job.get("absolute_url") or "",
             posted_at=iso_date(job.get("updated_at") or job.get("first_published")),
             description=description,
+            closes_at=iso_date(
+                job.get("closes_at") or job.get("closing_date") or job.get("deadline")
+            ),
         )
 
 

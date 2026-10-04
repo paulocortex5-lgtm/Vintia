@@ -77,6 +77,17 @@ class TransientFetchError(FetchError):
     code = "fetch_transient"
 
 
+class RegisterPending(FetchError):
+    """A sponsor register is legally mandated but not yet published (task 2.3).
+
+    Example: Australia's public register of approved sponsors (Migration
+    Amendment (Combatting Migrant Exploitation) Act 2026) must exist by
+    2026-10-08; callers catch this and skip badging instead of failing.
+    """
+
+    code = "register_pending"
+
+
 class InjectionDetectedError(VantiaError):
     """Prompt-injection classifier flagged the input (§18)."""
 

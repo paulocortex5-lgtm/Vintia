@@ -130,7 +130,9 @@ def test_run_bookkeeping(tmp_path):
     entry = state.start_run()
     assert entry["run"] == 1
     assert entry["started_at"]
-    record = state.end_run(1, usd=0.0042, tokens_in=100, tokens_out=50, tasks=["0.1"], notes="phase 0")
+    record = state.end_run(
+        1, usd=0.0042, tokens_in=100, tokens_out=50, tasks=["0.1"], notes="phase 0"
+    )
     assert record["run"] == 1
     assert record["usd"] == 0.0042
     assert record["tokens"] == {"in": 100, "out": 50}

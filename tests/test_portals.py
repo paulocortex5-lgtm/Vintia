@@ -322,3 +322,28 @@ def test_date_helpers_normalise_portal_formats():
     assert iso_date("sometime soon") is None
     assert iso_date(None) is None
     assert epoch_ms_date(1754352000000) == "2025-08-05"
+
+
+# ── active-only policy (session 7) ────────────────────────────────────
+
+
+def test_search_drops_expired_postings_and_load_refuses_them():
+    expired = {**GREENHOUSE_JOB, "closes_at": "2000-01-01"}
+    live = {**GREENHOUSE_JOB, "id": 999, "closes_at": "2999-12-31"}
+
+    adapter = GreenhouseAdapter(build(json_handler({"jobs": [expired, live]})))
+    jobs = adapter.search("vaulttec")
+    assert [job.external_id for job in jobs] == ["999"], "closed postings must be dropped"
+
+    # load() of a closed posting is refused outright
+    closed = GreenhouseAdapter(build(json_handler(expired)))
+    with pytest.raises(FetchError) as excinfo:
+        closed.load("https://job-boards.greenhouse.io/vaulttec/jobs/127817")
+    assert excinfo.value.code == "listing_inactive"
+
+
+def test_is_active_defaults_to_true_without_a_closing_date():
+    listing = GreenhouseAdapter(build(json_handler(GREENHOUSE_LIST))).search("vaulttec")[0]
+    assert listing.closes_at is None
+    assert listing.is_active()
+    assert listing.visa_sponsorship is None  # tag starts unknown — never False

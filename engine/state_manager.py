@@ -21,8 +21,8 @@ from typing import Any
 
 from .errors import StateError, TaskBlockedError
 from .json_utils import atomic_write_json, load_json
-from .logging_config import utc_now
 from .locking import StateLock
+from .logging_config import utc_now
 
 BLOCKED_AFTER_ATTEMPTS = 3
 DEFAULT_STATE_DIR = ".vantia/state"
@@ -96,11 +96,13 @@ class VantiaState:
 
     def save(self, data: dict[str, Any] | None = None) -> dict[str, Any]:
         """Persist state atomically and refresh ``updated_at``."""
-        data = self._data if data is None else data
-        data["updated_at"] = utc_now()
-        atomic_write_json(self.path, data)
-        self._data = data
-        return data
+        payload = data if data is not None else self._data
+        if payload is None:
+            raise StateError("nothing to save: state has not been loaded")
+        payload["updated_at"] = utc_now()
+        atomic_write_json(self.path, payload)
+        self._data = payload
+        return payload
 
     def invalidate(self) -> None:
         """Drop the in-memory cache (call after an external writer)."""
@@ -240,4 +242,3 @@ class VantiaState:
         summary.setdefault("by_run", {})[str(run_id)] = round(float(usd), 8)
         self.save(data)
         return entry
-

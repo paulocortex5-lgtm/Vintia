@@ -61,7 +61,10 @@ def test_registry_treats_a_malformed_file_as_fatal(tmp_path):
     path = str(file)
     file.write_text("{broken", encoding="utf-8")
     registry = IdempotencyRegistry(path)
-    for call in (lambda: registry.is_complete("0.3"), lambda: registry.record_complete("0.3", ["a.py"])):
+    for call in (
+        lambda: registry.is_complete("0.3"),
+        lambda: registry.record_complete("0.3", ["a.py"]),
+    ):
         try:
             call()
             assert False, "expected JSONDecodeError for a corrupt registry"

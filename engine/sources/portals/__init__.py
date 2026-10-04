@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from ...errors import FetchError
 from ..fetch import Fetcher
-from .base import JobListing, PortalAdapter, strip_html
+from .base import JobListing, PortalAdapter, filter_active, strip_html
 from .greenhouse import GreenhouseAdapter
 from .lever import LeverAdapter
 from .workday import WorkdayAdapter
@@ -38,6 +38,7 @@ __all__ = [
     "WorkdayAdapter",
     "adapter_for_url",
     "adapters_for",
+    "filter_active",
     "load_listing",
     "strip_html",
 ]

@@ -14,12 +14,22 @@ def test_empty_ledger_has_zero_totals(tmp_path):
 def test_ledger_roundtrip_and_filtering(tmp_path):
     tracker = CostTracker(str(tmp_path / "costs.jsonl"))
     tracker.log_llm_call(
-        provider="groq", model="llama-3.3-70b",
-        tokens_in=1000, tokens_out=500, usd=0.002, task_id="1.7", run_id="1",
+        provider="groq",
+        model="llama-3.3-70b",
+        tokens_in=1000,
+        tokens_out=500,
+        usd=0.002,
+        task_id="1.7",
+        run_id="1",
     )
     tracker.log_llm_call(
-        provider="nvidia_nim", model="llama-3.3-70b",
-        tokens_in=2000, tokens_out=100, usd=0.001, task_id="1.7", run_id="2",
+        provider="nvidia_nim",
+        model="llama-3.3-70b",
+        tokens_in=2000,
+        tokens_out=100,
+        usd=0.001,
+        task_id="1.7",
+        run_id="2",
     )
     assert tracker.total_usd() == 0.003
     assert tracker.tokens() == (3000, 600)

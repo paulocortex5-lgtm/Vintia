@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 from typing import Any
 
 from .json_utils import atomic_write_json, load_json

@@ -43,9 +43,7 @@ class SupabaseClient:
     def configured(self) -> bool:
         """True only when real (non-placeholder) credentials are set."""
         return (
-            self.url.startswith("http")
-            and bool(self.anon_key)
-            and REPLACE_ME not in self.anon_key
+            self.url.startswith("http") and bool(self.anon_key) and REPLACE_ME not in self.anon_key
         )
 
     def _headers(self, service: bool = False) -> dict[str, str]:
@@ -62,9 +60,7 @@ class SupabaseClient:
         if not self.configured:
             return False
         try:
-            resp = httpx.get(
-                f"{self.url}/rest/v1/", headers=self._headers(), timeout=self.timeout
-            )
+            resp = httpx.get(f"{self.url}/rest/v1/", headers=self._headers(), timeout=self.timeout)
         except httpx.HTTPError:
             return False
         return resp.status_code < 500
@@ -73,8 +69,7 @@ class SupabaseClient:
         """Upsert ``rows`` into ``table``; never raises (STEP K)."""
         if not self.configured:
             LOGGER.warning(
-                "supabase unconfigured; skipping upsert into %s "
-                "(git remains authoritative)",
+                "supabase unconfigured; skipping upsert into %s (git remains authoritative)",
                 table,
             )
             return False
@@ -125,7 +120,9 @@ class SupabaseClient:
             return []
         if resp.status_code >= 400:
             LOGGER.warning(
-                "supabase query %s returned %s: %s", table, resp.status_code,
+                "supabase query %s returned %s: %s",
+                table,
+                resp.status_code,
                 resp.text[:200],
             )
             return []

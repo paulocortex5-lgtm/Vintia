@@ -20,7 +20,7 @@ from urllib.parse import unquote, urlsplit
 
 from ...errors import FetchError
 from ..fetch import Fetcher, FetchResult
-from .base import JobListing, PortalAdapter, iso_date, strip_html
+from .base import JobListing, PortalAdapter, ensure_active, filter_active, iso_date, strip_html
 
 
 class WorkdayAdapter(PortalAdapter):
@@ -43,7 +43,7 @@ class WorkdayAdapter(PortalAdapter):
         if not isinstance(payload, dict):
             raise FetchError(f"unexpected Workday list response for {source}", url=url)
         postings = payload.get("jobPostings") or []
-        return [self._parse(posting, tenant) for posting in postings[:limit]]
+        return filter_active([self._parse(posting, tenant) for posting in postings[:limit]])
 
     def load(self, url: str) -> JobListing:
         tenant, site, job_id = self._split_job_url(url)
@@ -54,15 +54,18 @@ class WorkdayAdapter(PortalAdapter):
         if not isinstance(info, dict):
             raise FetchError(f"unexpected Workday detail response for {url}", url=detail_url)
         description = info.get("jobDescription") or ""
-        return JobListing(
-            portal=self.name,
-            external_id=str(info.get("jobPostingId") or job_id),
-            title=info.get("title") or "",
-            company=tenant,
-            location=info.get("locationsText") or "",
-            url=url,
-            posted_at=iso_date(info.get("postedOn")),
-            description=strip_html(description),
+        return ensure_active(
+            JobListing(
+                portal=self.name,
+                external_id=str(info.get("jobPostingId") or job_id),
+                title=info.get("title") or "",
+                company=tenant,
+                location=info.get("locationsText") or "",
+                url=url,
+                posted_at=iso_date(info.get("postedOn")),
+                closes_at=iso_date(info.get("closingDate") or info.get("closeDate")),
+                description=strip_html(description),
+            )
         )
 
     # ── internals ──────────────────────────────────────────────────────
@@ -98,6 +101,7 @@ class WorkdayAdapter(PortalAdapter):
             location=posting.get("locationsText") or "",
             url=posting.get("externalUrl") or "",
             posted_at=iso_date(posting.get("postedOn")),
+            closes_at=iso_date(posting.get("closingDate") or posting.get("closeDate")),
             description="",  # list endpoint omits it; call load() for the body
         )
 

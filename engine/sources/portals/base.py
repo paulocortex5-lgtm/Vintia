@@ -20,17 +20,64 @@ from ..fetch import Fetcher
 
 @dataclass(frozen=True)
 class JobListing:
-    """One job posting as normalised across the three portals."""
+    """One job posting as normalised across portals and government sources.
 
-    portal: str  # "greenhouse" | "lever" | "workday"
+    Policy (product direction, session 7):
+
+    * **active only** — a listing whose ``closes_at`` is in the past is
+      inactive; :func:`filter_active` drops it everywhere;
+    * **sponsorship is a tag, never a filter** — ``visa_sponsorship`` is
+      ``True``/``False``/``None`` (unknown) and is set by employer-register
+      matches or by the listing text; jobs are never dropped for lacking it;
+    * every source fills ``country`` (ISO 3166-1 alpha-2) when known so
+      searches can target specific countries.
+    """
+
+    portal: str  # "greenhouse" | "lever" | "workday" | "de-arbeitsagentur" | ...
     external_id: str
     title: str
-    company: str  # board token / company slug / tenant
+    company: str  # board token / company slug / tenant / employer name
     location: str
     url: str  # canonical hosted URL for the posting
     posted_at: str | None = None  # YYYY-MM-DD when the portal provides it
     description: str = ""  # plain text; "" when the list endpoint omits it
+    country: str = ""  # ISO 3166-1 alpha-2, "" when unknown
+    closes_at: str | None = None  # YYYY-MM-DD; None = open until filled/closed
+    visa_sponsorship: bool | None = None  # tag only — never used to filter
     extra: dict[str, str] = field(default_factory=dict)
+
+    def is_active(self, today: date | None = None) -> bool:
+        """True unless a known closing date has already passed."""
+        if not self.closes_at:
+            return True
+        current = today or datetime.now(UTC).date()
+        try:
+            return date.fromisoformat(self.closes_at) >= current
+        except ValueError:
+            return True  # unparseable closing date: don't drop live-looking jobs
+
+
+def filter_active(listings: list[JobListing], today: date | None = None) -> list[JobListing]:
+    """Drop listings whose closing date is in the past (active-only policy)."""
+    current = today or datetime.now(UTC).date()
+    return [listing for listing in listings if listing.is_active(current)]
+
+
+def ensure_active(listing: JobListing) -> JobListing:
+    """Return ``listing`` or raise when its closing date has passed.
+
+    Used by ``load()`` so a dead posting is never handed to the pipeline.
+    """
+    from ...errors import FetchError
+
+    if not listing.is_active():
+        raise FetchError(
+            f"listing closed on {listing.closes_at}: {listing.url}",
+            code="listing_inactive",
+            url=listing.url,
+            closes_at=listing.closes_at,
+        )
+    return listing
 
 
 class PortalAdapter(ABC):

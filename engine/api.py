@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import os
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import FastAPI
 
@@ -30,7 +30,7 @@ def health() -> dict:
         "service": "vantia-engine",
         "version": __version__,
         "uptime_sec": round(time.monotonic() - _STARTED_AT, 1),
-        "ts": datetime.now(timezone.utc).isoformat(),
+        "ts": datetime.now(UTC).isoformat(),
     }
 
 

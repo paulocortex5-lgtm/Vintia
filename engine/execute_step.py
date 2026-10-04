@@ -17,8 +17,9 @@ from __future__ import annotations
 
 import logging
 import os
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable
+from typing import Any
 
 from .errors import VantiaError
 from .hash_chain import HashChain
@@ -115,8 +116,8 @@ class StepExecutor:
                 commit_sha=commit_sha,
                 artifacts=artifacts,
             )
-        except Exception as exc:  # noqa: BLE001 - bookkeeping boundary
-            LOGGER.exception("task %s failed: %s", task_id, exc)
+        except Exception as exc:
+            LOGGER.exception("task %s failed", task_id)
             task = self.state.fail_task(
                 task_id,
                 str(exc),

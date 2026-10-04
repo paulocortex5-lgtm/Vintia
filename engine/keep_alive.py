@@ -38,10 +38,7 @@ def start_self_ping(
     if interval <= 0:
         LOGGER.warning("self-ping disabled (interval=%d)", interval)
         return None
-    base = (
-        target_url
-        or os.environ.get("VANTIA_BACKEND_URL", "http://127.0.0.1:8000")
-    ).rstrip("/")
+    base = (target_url or os.environ.get("VANTIA_BACKEND_URL", "http://127.0.0.1:8000")).rstrip("/")
     path = os.environ.get("VANTIA_HEALTH_ENDPOINT", "/health")
     url = f"{base}{path}"
 

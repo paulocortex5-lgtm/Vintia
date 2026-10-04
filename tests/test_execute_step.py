@@ -27,9 +27,7 @@ def _make(tmp_path):
     def push() -> None:
         calls.append("push")
 
-    executor = StepExecutor(
-        state, chain, registry, commit=commit, push=push
-    )
+    executor = StepExecutor(state, chain, registry, commit=commit, push=push)
     return state, chain, registry, executor, calls
 
 
@@ -59,7 +57,7 @@ def test_successful_task_completes_and_pushes(tmp_path):
 
 
 def test_second_run_is_an_idempotent_skip(tmp_path):
-    state, chain, registry, executor, calls = _make(tmp_path)
+    _state, chain, _registry, executor, calls = _make(tmp_path)
     executor.run("0.1", runner=lambda: [_artifact(tmp_path)], run_id=1)
     before = len(calls)
     result = executor.run("0.1", runner=lambda: [_artifact(tmp_path)], run_id=1)
@@ -70,7 +68,7 @@ def test_second_run_is_an_idempotent_skip(tmp_path):
 
 
 def test_retries_then_blocks_after_three_failures(tmp_path):
-    state, chain, registry, executor, calls = _make(tmp_path)
+    state, chain, _registry, executor, calls = _make(tmp_path)
 
     def boom() -> None:
         raise RuntimeError("kaboom")
@@ -94,10 +92,8 @@ def test_retries_then_blocks_after_three_failures(tmp_path):
 
 
 def test_missing_artifact_counts_as_a_failure(tmp_path):
-    state, chain, registry, executor, calls = _make(tmp_path)
-    result = executor.run(
-        "0.1", runner=lambda: [str(tmp_path / "does-not-exist.json")], run_id=1
-    )
+    state, chain, _registry, executor, _calls = _make(tmp_path)
+    result = executor.run("0.1", runner=lambda: [str(tmp_path / "does-not-exist.json")], run_id=1)
     assert result.status == "retry"
     assert "missing artifact" in result.error
     assert state.load()["tasks"]["0.1"]["status"] == "in_progress"
@@ -105,7 +101,7 @@ def test_missing_artifact_counts_as_a_failure(tmp_path):
 
 
 def test_runner_may_return_a_dict_of_artifacts(tmp_path):
-    state, chain, registry, executor, calls = _make(tmp_path)
+    state, _chain, _registry, executor, _calls = _make(tmp_path)
     artifact = _artifact(tmp_path)
     result = executor.run("0.1", runner=lambda: {"artifacts": [artifact]}, run_id=1)
     assert result.status == "complete"
