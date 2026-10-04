@@ -1,9 +1,9 @@
 # VANTIA — PLATFORM STATE
 
-**Last updated:** 2026-10-04T11:43:44Z
+**Last updated:** 2026-10-04T21:47:11Z
 **Master prompt:** v6.0
-**Session count:** 5
-**Overall readiness:** 19%
+**Session count:** 6
+**Overall readiness:** 20%
 
 ---
 
@@ -11,10 +11,10 @@
 
 | Metric | Value |
 |---|---|
-| Tasks complete | 17/88 |
+| Tasks complete | 18/88 |
 | Tasks in progress | 0 |
 | Tasks blocked | 0 |
-| Tasks pending | 71 |
+| Tasks pending | 70 |
 | Audit failures | 0 |
 | Live previews passing | 0 |
 | E2E tests passing | 0/14 |
@@ -33,7 +33,7 @@
 |---|---|---|---|---|---|---|
 | 0 | Scaffold | 9/9 | 0 | 0 | 0 | 100% |
 | 1 | Schemas + Prompts + LLM Router | 7/7 | 0 | 0 | 0 | 100% |
-| 2 | Jobs Trail | 1/9 | 0 | 0 | 8 | 11% |
+| 2 | Jobs Trail | 2/9 | 0 | 0 | 7 | 22% |
 | 3 | Scholarship Engine | 0/7 | 0 | 0 | 7 | 0% |
 | 4 | Verification & Hardening | 0/5 | 0 | 0 | 5 | 0% |
 | 5 | Product Surface | 0/6 | 0 | 0 | 6 | 0% |
@@ -81,7 +81,7 @@
 | ID | Name | Status | Commit | Files | Tested | Previewed | Verified |
 |---|---|---|---|---|---|---|---|
 | 2.1 | Fetch base + robots.txt + rate limit | ✅ Complete | `902c115` | engine/sources/fetch.py, engine/sources/robots.py, engine/sources/ratelimit.py, engine/sources/__init__.py, engine/errors.py (TransientFetchError), tests/test_sources.py, .env.example, bootstrap.sh | ✅ | ❌ | ✅ |
-| 2.2 | Portal adapters (W/G/L) | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
+| 2.2 | Portal adapters (W/G/L) | ✅ Complete | `8dbcdec` | engine/sources/portals/ (base + greenhouse + lever + workday + registry), Fetcher.post() in engine/sources/fetch.py, tests/test_portals.py, tests/test_sources.py | ✅ | ❌ | ✅ |
 | 2.3 | Visa register fetchers (UK/DE/AU) | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
 | 2.4 | Credential equivalence lookup | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
 | 2.5 | Fraud filter (domain/fee/middleman) | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
@@ -279,8 +279,8 @@
 | User onboarding | tests/e2e/test_user_onboarding.py | — | ⏳ | — (not created) |
 | Full user journey | tests/e2e/test_full_journey.py | — | ⏳ | — (not created) |
 
-> Unit tests (separate from E2E): 19 files / 190 passing / 91% engine
-> line coverage (1655 statements, 142 missed). Verified via
+> Unit tests (separate from E2E): 20 files / 207 passing / 92% engine
+> line coverage (1920 statements, 163 missed). Verified via
 > `python -m pytest --cov=engine -q`.
 
 ---
@@ -318,6 +318,9 @@ Tasks marked complete in `state.json` but failing verification:
 | `0c95ef6` | docs | vantia(docs): record run-3 Phase 1 closeout (1.1-1.4) | ⏳ blocked | — |
 | `902c115` | 2.1 | vantia(2.1): fetch base + robots.txt + rate limiting (run 4) | ⏳ blocked | — |
 | `afd352c` | state | vantia(state): 2.1 complete (run 4, 902c115) | — | ⏳ blocked |
+| `6f4a5bb` | docs | vantia(docs): record run-4 Phase 2 start (2.1) | ⏳ blocked | — |
+| `8dbcdec` | 2.2 | vantia(2.2): portal adapters W/G/L on shared fetcher (run 5) | ⏳ blocked | — |
+| `6ded3c8` | state | vantia(state): 2.2 complete (run 5, 8dbcdec) | — | ⏳ blocked |
 
 > ⏳ **Push blocked this session (and session 3).** The environment's
 > cached GitHub credential is `denisprosperous`, an account without
@@ -372,16 +375,28 @@ Tasks marked complete in `state.json` but failing verification:
 | Follow-ups | HTTP response cache for `.vantia/cache/fetches` deferred (candidate for 2.8); portal-specific parsing lands in 2.2 |
 | Push | ❌ still blocked (403, `denisprosperous`); `902c115` (main) + `afd352c` (vantia-state) ready locally — see §9 |
 
+### Session 6 — 2026-10-04 — Phase 2: portal adapters W/G/L (task 2.2)
+
+| Item | Outcome |
+|---|---|
+| 2.2 W/G/L adapters | New `engine/sources/portals/`: `PortalAdapter` ABC + `JobListing` (portal/id/title/company/location/url/posted_at/description/extra) + `GreenhouseAdapter` (`boards-api.greenhouse.io`, `content=true`, single-job `load()`) + `LeverAdapter` (`api.lever.co/v0/postings/{company}?mode=json`, single `/{company}/{uuid}`, EU hosts accepted, `descriptionPlain`) + `WorkdayAdapter` (`POST .../wday/cxs/{tenant}/{site}/jobs`, configurable `wd` label, detail `POST .../job/{id}`) + registry (`adapters_for`, `adapter_for_url`, `load_listing` with `unsupported_portal` code). W/G/L = **W**orkday/**G**reenhouse/**L**ever: the repo never expanded the abbreviation; endpoints verified against the public API docs this session |
+| Fetcher change | Added `Fetcher.post()` — same robots gate + rate limit (incl. every retry) + backoff + size cap as GET, split out via `_request()`; +3 tests in `tests/test_sources.py` |
+| text/dates | `strip_html()` (stdlib HTMLParser, drops script/style, unescapes first for Greenhouse); `iso_date()` (ISO + English month shapes via direct `date()` construction, no naive-datetime lint) + `epoch_ms_date()` |
+| Tests | +14 in `tests/test_portals.py` (realistic fixtures, MockTransport only): params/bodies asserted per portal, robots respected, defects probed (404, unknown host) — 20 files / 207 passing / 92% `engine/` coverage (1920 statements, 163 missed) |
+| Tooling | `ruff check` + `ruff format --check` + `mypy` clean on all new/touched files (defensive payload-shape guards added; `Fetcher.post` body assertion fixed after compact-JSON find) |
+| Env rebuild | The `/tmp/vantia-venv` was wiped between sessions (`/tmp` volatility); rebuilt as the persistent project `.venv` (gitignored) with identical pinned versions (pytest 9.1.1, ruff 0.16.10, mypy 2.4.0). Future sessions must use `.venv/bin/python`, not `/tmp/vantia-venv` |
+| Push | ❌ still blocked (403, `denisprosperous`); `8dbcdec` (main) + `6ded3c8` (vantia-state) ready locally — see §9 |
+
 _(Earlier sessions populated above during Phase 0.)_
 
 ---
 
 ## 11. NEXT SESSION ACTIONS
 
-1. 2.2 — Portal adapters (W/G/L) — build on `engine/sources.Fetcher`
-2. 2.3 — Visa register fetchers (UK/DE/AU)
-3. 2.4 — Credential equivalence lookup
-4. 2.5 — Fraud filter (domain/fee/middleman)
+1. 2.3 — Visa register fetchers (UK/DE/AU) — build on `engine/sources.Fetcher`
+2. 2.4 — Credential equivalence lookup
+3. 2.5 — Fraud filter (domain/fee/middleman)
+4. 2.6 — Injection + PII redactor
 
 > Dependency note for Phase 11: `engine/credits/ledger.py` does not exist
 > yet, so `handle_webhook()` records Paddle top-ups with status
