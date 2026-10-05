@@ -3,7 +3,7 @@
   "branch": "vantia-state",
   "purpose": "Authoritative Vantia build state, artifacts and audit trail. This branch is an orphan: it shares no history with `main` and must never be merged into it.",
   "created_at": "2026-10-03T23:58:00Z",
-  "updated_at": "2026-10-04T21:38:46Z",
+  "updated_at": "2026-10-04T23:29:46Z",
   "runs": [
     {
       "run_id": 1,
@@ -62,6 +62,18 @@
       "phase": 2,
       "tasks_completed": ["2.2"],
       "tests": {"files": 20, "passed": 207, "failed": 0},
+      "engine_coverage_pct": 92.0,
+      "cost_usd": 0.0
+    },
+    {
+      "run_id": 6,
+      "master_prompt_version": "4.0",
+      "session": 7,
+      "started_at": "2026-10-04T23:29:46Z",
+      "completed_at": "2026-10-04T23:29:46Z",
+      "phase": 2,
+      "tasks_completed": ["2.3"],
+      "tests": {"files": 23, "passed": 231, "failed": 0},
       "engine_coverage_pct": 92.0,
       "cost_usd": 0.0
     }
