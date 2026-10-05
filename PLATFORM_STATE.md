@@ -11,10 +11,10 @@
 
 | Metric | Value |
 |---|---|
-| Tasks complete | 19/88 |
+| Tasks complete | 22/88 |
 | Tasks in progress | 0 |
 | Tasks blocked | 0 |
-| Tasks pending | 69 |
+| Tasks pending | 66 |
 | Audit failures | 0 |
 | Live previews passing | 0 |
 | E2E tests passing | 0/14 |
@@ -84,9 +84,9 @@
 | 2.2 | Portal adapters (W/G/L) | ✅ Complete | `8dbcdec` | engine/sources/portals/ (base + greenhouse + lever + workday + registry), Fetcher.post() in engine/sources/fetch.py, tests/test_portals.py, tests/test_sources.py | ✅ | ❌ | ✅ |
 | 2.3 | Visa register fetchers (UK/DE/AU) | ✅ Complete | `2272dc7` | engine/sources/registers.py, engine/sources/government.py, engine/sources/countries.py (+gov listing fields, active-only, sponsorship tagging), tests/test_registers.py, tests/test_government.py, tests/test_countries.py, docs/SOURCES.md | ✅ | ❌ | ✅ |
 | 2.4 | Credential equivalence lookup | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 2.5 | Fraud filter (domain/fee/middleman) | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 2.6 | Injection + PII redactor | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 2.7 | ATS resume generator | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
+| 2.5 | Fraud filter (domain/fee/middleman) | ✅ Complete | `1e40b27` | engine/security/fraud.py, engine/security/__init__.py, tests/test_security.py (fraud section) | ✅ | ❌ | ✅ |
+| 2.6 | Injection + PII redactor | ✅ Complete | `1e40b27` | engine/security/injection.py, engine/security/redact.py, tests/test_security.py (injection/redact sections) | ✅ | ❌ | ✅ |
+| 2.7 | ATS resume generator | ✅ Complete | `1e40b27` | engine/generators/resume.py, engine/generators/__init__.py, tests/test_resume.py | ✅ | ❌ | ✅ |
 | 2.8 | pipeline.py: run_job_pipeline | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
 | 2.9 | E2E job pipeline test | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
 
@@ -439,15 +439,32 @@ Tasks marked complete in `state.json` but failing verification:
 
 ---
 
+### Session 8 — 2026-10-05 — Security guardrails + ATS resume generator (2.5, 2.6, 2.7)
+
+**LLM note (user asked to "cycle through all available LLMs and exhaust tokens"):** the environment has **zero LLM API keys** — there is no `.env`, no key is set in the shell environment, and every value in `.env.example` is a placeholder. There is no token supply to exhaust, so nothing was burned and no provider was contacted. Instead the work was written so the LLM path lights up the moment credentials land: `engine/llm/router.pick()` builds the failover chain, `LLMClient.run_chain()` executes it, and `VANTIA_DRY_RUN=1` keeps every path deterministic offline.
+
+| Item | Outcome |
+|---|---|
+| 2.6 PII redactor | `engine/security/redact.py`: 8 kinds (email, phone, NINO, SSN, IBAN, credit card, secret/API key, URL credentials) with checksum validators (IBAN mod-97 via the standard decimal letter-substitution, Luhn for cards, NINO/SSN format guards) so ordinary digits and words survive; idempotent, offsets index the *original* text, `kinds=` narrowing |
+| 2.6 injection guard | `engine/security/injection.py`: weighted phrase corpus (instruction-override / secret-extraction / marker / authority / obfuscation / tool-spoof) over normalized text — casefold + whitespace collapse + zero-width stripping defeats trivial obfuscation; `trusted` mode never auto-blocks user-owned input, `untrusted` (default) raises `InjectionDetectedError` at score ≥ 2.0 |
+| 2.5 fraud filter | `engine/security/fraud.py`: scores a `JobListing` for fee-to-candidate / visa-mill / guarantee / payment-red-flag / urgency text signals plus risky-TLD contacts and posting-vs-contact domain mismatch; verdicts clean / review / block; `fraud.block()` raises `FraudSignalError`. Tag-and-warn: signals never silently drop a job (session 7 policy) |
+| 2.7 ATS resume generator | `engine/generators/resume.py`: deterministic tailoring (job-matched skills first, ATS-safe plain markdown, no tables/HTML) ships with **no provider, no key, no network**; optional LLM polish via `LLMClient.run_chain` with the untrusted posting PII-redacted before it enters the prompt, injection + fraud guards up front, graceful fallback to the deterministic layer on `AllProvidersExhausted`, and the R24 hash-chained envelope when a client is supplied |
+| Tests | +27 (15 security, 12 resume): **262 passing** (was 235); `ruff check` / `ruff format --check` / `mypy` clean on 68 source files |
+| Design note | Deterministic-first: every generator ships without a provider. The LLM is an accelerator, not a dependency — `generate_resume(candidate, listing)` is the shippable path |
+| Push | ❌ still blocked (403); `1e40b27` (main) + state commit ready locally |
+
+---
+
 ## 11. NEXT SESSION ACTIONS
 
 1. 2.4 — Credential equivalence lookup — build on `engine/sources.Fetcher`
-2. 2.5 — Fraud filter (domain/fee/middleman)
-3. 2.6 — Injection + PII redactor
-4. 2.7 — ATS resume generator
+2. 2.8 — `pipeline.py: run_job_pipeline` — fetch → `filter_active` → `fraud.assess` screen → register badge → hand to 2.7
+3. 2.9 — E2E job pipeline test (`httpx.MockTransport`, no network)
+4. Phase 3 — Scholarship engine (3.1 fetch)
 5. 2.3 follow-up (carried): fold `FederalEmploymentAgency` into a government-sources registry so `adapters_for()` and the register dispatcher share one per-country source table (`docs/SOURCES.md` checklist step 2)
 6. Registers: new published country register = **one data row** in `registers._REGISTER_SPECS` (+ status flip in `countries.py`); verify before claiming "live"
 7. Push: retry when credentials allow (403 since session 3); all code/state/docs commits exist locally
+8. LLM credentials: add at least one free-tier key to `.env` so 2.7's LLM polish path and the R17/R18/R24/R25/R26/R27/R28 gates can be exercised against a live provider — today they are verified with `MockTransport` / a scripted `_FakeClient` only
 
 > Dependency note for Phase 11: `engine/credits/ledger.py` does not exist
 > yet, so `handle_webhook()` records Paddle top-ups with status
@@ -467,6 +484,7 @@ Tasks marked complete in `state.json` but failing verification:
 | Vercel free tier non-commercial | Legal issue if monetized | Document; upgrade when revenue starts |
 | Master prompt header says 98 tasks (v6.0 assessment: 99, incl. Task 0.0), catalog lists 88 | Progress denominator confusion | `state.json` + `engine/seed/state.json` both define 88 tasks; use 88 until the prompt's catalog is re-cut. Task 0.0 (Stripe purge) was executed as cross-cutting work and is recorded in §10, not as a catalogue row |
 | Provider/infra credentials are REPLACE_ME placeholders | Network-success paths untested | Insert real keys during launch prep |
+| No LLM API keys in this environment (no `.env`, all `.env.example` values are placeholders) | Every LLM call path runs dry-run only; live token / latency / 429 behaviour untested | Deterministic layers ship as the default path (2.7 falls back to it); add keys at launch prep and re-run the live-path tests |
 | Pre-existing ruff/mypy debt in modules untouched this run (api.py, execute_step.py, retry.py, state_manager.py, test_execute_step.py) | Repo-wide lint/type gate not clean | ✅ **Cleared in run 6 (session 7):** `ruff check` + `ruff format --check` + `mypy` all pass on all 60 files. Nothing left to sweep |
 | The other 49 European countries (all except GB) carry `sponsor_register="none"` (= *no known* public register, not *verified* absence — DE's "none" is the one documented fact among them) | Under-scored targeting if a country actually publishes one; wrong negative claim if it does not | The register layer already dispatches on the status (empty badge set, never a gate); when a register is discovered it's a one-row addition to `registers._REGISTER_SPECS` + a status flip in `countries.py` (session 7 follow-up, §11 item 5–6) |
 
