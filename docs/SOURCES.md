@@ -29,6 +29,33 @@ listings. Implementation: `engine/sources/registers.py`.
 | 🇦🇺 AU | Public register of approved sponsors (Migration Amendment (Combatting Migrant Exploitation) Act 2026, s.140GD) | **Mandated, not yet published** (deadline 2026-10-08) — `fetch_au_register()` raises `RegisterPending`; activates when Home Affairs ships it |
 | 🇩🇪 DE | *None exists* — Germany's *Vorabzustimmung* is granted per employer+employee and is not a public list | Documented via `GERMANY_PUBLISHES_REGISTER = False`; German sponsorship is judged per posting from the listing text |
 
+## Register coverage: every country of interest (50 + AU)
+
+Only three countries have *verified register facts* (UK published, AU
+pending, DE none) — that's why the task was labelled UK/DE/AU: those
+were the founding markets when task 2.3 was planned. **Coverage itself
+is not limited to them.** `engine/sources/registers.py` resolves
+*every* country in the 50-country database plus AU:
+
+* `register_spec(iso2)` — explicit registry (`_REGISTER_SPECS`) for the
+  three verified facts; every other country of interest resolves
+  through the country database's `sponsor_register` status (currently
+  `none` = *no known public register*). Unknown ISO codes raise
+  `FetchError(code="register_country_unknown")` rather than being
+  silently assumed register-free.
+* `fetch_register(iso2, fetcher)` — dispatches on the status:
+  `published` runs the generic page→CSV pipeline (the UK
+  implementation already takes the publication URL as a parameter, so
+  any future published register plugs in as **one data row**, no code
+  change); `pending` raises `RegisterPending`; `none` returns an empty
+  `SponsorRegister`.
+* `fetch_registers(codes, fetcher)` — bulk fetch that skips pending
+  countries (non-fatal: badges simply stay untagged until the
+  register publishes).
+
+The policy is unchanged: registers **tag**, they never drop jobs, and
+no country is excluded from the platform for lacking a register.
+
 ## Source inventory
 
 | Kind | Sources | Module |
@@ -36,7 +63,7 @@ listings. Implementation: `engine/sources/registers.py`.
 | Commercial portals | Greenhouse, Lever, Workday (W/G/L) | `engine/sources/portals/` |
 | Government job APIs | 🇩🇪 Federal Employment Agency (`rest.arbeitsagentur.de`, public `X-API-Key`) | `engine/sources/government.py` |
 | Government portals (human) | Catalogued per country: `pes_url` in the countries DB (Find-a-job UK, France Travail, NAV, SEPE, …) | `engine/sources/countries.py` |
-| Sponsor registers | UK (CSV), AU (pending), DE (n/a) | `engine/sources/registers.py` |
+| Sponsor registers | All 50 European countries + AU resolve via `register_spec()` / `fetch_register()`; UK CSV live, AU pending (2026-10-08), DE none, others = no known public register (empty badge set) | `engine/sources/registers.py` |
 
 Every network call goes through `Fetcher` (robots gate → per-domain rate
 limit → retry/backoff → size cap), so new sources inherit the politeness

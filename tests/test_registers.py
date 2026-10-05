@@ -1,4 +1,4 @@
-"""Sponsor-register tests — task 2.3 (UK CSV / AU pending / DE none).
+"""Sponsor-register tests — task 2.3 (UK CSV / AU pending / DE none / all-country dispatch).
 
 Registers TAG employers as able to sponsor; they never drop jobs
 (product direction, session 7). All HTTP via MockTransport.
@@ -11,12 +11,22 @@ import pytest
 
 from engine.errors import FetchError, RegisterPending
 from engine.sources import Fetcher, badge, fetch_au_register, fetch_uk_register
+from engine.sources.countries import (
+    EUROPE,
+    REGISTER_NONE,
+    REGISTER_PENDING,
+    REGISTER_PUBLISHED,
+    europe_iso2,
+)
 from engine.sources.portals import JobListing
 from engine.sources.ratelimit import DomainRateLimiter
 from engine.sources.registers import (
     GERMANY_PUBLISHES_REGISTER,
     SponsorRegister,
+    fetch_register,
+    fetch_registers,
     normalize_employer,
+    register_spec,
     resolve_uk_csv_url,
 )
 
@@ -142,3 +152,56 @@ def test_normalize_employer_variants():
     assert normalize_employer("Acme Robotics Ltd") == normalize_employer("ACME ROBOTICS LIMITED")
     assert normalize_employer("Beta Health PLC") == "beta health"
     assert normalize_employer("") == ""
+
+
+# ── all-country coverage (session 7 follow-up) ────────────────────────────
+
+
+def _gb_fetcher() -> Fetcher:
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path.endswith("/register-of-licensed-sponsors-workers"):
+            return httpx.Response(200, text=PAGE_HTML)
+        return httpx.Response(200, text=CSV_BODY)
+
+    return build(handler)
+
+
+def test_every_country_of_interest_has_register_coverage():
+    assert len(EUROPE) == 50
+    codes = set(europe_iso2()) | {"AU"}
+    assert len(codes) == 51
+    statuses: set[str] = set()
+    for code in sorted(codes):
+        spec = register_spec(code)
+        assert spec.iso2 == code
+        assert spec.status in {REGISTER_PUBLISHED, REGISTER_PENDING, REGISTER_NONE}
+        statuses.add(spec.status)
+    # the three verified facts plus the country DB statuses
+    assert statuses == {REGISTER_PUBLISHED, REGISTER_PENDING, REGISTER_NONE}
+
+
+def test_fetch_register_dispatches_on_status():
+    fetcher = _gb_fetcher()
+    gb = fetch_register("GB", fetcher)
+    assert gb.country == "GB"
+    assert len(gb) == 2
+    de = fetch_register("DE", fetcher)
+    assert de.country == "DE"
+    assert de.names == frozenset()
+    assert de.raw_count == 0
+    with pytest.raises(RegisterPending) as excinfo:
+        fetch_register("AU", fetcher)
+    assert excinfo.value.context["deadline"] == "2026-10-08"
+
+
+def test_fetch_register_rejects_unknown_country():
+    with pytest.raises(FetchError) as excinfo:
+        fetch_register("ZZ", _gb_fetcher())
+    assert excinfo.value.code == "register_country_unknown"
+
+
+def test_fetch_registers_skips_pending_countries():
+    registers = fetch_registers(["GB", "DE", "AU", "FR"], _gb_fetcher())
+    assert [r.country for r in registers] == ["GB", "DE", "FR"]
+    assert registers[1].names == frozenset()
+    assert registers[2].names == frozenset()  # FR: no register published
