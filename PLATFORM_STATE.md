@@ -1,6 +1,6 @@
 # VANTIA — PLATFORM STATE
 
-**Last updated:** 2026-10-05T00:09:02Z
+**Last updated:** 2026-10-05T00:55:16Z
 **Master prompt:** v6.0
 **Session count:** 7
 **Overall readiness:** 22%
@@ -324,6 +324,8 @@ Tasks marked complete in `state.json` but failing verification:
 | `966fa1b` | docs | vantia(docs): record run-5 portal adapters (2.2) | ⏳ blocked | — |
 | `2272dc7` | 2.3 | vantia(2.3): sponsor registers UK/AU/DE, DE gov jobs API, 50-country DB, repo sweep (run 6) | ⏳ blocked | — |
 | `08b5b0e` | state | vantia(state): 2.3 complete (run 6, 2272dc7) | — | ⏳ blocked |
+| `df67681` | 2.3 follow-up | vantia(2.3): all-country register coverage (50 European + AU dispatch, run 7) | ⏳ blocked | — |
+| `e21bc6d` | state | vantia(state): 2.3 follow-up complete (run 7, df67681) | — | ⏳ blocked |
 
 > ⏳ **Push blocked this session (and session 3).** The environment's
 > cached GitHub credential is `denisprosperous`, an account without
@@ -339,6 +341,30 @@ Tasks marked complete in `state.json` but failing verification:
 ---
 
 ## 10. SESSION LOG
+
+> **Session/run reconciliation (audited session 7):** sessions and runs
+> are *different* counters. The header's **Session count (7)** counts
+> human-led sessions; `.vantia/run_manifest.json` holds **6 runs** with
+> session fields `[1, 3, 4, 5, 6, 7]` — session 2 completed no run, so
+> it has no manifest entry. §10 below lists all 7 sessions (S1–S7); the
+> log previously showed only S3–S7 (5 entries; 4 before S7 was logged),
+> which is the source of the "4 vs 7" discrepancy reported in the audit.
+
+### Session 1 — 2026-10-03 — Phase 0 baseline (0.1–0.9): engine core, 96-test suite, tracking layer
+
+| Item | Outcome |
+|---|---|
+| 0.1–0.9 | Repo scaffold (pyproject, Dockerfile, `bootstrap.sh`, env files), engine core (state manager, locking, idempotency, hash chain, cost tracker, structured logging, error taxonomy, retry/backoff), Supabase persistence + write-through mirror + local fallback, FastAPI `/health` + keep-alive workflows, 96-test suite |
+| State | Seed v4.0 (88 tasks / 14 phases), `run_manifest.json`, `vantia-state` orphan branch (`aa0f228`); run 1 recorded |
+| Tests | 96/96 passing, 97% engine coverage |
+| Commits | `4c84504` + `974dde8` (main), `aa0f228` + `903bc56` (vantia-state) |
+
+### Session 2 — 2026-10-04 — planning & alignment (no code run)
+
+| Item | Outcome |
+|---|---|
+| Planning | Master prompt v6.0 assessment; task-count reconciliation (prompt header 98 / assessment 99 incl. 0.0 / seed catalog 88 → **88** stays the denominator, §12); free-tier stack confirmation |
+| State | **No run recorded** — the window between S1 (run 1) and S3 (run 2) contains no code commits on `main`, so session 2 produced no `end_run`; the manifest's session list is therefore `[1, 3, 4, 5, 6, 7]`. Entry marked *reconstructed* — no state commit exists for it |
 
 ### Session 3 — 2026-10-04 — Phase 1 LLM stack (1.5/1.6/1.7) + Stripe→Paddle purge (task 0.0)
 
@@ -407,10 +433,9 @@ Tasks marked complete in `state.json` but failing verification:
 | Tests | +24 (test_countries / test_registers / test_government / +2 portals active-only): 23 files, 231 passing, 92% coverage; MockTransport only |
 | Sweep | `ruff check` + `ruff format --check` + `mypy` now **all** clean repo-wide (60 files) — the §12 legacy debt is gone; tests green after the sweep (231) |
 | Push | ❌ still blocked (403); `2272dc7` (main) + `08b5b0e` (vantia-state) ready locally |
+| **Session 7 continued (audit closeout)** | User audit: (1) register layer must cover **all** countries of interest, not the labelled three → `RegisterSpec` registry + `fetch_register()`/`fetch_registers()` dispatch in `registers.py`: every one of the 50 database countries + AU resolves (GB published → generic page→CSV pipeline; AU pending → `RegisterPending`; all others → empty register, never a gate). Future published registers plug in as one data row. (2) §10 backfilled with S1/S2 + session/run reconciliation (above). (3) `docs/SOURCES.md` register section → all-country coverage. +4 tests (dispatch, unknown-country, bulk pending-skip, 51-country coverage): **235 passing / 92% coverage**; ruff + mypy clean |
 
-**Answer to the user's 2.3 question (recorded):** "2.3 visa register fetchers (UK/DE/AU)" = fetchers for *government employer-license lists* used to badge sponsors — not job boards, and not a job filter.
-
-_(Earlier sessions populated above during Phase 0.)_
+**Answer to the user's 2.3 question (recorded):** "2.3 visa register fetchers (UK/DE/AU)" = fetchers for *government employer-license lists* used to badge sponsors — not job boards, and not a job filter. The UK/DE/AU label is a planning artifact (founding markets when 2.3 was written); *coverage* is all countries of interest — see "Session 7 continued" above and `docs/SOURCES.md` §"Register coverage".
 
 ---
 
@@ -420,6 +445,9 @@ _(Earlier sessions populated above during Phase 0.)_
 2. 2.5 — Fraud filter (domain/fee/middleman)
 3. 2.6 — Injection + PII redactor
 4. 2.7 — ATS resume generator
+5. 2.3 follow-up (carried): fold `FederalEmploymentAgency` into a government-sources registry so `adapters_for()` and the register dispatcher share one per-country source table (`docs/SOURCES.md` checklist step 2)
+6. Registers: new published country register = **one data row** in `registers._REGISTER_SPECS` (+ status flip in `countries.py`); verify before claiming "live"
+7. Push: retry when credentials allow (403 since session 3); all code/state/docs commits exist locally
 
 > Dependency note for Phase 11: `engine/credits/ledger.py` does not exist
 > yet, so `handle_webhook()` records Paddle top-ups with status
@@ -440,4 +468,5 @@ _(Earlier sessions populated above during Phase 0.)_
 | Master prompt header says 98 tasks (v6.0 assessment: 99, incl. Task 0.0), catalog lists 88 | Progress denominator confusion | `state.json` + `engine/seed/state.json` both define 88 tasks; use 88 until the prompt's catalog is re-cut. Task 0.0 (Stripe purge) was executed as cross-cutting work and is recorded in §10, not as a catalogue row |
 | Provider/infra credentials are REPLACE_ME placeholders | Network-success paths untested | Insert real keys during launch prep |
 | Pre-existing ruff/mypy debt in modules untouched this run (api.py, execute_step.py, retry.py, state_manager.py, test_execute_step.py) | Repo-wide lint/type gate not clean | ✅ **Cleared in run 6 (session 7):** `ruff check` + `ruff format --check` + `mypy` all pass on all 60 files. Nothing left to sweep |
+| The other 49 European countries (all except GB) carry `sponsor_register="none"` (= *no known* public register, not *verified* absence — DE's "none" is the one documented fact among them) | Under-scored targeting if a country actually publishes one; wrong negative claim if it does not | The register layer already dispatches on the status (empty badge set, never a gate); when a register is discovered it's a one-row addition to `registers._REGISTER_SPECS` + a status flip in `countries.py` (session 7 follow-up, §11 item 5–6) |
 
