@@ -1,9 +1,9 @@
 # VANTIA — PLATFORM STATE
 
-**Last updated:** 2026-10-04T21:47:11Z
+**Last updated:** 2026-10-05T00:09:02Z
 **Master prompt:** v6.0
-**Session count:** 6
-**Overall readiness:** 20%
+**Session count:** 7
+**Overall readiness:** 22%
 
 ---
 
@@ -11,10 +11,10 @@
 
 | Metric | Value |
 |---|---|
-| Tasks complete | 18/88 |
+| Tasks complete | 19/88 |
 | Tasks in progress | 0 |
 | Tasks blocked | 0 |
-| Tasks pending | 70 |
+| Tasks pending | 69 |
 | Audit failures | 0 |
 | Live previews passing | 0 |
 | E2E tests passing | 0/14 |
@@ -33,7 +33,7 @@
 |---|---|---|---|---|---|---|
 | 0 | Scaffold | 9/9 | 0 | 0 | 0 | 100% |
 | 1 | Schemas + Prompts + LLM Router | 7/7 | 0 | 0 | 0 | 100% |
-| 2 | Jobs Trail | 2/9 | 0 | 0 | 7 | 22% |
+| 2 | Jobs Trail | 3/9 | 0 | 0 | 6 | 33% |
 | 3 | Scholarship Engine | 0/7 | 0 | 0 | 7 | 0% |
 | 4 | Verification & Hardening | 0/5 | 0 | 0 | 5 | 0% |
 | 5 | Product Surface | 0/6 | 0 | 0 | 6 | 0% |
@@ -82,7 +82,7 @@
 |---|---|---|---|---|---|---|---|
 | 2.1 | Fetch base + robots.txt + rate limit | ✅ Complete | `902c115` | engine/sources/fetch.py, engine/sources/robots.py, engine/sources/ratelimit.py, engine/sources/__init__.py, engine/errors.py (TransientFetchError), tests/test_sources.py, .env.example, bootstrap.sh | ✅ | ❌ | ✅ |
 | 2.2 | Portal adapters (W/G/L) | ✅ Complete | `8dbcdec` | engine/sources/portals/ (base + greenhouse + lever + workday + registry), Fetcher.post() in engine/sources/fetch.py, tests/test_portals.py, tests/test_sources.py | ✅ | ❌ | ✅ |
-| 2.3 | Visa register fetchers (UK/DE/AU) | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
+| 2.3 | Visa register fetchers (UK/DE/AU) | ✅ Complete | `2272dc7` | engine/sources/registers.py, engine/sources/government.py, engine/sources/countries.py (+gov listing fields, active-only, sponsorship tagging), tests/test_registers.py, tests/test_government.py, tests/test_countries.py, docs/SOURCES.md | ✅ | ❌ | ✅ |
 | 2.4 | Credential equivalence lookup | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
 | 2.5 | Fraud filter (domain/fee/middleman) | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
 | 2.6 | Injection + PII redactor | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
@@ -279,8 +279,8 @@
 | User onboarding | tests/e2e/test_user_onboarding.py | — | ⏳ | — (not created) |
 | Full user journey | tests/e2e/test_full_journey.py | — | ⏳ | — (not created) |
 
-> Unit tests (separate from E2E): 20 files / 207 passing / 92% engine
-> line coverage (1920 statements, 163 missed). Verified via
+> Unit tests (separate from E2E): 23 files / 231 passing / 92% engine
+> line coverage (2125 statements, 171 missed). Verified via
 > `python -m pytest --cov=engine -q`.
 
 ---
@@ -321,6 +321,9 @@ Tasks marked complete in `state.json` but failing verification:
 | `6f4a5bb` | docs | vantia(docs): record run-4 Phase 2 start (2.1) | ⏳ blocked | — |
 | `8dbcdec` | 2.2 | vantia(2.2): portal adapters W/G/L on shared fetcher (run 5) | ⏳ blocked | — |
 | `6ded3c8` | state | vantia(state): 2.2 complete (run 5, 8dbcdec) | — | ⏳ blocked |
+| `966fa1b` | docs | vantia(docs): record run-5 portal adapters (2.2) | ⏳ blocked | — |
+| `2272dc7` | 2.3 | vantia(2.3): sponsor registers UK/AU/DE, DE gov jobs API, 50-country DB, repo sweep (run 6) | ⏳ blocked | — |
+| `08b5b0e` | state | vantia(state): 2.3 complete (run 6, 2272dc7) | — | ⏳ blocked |
 
 > ⏳ **Push blocked this session (and session 3).** The environment's
 > cached GitHub credential is `denisprosperous`, an account without
@@ -387,16 +390,36 @@ Tasks marked complete in `state.json` but failing verification:
 | Env rebuild | The `/tmp/vantia-venv` was wiped between sessions (`/tmp` volatility); rebuilt as the persistent project `.venv` (gitignored) with identical pinned versions (pytest 9.1.1, ruff 0.16.10, mypy 2.4.0). Future sessions must use `.venv/bin/python`, not `/tmp/vantia-venv` |
 | Push | ❌ still blocked (403, `denisprosperous`); `8dbcdec` (main) + `6ded3c8` (vantia-state) ready locally — see §9 |
 
+### Session 7 — 2026-10-05 — 2.3 + product direction: gov jobs, all-Jobs (not sponsorship-only), Europe DB, targeting
+
+**User-initiated product direction (all implemented, see `docs/SOURCES.md`):**
+
+1. Government job portals are first-class: German Federal Employment Agency API adapter (endpoint/headers verified live, including the reason plain requests get 403), every EU country's public employment portal catalogued.
+2. Active-only: listings with past closing dates are dropped (`filter_active` in every search, `ensure_active` in every `load()` → `listing_inactive`).
+3. No sponsorship gating: the platform fetches **all** jobs; sponsorship is a tag (`visa_sponsorship: True/False/None`), never a filter. Registers badge employers, never drop listings.
+4. All European countries: 50-entry database (`engine/sources/countries.py`) + `search_targets()` ranking for opportunity + less competition (structural first; Eurostat `unemployment_rate` hook is `None` until a verified snapshot ships — no invented stats).
+
+| Item | Outcome |
+|---|---|
+| 2.3 registers (UK/DE/AU) | `engine/sources/registers.py`: UK GOV.UK CSV pipeline verified (daily 10.4 MB register); AU raises `RegisterPending` until the mandated register exists (deadline 2026-10-08); DE documented as no-public-register (`GERMANY_PUBLISHES_REGISTER=False`); fuzzy employer matching + `badge()` tagging |
+| Government jobs | `engine/sources/government.py`: AA search (`was/wo/umkreis/page/size`) + detail via base64 `refnr` path; active filtering; full-body defensive parsing across AA v4 key spellings |
+| Countries DB | 50 entries w/ PES URLs, API status, register status; EU-27 completeness test; DE-first ranking |
+| Tests | +24 (test_countries / test_registers / test_government / +2 portals active-only): 23 files, 231 passing, 92% coverage; MockTransport only |
+| Sweep | `ruff check` + `ruff format --check` + `mypy` now **all** clean repo-wide (60 files) — the §12 legacy debt is gone; tests green after the sweep (231) |
+| Push | ❌ still blocked (403); `2272dc7` (main) + `08b5b0e` (vantia-state) ready locally |
+
+**Answer to the user's 2.3 question (recorded):** "2.3 visa register fetchers (UK/DE/AU)" = fetchers for *government employer-license lists* used to badge sponsors — not job boards, and not a job filter.
+
 _(Earlier sessions populated above during Phase 0.)_
 
 ---
 
 ## 11. NEXT SESSION ACTIONS
 
-1. 2.3 — Visa register fetchers (UK/DE/AU) — build on `engine/sources.Fetcher`
-2. 2.4 — Credential equivalence lookup
-3. 2.5 — Fraud filter (domain/fee/middleman)
-4. 2.6 — Injection + PII redactor
+1. 2.4 — Credential equivalence lookup — build on `engine/sources.Fetcher`
+2. 2.5 — Fraud filter (domain/fee/middleman)
+3. 2.6 — Injection + PII redactor
+4. 2.7 — ATS resume generator
 
 > Dependency note for Phase 11: `engine/credits/ledger.py` does not exist
 > yet, so `handle_webhook()` records Paddle top-ups with status
@@ -416,5 +439,5 @@ _(Earlier sessions populated above during Phase 0.)_
 | Vercel free tier non-commercial | Legal issue if monetized | Document; upgrade when revenue starts |
 | Master prompt header says 98 tasks (v6.0 assessment: 99, incl. Task 0.0), catalog lists 88 | Progress denominator confusion | `state.json` + `engine/seed/state.json` both define 88 tasks; use 88 until the prompt's catalog is re-cut. Task 0.0 (Stripe purge) was executed as cross-cutting work and is recorded in §10, not as a catalogue row |
 | Provider/infra credentials are REPLACE_ME placeholders | Network-success paths untested | Insert real keys during launch prep |
-| Pre-existing ruff/mypy debt in modules untouched this run (api.py, execute_step.py, retry.py, state_manager.py, test_execute_step.py) | Repo-wide lint/type gate not clean | New code passes `ruff check` + `ruff format --check`; sweep alongside Phase 4 hardening |
+| Pre-existing ruff/mypy debt in modules untouched this run (api.py, execute_step.py, retry.py, state_manager.py, test_execute_step.py) | Repo-wide lint/type gate not clean | ✅ **Cleared in run 6 (session 7):** `ruff check` + `ruff format --check` + `mypy` all pass on all 60 files. Nothing left to sweep |
 
