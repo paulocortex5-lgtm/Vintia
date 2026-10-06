@@ -3,9 +3,9 @@
   "master_prompt_version": "4.0",
   "schema_version": 4,
   "created_at": "2026-10-03T22:15:00Z",
-  "updated_at": "2026-10-06T21:57:34Z",
-  "run_count": 10,
-  "last_completed_task": "3.5",
+  "updated_at": "2026-10-06T22:51:32Z",
+  "run_count": 11,
+  "last_completed_task": "3.7",
   "in_progress_task": null,
   "consecutive_failures": {},
   "deployment": {
@@ -680,30 +680,36 @@
     "3.2": {
       "name": "SOP generator",
       "phase": 3,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "1.7",
         "3.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/generators/sop.py",
+        "tests/test_sop.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "3821a8e",
+      "started_at": "2026-10-06T22:51:31Z",
+      "completed_at": "2026-10-06T22:51:31Z"
     },
     "3.3": {
       "name": "Research proposal generator",
       "phase": 3,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "1.7",
         "3.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/generators/proposal.py",
+        "tests/test_proposal.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "3821a8e",
+      "started_at": "2026-10-06T22:51:31Z",
+      "completed_at": "2026-10-06T22:51:32Z"
     },
     "3.4": {
       "name": "Academic credential mapper",
@@ -738,31 +744,37 @@
     "3.6": {
       "name": "pipeline.py: run_scholarship_pipeline",
       "phase": 3,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "3.2",
         "3.3",
         "3.4",
         "3.5"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/pipeline.py",
+        "engine/generators/__init__.py",
+        "tests/test_pipeline.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "3821a8e",
+      "started_at": "2026-10-06T22:51:32Z",
+      "completed_at": "2026-10-06T22:51:32Z"
     },
     "3.7": {
       "name": "E2E scholarship pipeline test",
       "phase": 3,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "3.6"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "tests/e2e/test_scholarship_pipeline.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "3821a8e",
+      "started_at": "2026-10-06T22:51:32Z",
+      "completed_at": "2026-10-06T22:51:32Z"
     },
     "4.1": {
       "name": "Domain verification (DNS + CNAME)",
@@ -1530,7 +1542,8 @@
       "7": 0.0,
       "8": 0.0,
       "9": 0.0,
-      "10": 0.0
+      "10": 0.0,
+      "11": 0.0
     },
     "by_task": {}
   },
@@ -1670,6 +1683,23 @@
         "out": 0
       },
       "notes": "Run 10: Phase 3 data layer - scholarship database (5 sourced programs with verified official URLs + dated provenance), credential mapper (three-valued meets/falls-short/unverified verdicts against min_eqf_level), window tracker (month/day precision, year-wrapping cycles, closing-day inclusive, unknown when no window is embedded). 305 tests passing (was 290), 93% engine coverage, ruff + mypy clean. No LLM spend. Push still 403."
+    },
+    {
+      "run": 11,
+      "started_at": "2026-10-06T22:51:31Z",
+      "tasks": [
+        "3.2",
+        "3.3",
+        "3.6",
+        "3.7"
+      ],
+      "finished_at": "2026-10-06T22:51:32Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Run 11: Phase 3 closes 7/7 - SOP generator and research proposal generator (deterministic-first, schema-valid on every path, honest placeholders, refuses fake keywords, LLM polish accepts only schema-valid JSON and keeps identity fields ours), run_scholarship_pipeline wired (db -> profile -> credential map -> window -> both artifacts), offline E2E with network calls pinned dead. 326 tests passing (was 305), 93% engine coverage, ruff + mypy clean (84 files). No LLM spend. Push still 403."
     }
   ],
   "notes": "Seed v4.0. 98 tasks across 14 phases. Free-tier only. Session 1 closeout: Phase 0 verified and committed. 96/96 unit tests pass, 97% engine coverage. 0.2 vantia-state commit is aa0f228; other Phase 0 tasks commit to main 4c84504."
