@@ -1,9 +1,9 @@
 # VANTIA — PLATFORM STATE
 
-**Last updated:** 2026-10-05T00:55:16Z
+**Last updated:** 2026-10-06T21:10:00Z
 **Master prompt:** v6.0
-**Session count:** 7
-**Overall readiness:** 22%
+**Session count:** 9
+**Overall readiness:** 28%
 
 ---
 
@@ -11,10 +11,10 @@
 
 | Metric | Value |
 |---|---|
-| Tasks complete | 22/88 |
+| Tasks complete | 25/88 |
 | Tasks in progress | 0 |
 | Tasks blocked | 0 |
-| Tasks pending | 66 |
+| Tasks pending | 63 |
 | Audit failures | 0 |
 | Live previews passing | 0 |
 | E2E tests passing | 0/14 |
@@ -33,7 +33,7 @@
 |---|---|---|---|---|---|---|
 | 0 | Scaffold | 9/9 | 0 | 0 | 0 | 100% |
 | 1 | Schemas + Prompts + LLM Router | 7/7 | 0 | 0 | 0 | 100% |
-| 2 | Jobs Trail | 3/9 | 0 | 0 | 6 | 33% |
+| 2 | Jobs Trail | 9/9 | 0 | 0 | 0 | 100% |
 | 3 | Scholarship Engine | 0/7 | 0 | 0 | 7 | 0% |
 | 4 | Verification & Hardening | 0/5 | 0 | 0 | 5 | 0% |
 | 5 | Product Surface | 0/6 | 0 | 0 | 6 | 0% |
@@ -83,12 +83,12 @@
 | 2.1 | Fetch base + robots.txt + rate limit | ✅ Complete | `902c115` | engine/sources/fetch.py, engine/sources/robots.py, engine/sources/ratelimit.py, engine/sources/__init__.py, engine/errors.py (TransientFetchError), tests/test_sources.py, .env.example, bootstrap.sh | ✅ | ❌ | ✅ |
 | 2.2 | Portal adapters (W/G/L) | ✅ Complete | `8dbcdec` | engine/sources/portals/ (base + greenhouse + lever + workday + registry), Fetcher.post() in engine/sources/fetch.py, tests/test_portals.py, tests/test_sources.py | ✅ | ❌ | ✅ |
 | 2.3 | Visa register fetchers (UK/DE/AU) | ✅ Complete | `2272dc7` | engine/sources/registers.py, engine/sources/government.py, engine/sources/countries.py (+gov listing fields, active-only, sponsorship tagging), tests/test_registers.py, tests/test_government.py, tests/test_countries.py, docs/SOURCES.md | ✅ | ❌ | ✅ |
-| 2.4 | Credential equivalence lookup | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
+| 2.4 | Credential equivalence lookup | ✅ Complete | `bb8d7e3` | engine/credentials/__init__.py, engine/credentials/equivalence.py (28-row registry, lookup/describe/equivalence, GPA→ECTS, owner-configured remote_lookup on Fetcher), tests/test_credentials.py | ✅ | ❌ | ✅ |
 | 2.5 | Fraud filter (domain/fee/middleman) | ✅ Complete | `1e40b27` | engine/security/fraud.py, engine/security/__init__.py, tests/test_security.py (fraud section) | ✅ | ❌ | ✅ |
 | 2.6 | Injection + PII redactor | ✅ Complete | `1e40b27` | engine/security/injection.py, engine/security/redact.py, tests/test_security.py (injection/redact sections) | ✅ | ❌ | ✅ |
 | 2.7 | ATS resume generator | ✅ Complete | `1e40b27` | engine/generators/resume.py, engine/generators/__init__.py, tests/test_resume.py | ✅ | ❌ | ✅ |
-| 2.8 | pipeline.py: run_job_pipeline | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 2.9 | E2E job pipeline test | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
+| 2.8 | pipeline.py: run_job_pipeline | ✅ Complete | `bb8d7e3` | engine/pipeline.py (fetch → active screen → fraud screen → register badge → load_profile → generate_resume), engine/generators/profile.py, tests/test_pipeline.py | ✅ | ❌ | ✅ |
+| 2.9 | E2E job pipeline test | ✅ Complete | `bb8d7e3` | tests/e2e/test_job_pipeline.py (8 journeys on httpx.MockTransport, touched-host pin) | ✅ | ❌ | ✅ |
 
 ### Phase 3 — Scholarship Engine
 
@@ -230,8 +230,8 @@
 | Browse funded scholarships | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Generate SOP | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Generate research proposal | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Check credential equivalence | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Fraud filter blocks scams | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Check credential equivalence | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Fraud filter blocks scams | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
 
 ---
 
@@ -264,7 +264,7 @@
 
 | Test | File | Last Run | Result | Notes |
 |---|---|---|---|---|
-| Job pipeline | tests/e2e/test_job_pipeline.py | — | ⏳ | — (not created) |
+| Job pipeline | tests/e2e/test_job_pipeline.py | 2026-10-06 | ✅ | 8 journeys (happy path + UK register match, markdown profile, closed listing, fraud block, injection, robots, AU pending, unknown country); all hosts pinned to fixtures |
 | Scholarship pipeline | tests/e2e/test_scholarship_pipeline.py | — | ⏳ | — (not created) |
 | Checkpoint recovery | tests/e2e/test_checkpoint_recovery.py | — | ⏳ | — (not created) |
 | Circuit breaker | tests/e2e/test_circuit_breaker.py | — | ⏳ | — (not created) |
@@ -279,9 +279,10 @@
 | User onboarding | tests/e2e/test_user_onboarding.py | — | ⏳ | — (not created) |
 | Full user journey | tests/e2e/test_full_journey.py | — | ⏳ | — (not created) |
 
-> Unit tests (separate from E2E): 23 files / 231 passing / 92% engine
-> line coverage (2125 statements, 171 missed). Verified via
-> `python -m pytest --cov=engine -q`.
+> Unit tests (separate from E2E): 28 files / 290 passing / 93% engine
+> line coverage (2860 statements, 209 missed). Verified via
+> `python -m pytest --cov=engine`. `tests/e2e/test_job_pipeline.py`
+> runs offline (MockTransport) and is collected with the unit suite.
 
 ---
 ## 7. AUDIT FAILURES
@@ -326,6 +327,8 @@ Tasks marked complete in `state.json` but failing verification:
 | `08b5b0e` | state | vantia(state): 2.3 complete (run 6, 2272dc7) | — | ⏳ blocked |
 | `df67681` | 2.3 follow-up | vantia(2.3): all-country register coverage (50 European + AU dispatch, run 7) | ⏳ blocked | — |
 | `e21bc6d` | state | vantia(state): 2.3 follow-up complete (run 7, df67681) | — | ⏳ blocked |
+| `bb8d7e3` | 2.4, 2.8, 2.9 | vantia(2.4,2.8,2.9): credential equivalence + wired job pipeline + offline E2E (run 9) | ⏳ blocked | — |
+| `ddbbfc7` | state | vantia(state): 2.4,2.8,2.9 complete (run 9, bb8d7e3) — Phase 2 closed 9/9, 25/88 total | — | ⏳ blocked |
 
 > ⏳ **Push blocked this session (and session 3).** The environment's
 > cached GitHub credential is `denisprosperous`, an account without
@@ -455,13 +458,30 @@ Tasks marked complete in `state.json` but failing verification:
 
 ---
 
+### Session 9 — 2026-10-06 — Phase 2 closeout: equivalence, job pipeline, E2E (2.4, 2.8, 2.9)
+
+**Operating note (user direction):** loop continuously through the remaining task batches without stopping after each pass, and keep the working board (current task + next queue) visible every cycle.
+
+| Item | Outcome |
+|---|---|
+| 2.4 credential equivalence | `engine/credentials/`: 28-row registry with per-row `basis` provenance (GOV.UK levels, UHR/ENIC-Sweden HND assessment: 240 CATS = 120 ECTS + NQF 5 = EQF 5, French RNCP, German DQR, Bologna cycles). `lookup()/describe()/equivalence()` rank exact → contained → covered-token (stopword-guarded so a bare "degree" never matches "foundation degree"); `eqf_level` asserted **only** where a verified crosswalk exists — A level / NVQ rows carry `None` + ENIC-NARIC advice; NG OND/HND are honest gaps. `degree_in_country()` places levels 5–8 in GB/FR/DE/IE/SE/CA/AU (Bologna/AQF/NFQ names). `gpa_to_ects()` ratio bands (0.90/0.80/0.70/0.60/0.50), any scale, validated. `remote_lookup()` via Fetcher with owner-configured `VANTIA_EQUIVALENCE_ENDPOINT` — refuses when unset (no guessed URLs) |
+| 2.8 job pipeline | `engine/pipeline.py: run_job_pipeline` wired end to end: `load_listing` (robots + rate limit + closed-refusal) → belt-and-braces `filter_active` → `fraud.assess` (clean/review pass with report attached, block raises) → register badge (`published` fetch, `pending`/`unknown` degrade with reason recorded, never fatal) → `load_profile` → `generate_resume` (deterministic ship path; optional LLM polish). Result payload: `pipeline/job/fraud/sponsorship/resume` |
+| 2.8 profile loader | `engine/generators/profile.py: load_profile` — `.json` (typed fields, comma/object skills, unknown keys ignored) and `.md`/`.txt` (heading name/title with section-stopword guard, Skills bullet/comma extraction); refuses `profile_file_missing` / `profile_format_unsupported` / `profile_parse_error` |
+| 2.9 E2E | `tests/e2e/test_job_pipeline.py` — 8 journeys on `httpx.MockTransport`, zero network: full path with UK register match (Acme Robotics Ltd badge), markdown profile, closed listing, fraud block (score ≥ 4), injection abort, robots disallow, AU pending (deadline recorded, portal-only traffic), unknown country. Touched-host assertion pins footprint to fixture hosts |
+| Tests | +28 (13 credentials, 6 profile, 8 E2E, +1 net pipeline): **290 passing**, 28 files, **93% engine coverage** (2860 stmts); `ruff check` / `ruff format --check` / `mypy` clean (74 files) |
+| State | Phase 2 **9/9 complete**; 25/88 total; run 9 closed; manifest backfilled with runs 7–9 (they had never been recorded) |
+| Tooling note | Session start hung300 s on `git log` → leftover pager (`less`) processes held the terminal; fixed by `git --no-pager` + killing strays. `state.start_run()` returns the history **entry**, not the id — pass the literal run number to `end_run` |
+| Push | ❌ still blocked (403); `bb8d7e3` + `ddbbfc7` ready locally |
+
+---
+
 ## 11. NEXT SESSION ACTIONS
 
-1. 2.4 — Credential equivalence lookup — build on `engine/sources.Fetcher`
-2. 2.8 — `pipeline.py: run_job_pipeline` — fetch → `filter_active` → `fraud.assess` screen → register badge → hand to 2.7
-3. 2.9 — E2E job pipeline test (`httpx.MockTransport`, no network)
-4. Phase 3 — Scholarship engine (3.1 fetch)
-5. 2.3 follow-up (carried): fold `FederalEmploymentAgency` into a government-sources registry so `adapters_for()` and the register dispatcher share one per-country source table (`docs/SOURCES.md` checklist step 2)
+1. **Phase 3 — scholarship engine, data layer first:** 3.1 scholarship database (5 funded programs, sourced rows) → 3.4 academic credential mapper (reuse `engine/credentials` to compare the applicant's qualification to each program's entry requirement) → 3.5 application window tracker (open/closed/upcoming per program against `today`)
+2. Phase 3, generators + wiring: 3.2 SOP generator (prompt `v1_sop.md` + `sop.schema.json` already shipped in 1.4/1.2) → 3.3 research proposal generator (`v1_research_proposal.md` + `research_proposal.schema.json`) → 3.6 `pipeline.py: run_scholarship_pipeline` → 3.7 E2E scholarship pipeline test (`MockTransport`, no network). Phase 3 closes at 7/7
+3. Then Phase 4 — verification & hardening (4.1 domain verification, 4.2 idempotency registry persistence, 4.3 cross-run hash chain, 4.4 circuit breaker + GitHub issue, 4.5 Supabase schema migration + RLS)
+4. 2.3 follow-up (carried): fold `FederalEmploymentAgency` into a government-sources registry so `adapters_for()` and the register dispatcher share one per-country source table (`docs/SOURCES.md` checklist step 2)
+5. 2.8 follow-up (carried, new): `run_job_pipeline` loads by URL for W/G/L portals only — government sources are harvested through their adapters and need a detail loader before they are addressable by direct URL (documented in the `run_job_pipeline` docstring)
 6. Registers: new published country register = **one data row** in `registers._REGISTER_SPECS` (+ status flip in `countries.py`); verify before claiming "live"
 7. Push: retry when credentials allow (403 since session 3); all code/state/docs commits exist locally
 8. LLM credentials: add at least one free-tier key to `.env` so 2.7's LLM polish path and the R17/R18/R24/R25/R26/R27/R28 gates can be exercised against a live provider — today they are verified with `MockTransport` / a scripted `_FakeClient` only

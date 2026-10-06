@@ -3,12 +3,23 @@
 ## What Works
 - Phase 0 scaffold: pyproject, requirements, Dockerfile, 3 GitHub
   Actions workflows (keep-alive cron `*/14 * * * *` verified), docs.
-- Core engine modules all import cleanly (18 modules verified).
-- state_manager, locking, idempotency, hash_chain, json_utils,
-  cost_tracker, logging_config, errors, retry, execute_step, pipeline,
-  api, keep_alive, cli, persistence (supabase_client + fallback).
-- 18 test files / 165 passing tests, 91% line coverage of `engine/`
-  (`python -m pytest --cov=engine -q`).
+- Core engine modules all import cleanly; state_manager, locking,
+  idempotency, hash_chain, json_utils, cost_tracker, logging_config,
+  errors, retry, execute_step, pipeline, api, keep_alive, cli,
+  persistence (supabase_client + fallback).
+- **Phase 1 complete (7/7):** schemas (envelope, ATS, SOP, research
+  proposal), prompt templates v1, LLM stack (providers.yaml — 22
+  providers, free-first failover router, quota tracker, client with
+  dry-run / cost ceiling / hash-chained envelopes).
+- **Phase 2 complete (9/9):** fetch base (robots + rate limit), W/G/L
+  portal adapters, all-country sponsor registers (GB CSV live, AU
+  pending, 50-European dispatch), credential equivalence (28-row
+  sourced registry, GPA→ECTS, ENIC-NARIC advice on gaps), fraud +
+  injection/PII guardrails, ATS resume generator,
+  `run_job_pipeline` wired end to end, offline E2E (MockTransport).
+- Suite: 28 test files / **290 passing** / 93% line coverage of
+  `engine/`; `ruff check`, `ruff format --check` and `mypy` clean
+  (74 files).
 - Phase 1 LLM core complete (1.5/1.6/1.7): `engine/llm/providers.yaml`
   (22 providers — 12 free / 10 paid), `engine/llm/router.py`
   (key + quota filtering, free-before-paid `pick()`), `engine/llm/quota.py`
@@ -45,11 +56,9 @@
   `git push https://oauth2:<token>@github.com/paulocortex5-lgtm/Vintia.git main vantia-state`.
 
 ## What's Left
-- Phase 1 (4 left): schemas 1.1/1.2/1.3 and prompts 1.4
-  (1.5/1.6/1.7 complete this session).
-- Phase 2 (9): jobs trail — sources, visa registers, credentials,
-  fraud filter, injection/PII, ATS generator, pipeline, E2E.
-- Phase 3 (7): scholarship engine.
+- Phase 3 (7): scholarship engine — 3.1 database, 3.4 credential
+  mapper, 3.5 window tracker, 3.2 SOP, 3.3 research proposal,
+  3.6 pipeline, 3.7 E2E.
 - Phase 4 (5): verification & hardening.
 - Phase 5 (6): product surface (CLI golden tests, web UI, SEO).
 - Phase 6 (7): observability & deployment (render.yaml, vercel.json).
@@ -62,8 +71,10 @@
 - Phase 13 (6): workspace UI + full journey.
 
 ## Current Milestone
-Phase 0 complete; Phase 1 LLM core (1.5/1.6/1.7) complete, tested and
-pushed. Next: Phase 1 schemas + prompts (1.1–1.4).
+Phase 2 closed (run 9: `bb8d7e3` code, `ddbbfc7` state), 25/88 tasks
+complete. Next: Phase 3 data layer — 3.1 scholarship database →
+3.4 credential mapper → 3.5 window tracker — then generators and
+wiring (3.2 / 3.3 / 3.6 / 3.7).
 
 ## Blockers
 - None hard. Real provider/infrastructure credentials (Supabase,
