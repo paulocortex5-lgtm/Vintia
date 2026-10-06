@@ -1,12 +1,15 @@
-"""Pipeline-stub tests: every pipeline is an honest, task-named NotImplementedError.
+"""Pipeline tests: the implemented job pipeline + the honest stubs.
 
-These stubs exist so callers/tests can import the wiring points; each one
-names the task that implements it. We lock that contract down so a stub can
-never be silently mistaken for finished work.
+``run_job_pipeline`` (2.8) is wired end to end; the remaining pipelines
+still raise ``NotImplementedError`` naming the task that implements it,
+so a stub can never be mistaken for finished work. The full journey
+(fraud, registers, profiles, robots) lives in
+``tests/e2e/test_job_pipeline.py``.
 """
 
 import pytest
 
+from engine.errors import FetchError
 from engine.pipeline import (
     run_ats_scan,
     run_cover_letter,
@@ -16,9 +19,12 @@ from engine.pipeline import (
 )
 
 
-def test_job_pipeline_is_a_task_2_8_stub():
-    with pytest.raises(NotImplementedError, match="task 2.8"):
-        run_job_pipeline("https://x.com/job", "cv.pdf", "CA")
+def test_job_pipeline_is_implemented_and_rejects_unknown_urls():
+    # not a stub any more: it fails on substance (no adapter for the host),
+    # and the failure happens before any network I/O
+    with pytest.raises(FetchError) as excinfo:
+        run_job_pipeline("https://example.com/jobs/1", "cv.json", "CA")
+    assert excinfo.value.code == "unsupported_portal"
 
 
 def test_scholarship_pipeline_is_a_task_3_6_stub():

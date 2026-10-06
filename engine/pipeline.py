@@ -1,12 +1,77 @@
 """Pipeline orchestration.
 
-Phase 2/3/9 pipelines are intentionally thin here: the wiring points exist
-so callers and tests can import them, and each raises
-``NotImplementedError`` naming the task that implements it. This keeps the
-run history honest — a stub can never be mistaken for a finished pipeline.
+``run_job_pipeline`` (task 2.8) is the first fully wired pipeline:
+
+    fetch → active-only screen → fraud screen (2.5) → sponsor-register
+    badge (2.3) → ATS resume generation (2.7)
+
+Guardrail policy: fraud *screens* (``clean``/``review`` pass through
+with the report attached; ``block`` raises), registers *tag* (never
+drop), closed listings are refused (``listing_inactive``). The LLM is
+an accelerator — pass ``client``/``chain`` to polish the resume, or
+leave them ``None`` for the deterministic ship path.
+
+The remaining pipelines still raise ``NotImplementedError`` naming the
+task that implements them, so a stub can never be mistaken for finished
+work.
 """
 
 from __future__ import annotations
+
+from dataclasses import asdict
+
+from .errors import FetchError, RegisterPending
+from .generators import generate_resume, load_profile
+from .llm import LLMClient
+from .security import fraud
+from .sources import Fetcher, badge, fetch_register, filter_active, load_listing, register_spec
+from .sources.portals.base import JobListing
+
+__all__ = [
+    "run_ats_scan",
+    "run_cover_letter",
+    "run_cv_improvement",
+    "run_job_pipeline",
+    "run_scholarship_pipeline",
+]
+
+
+def _sponsorship(
+    listing: JobListing, country: str, fetcher: Fetcher
+) -> tuple[JobListing, dict[str, object]]:
+    """Badge ``listing`` against ``country``'s register; never fatal.
+
+    Pending / unavailable registers degrade to the text tagger with the
+    reason recorded — badging is a tag, not a gate (session 7 policy).
+    """
+    info: dict[str, object] = {
+        "country": country,
+        "register_status": "",
+        "matched": None,
+        "register_size": None,
+        "error": None,
+    }
+    try:
+        spec = register_spec(country)
+    except FetchError as exc:  # unknown country: badge with text only
+        info["register_status"] = "unknown_country"
+        info["error"] = str(exc)
+        return badge(listing), info
+
+    info["register_status"] = spec.status
+    try:
+        register = fetch_register(country, fetcher)
+    except RegisterPending as exc:
+        info["error"] = str(exc)
+        return badge(listing), info
+    except FetchError as exc:
+        info["register_status"] = "unavailable"
+        info["error"] = str(exc)
+        return badge(listing), info
+
+    info["register_size"] = len(register)
+    info["matched"] = register.matches(listing.company)
+    return badge(listing, register), info
 
 
 def run_job_pipeline(
@@ -14,12 +79,58 @@ def run_job_pipeline(
     resume_path: str,
     country: str,
     visa_route: str | None = None,
+    *,
+    fetcher: Fetcher | None = None,
+    client: LLMClient | None = None,
+    chain: list | None = None,
+    run_id: str = "0",
 ) -> dict:
-    """Fetch job -> verify sponsor -> filter fraud -> generate ATS resume.
+    """Fetch job → verify sponsor → filter fraud → generate ATS resume.
 
-    Implemented in task 2.8 (v3.0 spec, §5 Phase 2).
+    ``country`` selects the sponsor register to badge against (ISO
+    3166-1 alpha-2, e.g. ``"GB"``); ``resume_path`` is a ``.json`` or
+    ``.md``/``.txt`` profile read by
+    :func:`engine.generators.profile.load_profile`.
+
+    Raises ``FetchError`` (``listing_inactive`` /
+    ``unsupported_portal`` / robots), ``FraudSignalError`` (block
+    verdict) or ``InjectionDetectedError`` (hostile posting text).
+
+    Scope note: loading by URL covers the W/G/L portals (2.2);
+    government sources are harvested through their adapters and are not
+    yet addressable by direct URL (carried follow-up).
     """
-    raise NotImplementedError("run_job_pipeline is implemented in task 2.8")
+    http = fetcher if fetcher is not None else Fetcher()
+    listing = load_listing(job_url, http)  # robots + rate limit + closed-refusal inside
+    if not filter_active([listing]):  # belt & braces — active-only policy (2.1)
+        raise FetchError(
+            f"listing is no longer active: {job_url}",
+            code="listing_inactive",
+            url=job_url,
+            closes_at=listing.closes_at,
+        )
+
+    report = fraud.assess(listing)  # screen: clean/review pass, block raises
+    if report.blocked:
+        fraud.block(listing)
+
+    listing, sponsorship = _sponsorship(listing, country, http)
+    candidate = load_profile(resume_path)
+    artifact = generate_resume(candidate, listing, client=client, chain=chain, run_id=run_id)
+
+    return {
+        "pipeline": {
+            "task": "2.8",
+            "job_url": job_url,
+            "country": country,
+            "visa_route": visa_route,
+            "run_id": run_id,
+        },
+        "job": asdict(listing),
+        "fraud": report.to_dict(),
+        "sponsorship": sponsorship,
+        "resume": artifact.to_dict(),
+    }
 
 
 def run_scholarship_pipeline(

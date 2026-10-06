@@ -15,6 +15,7 @@ a prompt.
 
 from __future__ import annotations
 
+from .profile import load_profile
 from .resume import (
     CandidateProfile,
     Education,
@@ -29,4 +30,5 @@ __all__ = [
     "Experience",
     "ResumeArtifact",
     "generate_resume",
+    "load_profile",
 ]
