@@ -1,9 +1,9 @@
 # VANTIA — PLATFORM STATE
 
-**Last updated:** 2026-10-06T21:45:00Z
+**Last updated:** 2026-10-06T22:20:00Z
 **Master prompt:** v6.0
 **Session count:** 9
-**Overall readiness:** 32%
+**Overall readiness:** 36%
 
 ---
 
@@ -11,10 +11,10 @@
 
 | Metric | Value |
 |---|---|
-| Tasks complete | 28/88 |
+| Tasks complete | 32/88 |
 | Tasks in progress | 0 |
 | Tasks blocked | 0 |
-| Tasks pending | 60 |
+| Tasks pending | 56 |
 | Audit failures | 0 |
 | Live previews passing | 0 |
 | E2E tests passing | 0/14 |
@@ -34,7 +34,7 @@
 | 0 | Scaffold | 9/9 | 0 | 0 | 0 | 100% |
 | 1 | Schemas + Prompts + LLM Router | 7/7 | 0 | 0 | 0 | 100% |
 | 2 | Jobs Trail | 9/9 | 0 | 0 | 0 | 100% |
-| 3 | Scholarship Engine | 3/7 | 0 | 0 | 4 | 43% |
+| 3 | Scholarship Engine | 7/7 | 0 | 0 | 0 | 100% |
 | 4 | Verification & Hardening | 0/5 | 0 | 0 | 5 | 0% |
 | 5 | Product Surface | 0/6 | 0 | 0 | 6 | 0% |
 | 6 | Observability & Deployment | 0/7 | 0 | 0 | 7 | 0% |
@@ -95,10 +95,12 @@
 | ID | Name | Status | Commit | Files | Tested | Previewed | Verified |
 |---|---|---|---|---|---|---|---|
 | 3.1 | Scholarship database (5 programs) | ✅ Complete | `f299b00` | engine/scholarships/database.py (5 sourced rows, verified URLs, get/search), tests/test_scholarships.py | ✅ | ❌ | ✅ |
-| 3.2 | SOP generator | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 3.3 | Research proposal generator | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
+| 3.2 | SOP generator | ✅ Complete | `3821a8e` | engine/generators/sop.py (5 sections, schema-valid, honest placeholders, v1_sop polish), tests/test_sop.py | ✅ | ❌ | ✅ |
+| 3.3 | Research proposal generator | ✅ Complete | `3821a8e` | engine/generators/proposal.py (question/abstract/timeline, refuses fake keywords, v1_research_proposal polish), tests/test_proposal.py | ✅ | ❌ | ✅ |
 | 3.4 | Academic credential mapper | ✅ Complete | `f299b00` | engine/scholarships/mapper.py (three-valued verdict vs min_eqf_level), tests/test_scholarships.py | ✅ | ❌ | ✅ |
 | 3.5 | Application window tracker | ✅ Complete | `f299b00` | engine/scholarships/windows.py (month/day precision, wrap cycles, unknown state), tests/test_scholarships.py | ✅ | ❌ | ✅ |
+| 3.6 | pipeline.py: run_scholarship_pipeline | ✅ Complete | `3821a8e` | engine/pipeline.py (db → profile → credential map → window → SOP + proposal), tests/test_pipeline.py | ✅ | ❌ | ✅ |
+| 3.7 | E2E scholarship pipeline test | ✅ Complete | `3821a8e` | tests/e2e/test_scholarship_pipeline.py (7 journeys, network pinned dead, schemas validated) | ✅ | ❌ | ✅ |
 | 3.6 | pipeline.py: run_scholarship_pipeline | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
 | 3.7 | E2E scholarship pipeline test | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
 
@@ -265,7 +267,7 @@
 | Test | File | Last Run | Result | Notes |
 |---|---|---|---|---|
 | Job pipeline | tests/e2e/test_job_pipeline.py | 2026-10-06 | ✅ | 8 journeys (happy path + UK register match, markdown profile, closed listing, fraud block, injection, robots, AU pending, unknown country); all hosts pinned to fixtures |
-| Scholarship pipeline | tests/e2e/test_scholarship_pipeline.py | — | ⏳ | — (not created) |
+| Scholarship pipeline | tests/e2e/test_scholarship_pipeline.py | 2026-10-06 | ✅ | 7 journeys (happy path with both schemas validated, window never gates, sub-bachelor honesty, no-education honesty, markdown background, unknown program, sparse-input refusal); `httpx.Client.request` patched to fail on any network call |
 | Checkpoint recovery | tests/e2e/test_checkpoint_recovery.py | — | ⏳ | — (not created) |
 | Circuit breaker | tests/e2e/test_circuit_breaker.py | — | ⏳ | — (not created) |
 | Multi-provider failover | tests/e2e/test_multi_provider_failover.py | — | ⏳ | — (not created) |
@@ -279,10 +281,11 @@
 | User onboarding | tests/e2e/test_user_onboarding.py | — | ⏳ | — (not created) |
 | Full user journey | tests/e2e/test_full_journey.py | — | ⏳ | — (not created) |
 
-> Unit tests (separate from E2E): 29 files / 305 passing / 93% engine
-> line coverage (3026 statements, 218 missed). Verified via
-> `python -m pytest --cov=engine`. `tests/e2e/test_job_pipeline.py`
-> runs offline (MockTransport) and is collected with the unit suite.
+> Unit tests (separate from E2E): 32 files / 326 passing / 93% engine
+> line coverage (3289 statements, 225 missed). Verified via
+> `python -m pytest --cov=engine`. Both `tests/e2e/` files run offline
+> (MockTransport / network pinned dead) and are collected with the
+> unit suite.
 
 ---
 ## 7. AUDIT FAILURES
@@ -331,6 +334,8 @@ Tasks marked complete in `state.json` but failing verification:
 | `ddbbfc7` | state | vantia(state): 2.4,2.8,2.9 complete (run 9, bb8d7e3) — Phase 2 closed 9/9, 25/88 total | — | ⏳ blocked |
 | `f299b00` | 3.1, 3.4, 3.5 | vantia(3.1,3.4,3.5): scholarship database + credential mapper + window tracker (run 10) | ⏳ blocked | — |
 | `16172ec` | state | vantia(state): 3.1,3.4,3.5 complete (run 10, f299b00) — 28/88 total, Phase 3 3/7 | — | ⏳ blocked |
+| `3821a8e` | 3.2, 3.3, 3.6, 3.7 | vantia(3.2,3.3,3.6,3.7): SOP + research proposal generators, wired scholarship pipeline, E2E (run 11) | ⏳ blocked | — |
+| `86f713a` | state | vantia(state): 3.2,3.3,3.6,3.7 complete (run 11, 3821a8e) — Phase 3 closed 7/7, 32/88 total | — | ⏳ blocked |
 
 > ⏳ **Push blocked this session (and session 3).** The environment's
 > cached GitHub credential is `denisprosperous`, an account without
@@ -485,12 +490,24 @@ Tasks marked complete in `state.json` but failing verification:
 | Tests | +15 (`tests/test_scholarships.py`): **305 passing**, 29 files, 93% coverage (3026 stmts); ruff + mypy clean (79 files) |
 | State | 28/88 complete; Phase 3 3/7; run 10 closed (`f299b00` code, `16172ec` state) |
 
+**Run 11 (same session) — Phase 3 closeout (3.2, 3.3, 3.6, 3.7):**
+
+| Item | Outcome |
+|---|---|
+| 3.2 SOP generator | `engine/generators/sop.py` — deterministic five-section SOP (Motivation/Background/Fit/Career Goals/Closing) built only from profile facts, scholarship facts and caller inputs; honest placeholder lines when material is missing; **validates against `sop.schema.json` on every path** (including a bad `tone` being refused). LLM polish renders the shipped `v1_sop.md`, accepts only schema-valid JSON, keeps `applicant_id`/`scholarship_id` ours; unparseable output keeps the deterministic payload; provider failure sets `fallback` |
+| 3.3 research proposal | `engine/generators/proposal.py` — title/question from the caller's interests, abstract, 4-phase bounded timeline, 5 sections; **keywords derived only from real inputs** and `proposal_keywords_insufficient` refuses instead of faking index terms; validates against `research_proposal.schema.json`; same polish/fallback contract via `v1_research_proposal.md` |
+| 3.6 scholarship pipeline | `engine/pipeline.py: run_scholarship_pipeline` — database lookup → `load_profile` → credential map of the latest education entry (three-valued, informational) → window status vs `today` (**never gates**) → SOP + proposal; payload `{pipeline, scholarship, credential, window, sop, proposal}` |
+| 3.7 E2E | `tests/e2e/test_scholarship_pipeline.py` — 7 journeys with `httpx.Client.request` monkeypatched to fail on any network call; both artifact payloads validated against the shipped schemas; window-not-gating, sub-bachelor and no-education honesty, markdown background, unknown program, sparse-input refusal |
+| Defects found by the tests | `safe_parse()` **raises** on unparseable LLM output (it does not return `None`) — both `_polish` paths now catch it; research question now embeds the specific research interests rather than the broad field |
+| Tests | +21 (8 sop, 6 proposal, 7 E2E): **326 passing**, 32 files, 93% coverage (3289 stmts); ruff + mypy clean (84 files) |
+| State | **Phase 3 7/7 closed**; 32/88 total; run 11 (`3821a8e` code, `86f713a` state) |
+
 ---
 
 ## 11. NEXT SESSION ACTIONS
 
-1. **Phase 3 closeout — generators + wiring:** 3.2 SOP generator and 3.3 research proposal generator (prompts `v1_sop.md` / `v1_research_proposal.md` and schemas `sop.schema.json` / `research_proposal.schema.json` already shipped in 1.2–1.4) → 3.6 `pipeline.py: run_scholarship_pipeline` (id → database → mapper → window → SOP/proposal) → 3.7 E2E scholarship pipeline test (`MockTransport`, no network). Phase 3 closes at 7/7
-2. Then Phase 4 — verification & hardening (4.1 domain verification, 4.2 idempotency registry persistence, 4.3 cross-run hash chain, 4.4 circuit breaker + GitHub issue, 4.5 Supabase schema migration + RLS)
+1. **Phase 4 — verification & hardening:** 4.1 domain verification (DNS + CNAME), 4.2 idempotency registry persistence, 4.3 cross-run SHA-256 hash chain, 4.4 circuit breaker + GitHub issue, 4.5 Supabase schema migration + RLS. (Phases 0–3 are closed: 32/88)
+2. Then Phase 5 — product surface (CLI golden tests, web UI skeleton, SEO, waitlist) and Phase 6 — observability & deployment
 3. 2.3 follow-up (carried): fold `FederalEmploymentAgency` into a government-sources registry so `adapters_for()` and the register dispatcher share one per-country source table (`docs/SOURCES.md` checklist step 2)
 4. 2.8 follow-up (carried, new): `run_job_pipeline` loads by URL for W/G/L portals only — government sources are harvested through their adapters and need a detail loader before they are addressable by direct URL (documented in the `run_job_pipeline` docstring)
 5. Registers: new published country register = **one data row** in `registers._REGISTER_SPECS` (+ status flip in `countries.py`); verify before claiming "live"

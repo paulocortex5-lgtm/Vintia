@@ -1,11 +1,11 @@
 # Active Context
 
 ## Current Focus
-Session 9 (Phase 2 closeout). Tasks 2.4 / 2.8 / 2.9 are implemented,
-tested and lint-clean; **Phase 2 is 9/9 complete, 25/88 overall**.
-Continuous-loop mode is active per user direction: keep implementing
-batches (state + manifest + PLATFORM_STATE updated each run) until the
-platform is ship-ready, showing the working board every cycle.
+Session 9 (continuous loop). Runs 9–11 closed: Phase 2 (9/9) and
+Phase 3 (7/7) complete, **32/88 overall (36%)**. The loop now moves to
+Phase 4 — verification & hardening — then Phases 5 → 6 → 9 → 10 →
+11 → 12 → 8 → 13 → 7 (acceptance), updating state + manifest +
+PLATFORM_STATE each run.
 
 ## Recent Changes
 - `engine/credentials/` (2.4) — 28-row equivalence registry (UK FHEQ/
@@ -28,12 +28,11 @@ platform is ship-ready, showing the working board every cycle.
   session 9 in PLATFORM_STATE §10/§11.
 
 ## Next Steps
-1. 3.1 scholarship database (5 programs) — static, sourced rows.
-2. 3.4 academic credential mapper on `engine/credentials`.
-3. 3.5 application window tracker (today-based open/closed/upcoming).
-4. 3.2 SOP generator, 3.3 research proposal generator (prompts +
-   schemas already shipped), 3.6 `run_scholarship_pipeline`, 3.7 E2E.
-5. Phases 4 → 5 → 6 → 9 → 10 → 11 → 12 → 8 → 13 → 7 in later runs.
+1. Phase 4: 4.1 domain verification (DNS + CNAME), 4.2 idempotency
+   registry persistence, 4.3 cross-run hash chain, 4.4 circuit breaker
+   + GitHub issue, 4.5 Supabase schema migration + RLS.
+2. Phase 5 product surface; Phase 6 observability & deployment.
+3. Phases 9 → 10 → 11 → 12 → 8 → 13 → 7 after that.
 
 ## Known Issues
 - Supabase, Render, Vercel and Paddle credentials are `REPLACE_ME`

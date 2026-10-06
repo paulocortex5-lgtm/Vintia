@@ -56,9 +56,6 @@
   `git push https://oauth2:<token>@github.com/paulocortex5-lgtm/Vintia.git main vantia-state`.
 
 ## What's Left
-- Phase 3 (7): scholarship engine — 3.1 database, 3.4 credential
-  mapper, 3.5 window tracker, 3.2 SOP, 3.3 research proposal,
-  3.6 pipeline, 3.7 E2E.
 - Phase 4 (5): verification & hardening.
 - Phase 5 (6): product surface (CLI golden tests, web UI, SEO).
 - Phase 6 (7): observability & deployment (render.yaml, vercel.json).
@@ -71,10 +68,9 @@
 - Phase 13 (6): workspace UI + full journey.
 
 ## Current Milestone
-Phase 2 closed (run 9: `bb8d7e3` code, `ddbbfc7` state), 25/88 tasks
-complete. Next: Phase 3 data layer — 3.1 scholarship database →
-3.4 credential mapper → 3.5 window tracker — then generators and
-wiring (3.2 / 3.3 / 3.6 / 3.7).
+Phase 2 (run 9) and Phase 3 (runs 10–11) closed: **32/88 tasks**,
+32 test files / 326 passing / 93% coverage. Next: Phase 4 —
+verification & hardening (4.1–4.5).
 
 ## Blockers
 - None hard. Real provider/infrastructure credentials (Supabase,
