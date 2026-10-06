@@ -19,10 +19,12 @@ work.
 from __future__ import annotations
 
 from dataclasses import asdict
+from datetime import date
 
 from .errors import FetchError, RegisterPending
-from .generators import generate_resume, load_profile
+from .generators import generate_proposal, generate_resume, generate_sop, load_profile
 from .llm import LLMClient
+from .scholarships import get_scholarship, map_credential, window_status
 from .security import fraud
 from .sources import Fetcher, badge, fetch_register, filter_active, load_listing, register_spec
 from .sources.portals.base import JobListing
@@ -138,12 +140,95 @@ def run_scholarship_pipeline(
     field: str,
     background_path: str,
     career_goal: str,
+    *,
+    research_interests: str = "",
+    target_program: str = "",
+    applicant_id: str = "",
+    degree_level: str = "MSc",
+    country: str | None = None,
+    today: date | None = None,
+    client: LLMClient | None = None,
+    chain: list | None = None,
+    run_id: str = "0",
 ) -> dict:
-    """Match scholarship -> generate SOP / research proposal.
+    """Match scholarship → credential check → window → SOP + research proposal.
 
-    Implemented in task 3.6 (v3.0 spec, §5 Phase 3).
+    Order of operations (task 3.6): resolve the program in the database
+    (3.1), load the applicant's background, compare their latest
+    education entry's equivalence to the entry level (3.4 — a
+    three-valued, informational verdict that never blocks the run),
+    record the application window against ``today`` (3.5 — also
+    informational), then generate both artifacts (3.2 / 3.3).
+
+    Raises ``scholarship_not_found``, ``profile_*`` errors,
+    ``proposal_keywords_insufficient`` and ``SchemaValidationError``.
+    The window status never gates generation: an application prepared
+    before the cycle opens is still useful.
     """
-    raise NotImplementedError("run_scholarship_pipeline is implemented in task 3.6")
+    sch = get_scholarship(scholarship_id)
+    candidate = load_profile(background_path)
+
+    if candidate.education:
+        credential = map_credential(scholarship_id, candidate.education[0].degree, country=country)
+    else:
+        credential = {
+            "scholarship": {
+                "id": sch.id,
+                "name": sch.name,
+                "level": sch.level,
+                "min_eqf_level": sch.min_eqf_level,
+                "url": sch.url,
+            },
+            "credential_query": "",
+            "issuing_country": country.upper() if country else None,
+            "credential": None,
+            "meets_level": None,
+            "required_eqf_level": sch.min_eqf_level,
+            "advice": (
+                "no education entry in the profile — add one to check the "
+                "programme's entry-level equivalence"
+            ),
+        }
+
+    window = window_status(sch, today)
+    sop = generate_sop(
+        candidate,
+        scholarship=sch,
+        field_of_study=field,
+        career_goal=career_goal,
+        target_program=target_program,
+        applicant_id=applicant_id,
+        client=client,
+        chain=chain,
+        run_id=run_id,
+    )
+    proposal = generate_proposal(
+        candidate,
+        field_of_study=field,
+        research_interests=research_interests or career_goal,
+        career_goal=career_goal,
+        target_program=target_program,
+        funding_body=sch.provider,
+        applicant_id=applicant_id,
+        degree_level=degree_level,
+        client=client,
+        chain=chain,
+        run_id=run_id,
+    )
+
+    return {
+        "pipeline": {
+            "task": "3.6",
+            "scholarship_id": scholarship_id,
+            "field": field,
+            "run_id": run_id,
+        },
+        "scholarship": sch.to_dict(),
+        "credential": credential,
+        "window": window,
+        "sop": sop.to_dict(),
+        "proposal": proposal.to_dict(),
+    }
 
 
 def run_ats_scan(workspace_id: str, file_id: str, job_url: str) -> dict:

@@ -9,7 +9,7 @@ so a stub can never be mistaken for finished work. The full journey
 
 import pytest
 
-from engine.errors import FetchError
+from engine.errors import FetchError, VantiaError
 from engine.pipeline import (
     run_ats_scan,
     run_cover_letter,
@@ -27,9 +27,11 @@ def test_job_pipeline_is_implemented_and_rejects_unknown_urls():
     assert excinfo.value.code == "unsupported_portal"
 
 
-def test_scholarship_pipeline_is_a_task_3_6_stub():
-    with pytest.raises(NotImplementedError, match="task 3.6"):
-        run_scholarship_pipeline("sch_1", "engineering", "background.pdf", "career")
+def test_scholarship_pipeline_is_implemented_and_rejects_unknown_programs():
+    # not a stub any more: it fails on substance before any file/network work
+    with pytest.raises(VantiaError) as excinfo:
+        run_scholarship_pipeline("nope", "ml", "absent.json", "goal")
+    assert excinfo.value.code == "scholarship_not_found"
 
 
 def test_ats_scan_is_a_task_9_5_stub():
