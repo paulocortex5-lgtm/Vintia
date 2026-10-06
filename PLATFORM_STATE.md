@@ -1,9 +1,9 @@
 # VANTIA — PLATFORM STATE
 
-**Last updated:** 2026-10-06T21:10:00Z
+**Last updated:** 2026-10-06T21:45:00Z
 **Master prompt:** v6.0
 **Session count:** 9
-**Overall readiness:** 28%
+**Overall readiness:** 32%
 
 ---
 
@@ -11,10 +11,10 @@
 
 | Metric | Value |
 |---|---|
-| Tasks complete | 25/88 |
+| Tasks complete | 28/88 |
 | Tasks in progress | 0 |
 | Tasks blocked | 0 |
-| Tasks pending | 63 |
+| Tasks pending | 60 |
 | Audit failures | 0 |
 | Live previews passing | 0 |
 | E2E tests passing | 0/14 |
@@ -34,7 +34,7 @@
 | 0 | Scaffold | 9/9 | 0 | 0 | 0 | 100% |
 | 1 | Schemas + Prompts + LLM Router | 7/7 | 0 | 0 | 0 | 100% |
 | 2 | Jobs Trail | 9/9 | 0 | 0 | 0 | 100% |
-| 3 | Scholarship Engine | 0/7 | 0 | 0 | 7 | 0% |
+| 3 | Scholarship Engine | 3/7 | 0 | 0 | 4 | 43% |
 | 4 | Verification & Hardening | 0/5 | 0 | 0 | 5 | 0% |
 | 5 | Product Surface | 0/6 | 0 | 0 | 6 | 0% |
 | 6 | Observability & Deployment | 0/7 | 0 | 0 | 7 | 0% |
@@ -94,11 +94,11 @@
 
 | ID | Name | Status | Commit | Files | Tested | Previewed | Verified |
 |---|---|---|---|---|---|---|---|
-| 3.1 | Scholarship database (5 programs) | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
+| 3.1 | Scholarship database (5 programs) | ✅ Complete | `f299b00` | engine/scholarships/database.py (5 sourced rows, verified URLs, get/search), tests/test_scholarships.py | ✅ | ❌ | ✅ |
 | 3.2 | SOP generator | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
 | 3.3 | Research proposal generator | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 3.4 | Academic credential mapper | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 3.5 | Application window tracker | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
+| 3.4 | Academic credential mapper | ✅ Complete | `f299b00` | engine/scholarships/mapper.py (three-valued verdict vs min_eqf_level), tests/test_scholarships.py | ✅ | ❌ | ✅ |
+| 3.5 | Application window tracker | ✅ Complete | `f299b00` | engine/scholarships/windows.py (month/day precision, wrap cycles, unknown state), tests/test_scholarships.py | ✅ | ❌ | ✅ |
 | 3.6 | pipeline.py: run_scholarship_pipeline | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
 | 3.7 | E2E scholarship pipeline test | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
 
@@ -279,8 +279,8 @@
 | User onboarding | tests/e2e/test_user_onboarding.py | — | ⏳ | — (not created) |
 | Full user journey | tests/e2e/test_full_journey.py | — | ⏳ | — (not created) |
 
-> Unit tests (separate from E2E): 28 files / 290 passing / 93% engine
-> line coverage (2860 statements, 209 missed). Verified via
+> Unit tests (separate from E2E): 29 files / 305 passing / 93% engine
+> line coverage (3026 statements, 218 missed). Verified via
 > `python -m pytest --cov=engine`. `tests/e2e/test_job_pipeline.py`
 > runs offline (MockTransport) and is collected with the unit suite.
 
@@ -329,6 +329,8 @@ Tasks marked complete in `state.json` but failing verification:
 | `e21bc6d` | state | vantia(state): 2.3 follow-up complete (run 7, df67681) | — | ⏳ blocked |
 | `bb8d7e3` | 2.4, 2.8, 2.9 | vantia(2.4,2.8,2.9): credential equivalence + wired job pipeline + offline E2E (run 9) | ⏳ blocked | — |
 | `ddbbfc7` | state | vantia(state): 2.4,2.8,2.9 complete (run 9, bb8d7e3) — Phase 2 closed 9/9, 25/88 total | — | ⏳ blocked |
+| `f299b00` | 3.1, 3.4, 3.5 | vantia(3.1,3.4,3.5): scholarship database + credential mapper + window tracker (run 10) | ⏳ blocked | — |
+| `16172ec` | state | vantia(state): 3.1,3.4,3.5 complete (run 10, f299b00) — 28/88 total, Phase 3 3/7 | — | ⏳ blocked |
 
 > ⏳ **Push blocked this session (and session 3).** The environment's
 > cached GitHub credential is `denisprosperous`, an account without
@@ -473,18 +475,27 @@ Tasks marked complete in `state.json` but failing verification:
 | Tooling note | Session start hung300 s on `git log` → leftover pager (`less`) processes held the terminal; fixed by `git --no-pager` + killing strays. `state.start_run()` returns the history **entry**, not the id — pass the literal run number to `end_run` |
 | Push | ❌ still blocked (403); `bb8d7e3` + `ddbbfc7` ready locally |
 
+**Run 10 (same session) — Phase 3 data layer (3.1, 3.4, 3.5):**
+
+| Item | Outcome |
+|---|---|
+| 3.1 scholarship database | `engine/scholarships/database.py` — five programs with **verified official URLs** (Chevening + timeline, Commonwealth CSC, DAAD database, Erasmus+ EMJM, Australia Awards/DFAT), every row carrying a `basis` provenance stamped `2026-10-06`; only Chevening (Aug→Oct) and EMJM (Oct→Jan) embed windows because only their official pages publish a recurring cycle — DAAD/Commonwealth/Australia Awards honestly say `unknown` instead of a guessed deadline. `search_scholarships()` filters field/level/host/nationality/funding; EMJM spans every Erasmus+ programme country via `spans_europe` |
+| 3.4 credential mapper | `engine/scholarships/mapper.py` — `map_credential()` resolves the applicant's qualification through the 2.4 registry and compares `eqf_level` to `min_eqf_level`; verdict is **three-valued** (meets / falls short / `None` when unverified) with ENIC-NARIC advice — never a fabricated "you qualify" |
+| 3.5 window tracker | `engine/scholarships/windows.py` — one symmetric annual algorithm (nearest-close vs nearest-open decides `closed` vs `upcoming`) that handles same-year and year-wrapping cycles identically, closing-day inclusivity, month-precision (`"YYYY-MM"` → whole-month close), fixed one-shot windows, and `unknown` when no window is embedded. Boundary-tested: day before open / open day / close day / day after close |
+| Tests | +15 (`tests/test_scholarships.py`): **305 passing**, 29 files, 93% coverage (3026 stmts); ruff + mypy clean (79 files) |
+| State | 28/88 complete; Phase 3 3/7; run 10 closed (`f299b00` code, `16172ec` state) |
+
 ---
 
 ## 11. NEXT SESSION ACTIONS
 
-1. **Phase 3 — scholarship engine, data layer first:** 3.1 scholarship database (5 funded programs, sourced rows) → 3.4 academic credential mapper (reuse `engine/credentials` to compare the applicant's qualification to each program's entry requirement) → 3.5 application window tracker (open/closed/upcoming per program against `today`)
-2. Phase 3, generators + wiring: 3.2 SOP generator (prompt `v1_sop.md` + `sop.schema.json` already shipped in 1.4/1.2) → 3.3 research proposal generator (`v1_research_proposal.md` + `research_proposal.schema.json`) → 3.6 `pipeline.py: run_scholarship_pipeline` → 3.7 E2E scholarship pipeline test (`MockTransport`, no network). Phase 3 closes at 7/7
-3. Then Phase 4 — verification & hardening (4.1 domain verification, 4.2 idempotency registry persistence, 4.3 cross-run hash chain, 4.4 circuit breaker + GitHub issue, 4.5 Supabase schema migration + RLS)
-4. 2.3 follow-up (carried): fold `FederalEmploymentAgency` into a government-sources registry so `adapters_for()` and the register dispatcher share one per-country source table (`docs/SOURCES.md` checklist step 2)
-5. 2.8 follow-up (carried, new): `run_job_pipeline` loads by URL for W/G/L portals only — government sources are harvested through their adapters and need a detail loader before they are addressable by direct URL (documented in the `run_job_pipeline` docstring)
-6. Registers: new published country register = **one data row** in `registers._REGISTER_SPECS` (+ status flip in `countries.py`); verify before claiming "live"
-7. Push: retry when credentials allow (403 since session 3); all code/state/docs commits exist locally
-8. LLM credentials: add at least one free-tier key to `.env` so 2.7's LLM polish path and the R17/R18/R24/R25/R26/R27/R28 gates can be exercised against a live provider — today they are verified with `MockTransport` / a scripted `_FakeClient` only
+1. **Phase 3 closeout — generators + wiring:** 3.2 SOP generator and 3.3 research proposal generator (prompts `v1_sop.md` / `v1_research_proposal.md` and schemas `sop.schema.json` / `research_proposal.schema.json` already shipped in 1.2–1.4) → 3.6 `pipeline.py: run_scholarship_pipeline` (id → database → mapper → window → SOP/proposal) → 3.7 E2E scholarship pipeline test (`MockTransport`, no network). Phase 3 closes at 7/7
+2. Then Phase 4 — verification & hardening (4.1 domain verification, 4.2 idempotency registry persistence, 4.3 cross-run hash chain, 4.4 circuit breaker + GitHub issue, 4.5 Supabase schema migration + RLS)
+3. 2.3 follow-up (carried): fold `FederalEmploymentAgency` into a government-sources registry so `adapters_for()` and the register dispatcher share one per-country source table (`docs/SOURCES.md` checklist step 2)
+4. 2.8 follow-up (carried, new): `run_job_pipeline` loads by URL for W/G/L portals only — government sources are harvested through their adapters and need a detail loader before they are addressable by direct URL (documented in the `run_job_pipeline` docstring)
+5. Registers: new published country register = **one data row** in `registers._REGISTER_SPECS` (+ status flip in `countries.py`); verify before claiming "live"
+6. Push: retry when credentials allow (403 since session 3); all code/state/docs commits exist locally
+7. LLM credentials: add at least one free-tier key to `.env` so 2.7's LLM polish path and the R17/R18/R24/R25/R26/R27/R28 gates can be exercised against a live provider — today they are verified with `MockTransport` / a scripted `_FakeClient` only
 
 > Dependency note for Phase 11: `engine/credits/ledger.py` does not exist
 > yet, so `handle_webhook()` records Paddle top-ups with status
