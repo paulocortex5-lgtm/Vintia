@@ -70,3 +70,73 @@ def test_registry_treats_a_malformed_file_as_fatal(tmp_path):
             assert False, "expected JSONDecodeError for a corrupt registry"
         except _json.JSONDecodeError:
             pass
+
+
+# ── task 4.2: tamper-evident entries ─────────────────────────────────────
+
+
+def _load(path: str) -> dict:
+    import json
+
+    with open(path, encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def _dump(path: str, data: dict) -> None:
+    import json
+
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(data, fh)
+
+
+def test_verify_is_clean_after_recording(tmp_path):
+    registry = IdempotencyRegistry(str(tmp_path / "reg.json"))
+    registry.record_complete("4.1", ["engine/verification/domain.py"])
+    registry.record_complete("4.2", ["engine/idempotency.py"])
+    ok, bad = registry.verify()
+    assert ok
+    assert bad == []
+
+
+def test_verify_flags_a_tampered_entry(tmp_path):
+    """An entry edited after recording must be reported, not trusted."""
+    path = str(tmp_path / "reg.json")
+    IdempotencyRegistry(path).record_complete("4.2", ["engine/idempotency.py"])
+
+    data = _load(path)
+    for entry in data.values():
+        entry["artifacts"] = ["someone/else.py"]  # edited after the fact
+    _dump(path, data)
+
+    ok, bad = IdempotencyRegistry(path).verify()
+    assert not ok
+    assert bad == ["4.2"]
+
+
+def test_verify_flags_legacy_entries_without_hashes(tmp_path):
+    """Entries written before hardening are unverifiable, so reported."""
+    path = str(tmp_path / "reg.json")
+    _dump(
+        path,
+        {
+            key("0.3"): {
+                "task_id": "0.3",
+                "status": "complete",
+                "artifacts": ["engine/state_manager.py"],
+                "at": "2026-09-01T00:00:00Z",
+            }
+        },
+    )
+    ok, bad = IdempotencyRegistry(path).verify()
+    assert not ok
+    assert bad == ["0.3"]
+
+
+def test_entries_lists_all_oldest_first(tmp_path):
+    registry = IdempotencyRegistry(str(tmp_path / "reg.json"))
+    registry.record_complete("4.1", ["a.py"])
+    registry.record_complete("4.2", ["b.py"])
+    rows = registry.entries()
+    assert [row["task_id"] for row in rows] == ["4.1", "4.2"]
+    assert all(len(row["entry_hash"]) == 64 for row in rows)
+    assert registry.entries() == registry.entries()  # stable order

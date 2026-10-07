@@ -87,3 +87,44 @@ class HashChain:
                 return False, i
             prev = record["hash"]
         return True, len(self._records)
+
+    # ── task 4.3: cross-run audit surface ─────────────────────────────
+    def audit(self) -> dict[str, Any]:
+        """One-shot health report for the status page / run bookkeeping.
+
+        ``first_bad_seq`` is ``None`` while the chain verifies; the
+        moment any record (in *any* previous run) is edited, it names
+        the first broken sequence number.
+        """
+        ok, index = self.verify()
+        return {
+            "ok": ok,
+            "length": len(self._records),
+            "tip": self.tip,
+            "first_bad_seq": None if ok else index,
+            "checked_at": utc_now(),
+        }
+
+    def record_run(
+        self,
+        run_id: int,
+        *,
+        tasks: list[str] | None = None,
+        notes: str = "",
+        usd: float = 0.0,
+    ) -> dict[str, Any]:
+        """Append a ``run_finished`` event — the cross-run audit trail.
+
+        Every closed run (whoever closes it: ``StepExecutor`` or an
+        operator running the state manager by hand) lands in the same
+        append-only chain, so history stays verifiable across sessions.
+        """
+        return self.append(
+            {
+                "event": "run_finished",
+                "run": run_id,
+                "tasks": list(tasks or []),
+                "notes": notes,
+                "usd": usd,
+            }
+        )

@@ -5,11 +5,17 @@ of identical input never redoes work — "never re-do completed work" (§0).
 
 Registry contents live in ``.vantia/idempotency_registry.json`` and are
 committed on the ``vantia-state`` branch (§29).
+
+Task 4.2 hardens persistence: every entry carries an ``entry_hash``
+(SHA-256 over its canonical JSON), so an entry edited after the fact is
+detected by :meth:`IdempotencyRegistry.verify` instead of silently
+re-opening completed work.
 """
 
 from __future__ import annotations
 
 import hashlib
+import json
 
 from .json_utils import atomic_write_json, load_json
 from .logging_config import utc_now
@@ -24,8 +30,14 @@ def key(*parts: str) -> str:
     return hashlib.sha256("|".join(parts).encode("utf-8")).hexdigest()
 
 
+def _entry_hash(entry: dict) -> str:
+    payload = {k: v for k, v in entry.items() if k != "entry_hash"}
+    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest()
+
+
 class IdempotencyRegistry:
-    """Persistent task-id -> artifacts registry."""
+    """Persistent task-id -> artifacts registry (with tamper evidence)."""
 
     def __init__(self, path: str = ".vantia/idempotency_registry.json") -> None:
         self.path = path
@@ -48,15 +60,38 @@ class IdempotencyRegistry:
     def record_complete(self, task_id: str, artifacts: list[str]) -> str:
         """Mark ``task_id`` complete with its artifact paths."""
         digest = key(task_id)
-        data = self._read()
-        data[digest] = {
+        entry = {
             "task_id": task_id,
             "status": "complete",
             "artifacts": list(artifacts),
             "at": utc_now(),
         }
+        entry["entry_hash"] = _entry_hash(entry)
+        data = self._read()
+        data[digest] = entry
         self._write(data)
         return digest
+
+    def entries(self) -> list[dict]:
+        """All recorded entries, oldest first."""
+        data = self._read()
+        rows = [row for row in data.values() if isinstance(row, dict)]
+        return sorted(rows, key=lambda row: str(row.get("at", "")))
+
+    def verify(self) -> tuple[bool, list[str]]:
+        """Recompute every ``entry_hash``; ``(ok, offending task ids)``.
+
+        Entries written before hardening (no ``entry_hash``) are
+        reported too — unverifiable is not the same as verified.
+        """
+        bad: list[str] = []
+        for digest, entry in self._read().items():
+            if not isinstance(entry, dict) or "entry_hash" not in entry:
+                bad.append(str((entry or {}).get("task_id", digest)))
+                continue
+            if _entry_hash(entry) != entry["entry_hash"]:
+                bad.append(str(entry.get("task_id", digest)))
+        return not bad, bad
 
     def forget(self, task_id: str) -> bool:
         """Remove an entry (used by ``vantia reset``)."""

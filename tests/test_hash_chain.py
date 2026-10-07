@@ -128,3 +128,41 @@ def test_sha256_hex_is_stable():
 
 def test_missing_chain_file_is_empty(tmp_path):
     assert HashChain(str(tmp_path / "missing.json")).length == 0
+
+
+# ── task 4.3: cross-run audit surface ────────────────────────────────────
+
+
+def test_runs_recorded_in_two_sessions_stay_chained(tmp_path):
+    path = str(tmp_path / "hash_chain.json")
+
+    chain_a = HashChain(path)
+    chain_a.record_run(11, tasks=["3.6", "3.7"], notes="Phase 3 closed 7/7", usd=0.0)
+    chain_a.record_run(12, tasks=["4.1"], notes="domain verification", usd=0.0)
+
+    # a brand-new process/session over the SAME file continues the chain
+    chain_b = HashChain(path)
+    assert chain_b.length == 2
+    assert chain_b.verify() == (True, 2)
+    events = [rec["payload"]["event"] for rec in chain_b.records]
+    assert events == ["run_finished", "run_finished"]
+    assert [rec["payload"]["run"] for rec in chain_b.records] == [11, 12]
+
+
+def test_audit_reports_a_tamper_across_sessions(tmp_path):
+    path = str(tmp_path / "hash_chain.json")
+    chain = HashChain(path)
+    chain.record_run(11, tasks=["3.7"])
+    chain.record_run(12, tasks=["4.1"])
+
+    report = HashChain(path).audit()
+    assert report["ok"] is True
+    assert report["length"] == 2
+    assert report["first_bad_seq"] is None
+    assert report["tip"] == chain.tip
+
+    chain._records[0]["payload"]["run"] = 99  # forged in a later session
+    chain._save()
+    report = HashChain(path).audit()
+    assert report["ok"] is False
+    assert report["first_bad_seq"] == 0

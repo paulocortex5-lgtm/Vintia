@@ -24,6 +24,7 @@ from typing import Any
 from .errors import VantiaError
 from .hash_chain import HashChain
 from .idempotency import IdempotencyRegistry
+from .incidents import open_issue
 from .state_manager import BLOCKED_AFTER_ATTEMPTS, VantiaState
 
 LOGGER = logging.getLogger("vantia.execute_step")
@@ -52,6 +53,7 @@ class StepExecutor:
         commit: Callable[[str], str | None] | None = None,
         push: Callable[[], None] | None = None,
         max_attempts: int = BLOCKED_AFTER_ATTEMPTS,
+        issue_opener: Callable[[str, str], dict] | None = None,
     ) -> None:
         self.state = state
         self.hash_chain = hash_chain
@@ -59,6 +61,30 @@ class StepExecutor:
         self._commit = commit
         self._push = push
         self.max_attempts = max_attempts
+        self._issue_opener = issue_opener
+
+    def _open_incident(self, task_id: str, name: str, error: str, run_id: int) -> None:
+        """Task 4.4: a blocked task must produce a GitHub issue (or draft)."""
+        title = f"vantia: task {task_id} blocked (run {run_id})"
+        body = (
+            f"Task **{task_id}** ({name}) blocked after {self.max_attempts} attempts.\n\n"
+            f"```\n{error}\n```\n\nRun: {run_id}"
+        )
+        opener = self._issue_opener
+        if opener is None:
+            issues_dir = os.path.join(
+                os.path.dirname(self.state.state_dir.rstrip("/")) or ".", "issues"
+            )
+
+            def _default_opener(title: str, body: str) -> dict:
+                return open_issue(title, body, issues_dir=issues_dir)
+
+            opener = _default_opener
+        try:
+            result = opener(title, body)
+            LOGGER.info("incident reported for %s: %s", task_id, result)
+        except Exception:  # incident reporting must never mask the block
+            LOGGER.exception("incident reporting failed for %s", task_id)
 
     def run(
         self,
@@ -126,6 +152,7 @@ class StepExecutor:
             )
             if task.get("status") == "blocked":
                 status = "blocked"
+                self._open_incident(task_id, name, str(exc), run_id)
             else:
                 status = "retry"
             self.commit(f"vantia: {status} {task_id} (run {run_id})")

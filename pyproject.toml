@@ -24,6 +24,7 @@ dependencies = [
   "python-dotenv>=1.0",
   "pycountry>=23.12",
   "tenacity>=8.2",
+  "dnspython>=2.4",
   "supabase>=2.4",
 ]
 
