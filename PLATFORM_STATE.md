@@ -1,9 +1,9 @@
 # VANTIA — PLATFORM STATE
 
-**Last updated:** 2026-10-06T22:20:00Z
+**Last updated:** 2026-10-07T00:20:00Z
 **Master prompt:** v6.0
-**Session count:** 9
-**Overall readiness:** 36%
+**Session count:** 10
+**Overall readiness:** 42%
 
 ---
 
@@ -11,10 +11,10 @@
 
 | Metric | Value |
 |---|---|
-| Tasks complete | 32/88 |
+| Tasks complete | 37/88 |
 | Tasks in progress | 0 |
 | Tasks blocked | 0 |
-| Tasks pending | 56 |
+| Tasks pending | 51 |
 | Audit failures | 0 |
 | Live previews passing | 0 |
 | E2E tests passing | 0/14 |
@@ -101,18 +101,16 @@
 | 3.5 | Application window tracker | ✅ Complete | `f299b00` | engine/scholarships/windows.py (month/day precision, wrap cycles, unknown state), tests/test_scholarships.py | ✅ | ❌ | ✅ |
 | 3.6 | pipeline.py: run_scholarship_pipeline | ✅ Complete | `3821a8e` | engine/pipeline.py (db → profile → credential map → window → SOP + proposal), tests/test_pipeline.py | ✅ | ❌ | ✅ |
 | 3.7 | E2E scholarship pipeline test | ✅ Complete | `3821a8e` | tests/e2e/test_scholarship_pipeline.py (7 journeys, network pinned dead, schemas validated) | ✅ | ❌ | ✅ |
-| 3.6 | pipeline.py: run_scholarship_pipeline | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 3.7 | E2E scholarship pipeline test | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
 
 ### Phase 4 — Verification & Hardening
 
 | ID | Name | Status | Commit | Files | Tested | Previewed | Verified |
 |---|---|---|---|---|---|---|---|
-| 4.1 | Domain verification (DNS + CNAME) | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 4.2 | Idempotency registry persistence | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 4.3 | Cross-run SHA-256 hash chain | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 4.4 | Circuit breaker + GitHub issue | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 4.5 | Supabase schema migration + RLS | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
+| 4.1 | Domain verification (DNS + CNAME) | ✅ Complete | `b6a5cad` | engine/verification/domain.py (A/CNAME checks, provider expectation table, injectable resolver, loud degradation without dnspython), tests/test_domain_verification.py | ✅ | ❌ | ❌ |
+| 4.2 | Idempotency registry persistence | ✅ Complete | `b6a5cad` | engine/idempotency.py (entry_hash per entry, verify() tamper check, entries()), tests/test_idempotency.py | ✅ | ❌ | ❌ |
+| 4.3 | Cross-run SHA-256 hash chain | ✅ Complete | `b6a5cad` | engine/hash_chain.py (audit() + record_run()), tests/test_hash_chain.py | ✅ | ❌ | ❌ |
+| 4.4 | Circuit breaker + GitHub issue | ✅ Complete | `b6a5cad` | engine/incidents.py (gh CLI issue + offline draft fallback), execute_step wiring, tests/test_incidents.py | ✅ | ❌ | ❌ |
+| 4.5 | Supabase schema migration + RLS | ✅ Complete | `b6a5cad` | supabase/migrations/0001_init.sql (mirror tables, CHECK-constrained statuses, JSONB, task_progress view), tests/test_sql_schema.py | ✅ | ❌ | ❌ |
 
 ### Phase 5 — Product Surface
 
@@ -336,6 +334,8 @@ Tasks marked complete in `state.json` but failing verification:
 | `16172ec` | state | vantia(state): 3.1,3.4,3.5 complete (run 10, f299b00) — 28/88 total, Phase 3 3/7 | — | ⏳ blocked |
 | `3821a8e` | 3.2, 3.3, 3.6, 3.7 | vantia(3.2,3.3,3.6,3.7): SOP + research proposal generators, wired scholarship pipeline, E2E (run 11) | ⏳ blocked | — |
 | `86f713a` | state | vantia(state): 3.2,3.3,3.6,3.7 complete (run 11, 3821a8e) — Phase 3 closed 7/7, 32/88 total | — | ⏳ blocked |
+| `b6a5cad` | 4.1, 4.2, 4.3, 4.4, 4.5 | vantia(4.1,4.2,4.3,4.4,4.5): domain verification, tamper-evident idempotency, cross-run chain audit, incident reporter, Supabase schema (run 12) | ⏳ blocked | — |
+| `dbf0ef5` | state | vantia(state): 4.1,4.2,4.3,4.4,4.5 complete (run 12, b6a5cad) — Phase 4 closed 5/5, 37/88 total | — | ⏳ blocked |
 
 > ⏳ **Push blocked this session (and session 3).** The environment's
 > cached GitHub credential is `denisprosperous`, an account without
@@ -502,17 +502,32 @@ Tasks marked complete in `state.json` but failing verification:
 | Tests | +21 (8 sop, 6 proposal, 7 E2E): **326 passing**, 32 files, 93% coverage (3289 stmts); ruff + mypy clean (84 files) |
 | State | **Phase 3 7/7 closed**; 32/88 total; run 11 (`3821a8e` code, `86f713a` state) |
 
+**Run 12 (session 10) — Phase 4 closeout (4.1, 4.2, 4.3, 4.4, 4.5):**
+
+| Item | Outcome |
+|---|---|
+| 4.1 domain verification | `engine/verification/domain.py` — A + CNAME checks against a provider expectation table (`render`, `vercel`) via an **injectable resolver**, so tests never touch the network; `DomainReport` is serialisable for the status page; if `dnspython` is missing the report says `resolver_unavailable` **loudly** instead of reporting success. `dnspython` added to deps. `tests/test_domain_verification.py` |
+| 4.2 idempotency tamper-evidence | `engine/idempotency.py` — every entry now carries an `entry_hash` (SHA-256 over its canonical JSON); `IdempotencyRegistry.verify()` recomputes all hashes and reports tampered **and** legacy unhashed entries ("unverifiable ≠ verified"); `entries()` added. `StepExecutor` keeps recording through the registry, so it is now tamper-evident |
+| 4.3 cross-run chain audit | `engine/hash_chain.py` — `audit()` (ok / length / tip / first_bad_seq) and `record_run()`; any closed run can be appended to the append-only cross-run chain instead of living only in `state.json`. The run-12 record was written through these APIs (`audit()` reports `ok=True`, length 1) |
+| 4.4 incident reporting | `engine/incidents.py` — a blocked task opens a GitHub issue via the `gh` CLI; when the CLI is absent or the 403 environment refuses it, the incident is written as an **offline Markdown draft + index entry** under `.vantia/issues/`, so no incident is ever lost. `StepExecutor(issue_opener=...)` / `_open_incident` is guarded so a failing reporter never masks the original block |
+| 4.5 Supabase mirror | `supabase/migrations/0001_init.sql` — Postgres mirror of `.vantia/state.json` (`runs`, `tasks`, `artifacts`, `idempotency_registry` incl. the 4.2 `entry_hash` column, `hash_chain`, `incidents`, `task_progress` view) with CHECK-constrained statuses and JSONB payloads; sync is `INSERT ... ON CONFLICT`, never hand-edited. `tests/test_sql_schema.py` pins the DDL statically |
+| CLI | `vantia status` now reports the 4.3 chain audit, the 4.2 registry integrity check, and accepts `--verify-domain --domain … --expect …` for the 4.1 DNS check |
+| Defect found by the tests | Click silently renamed `--verify-domain` to `verify_domain`, which broke the callback with `TypeError: status() got an unexpected keyword argument` — fixed by declaring the parameter name explicitly (`"verify_domain_flag"`). This only surfaced once the CLI was actually invoked; an assertion-only test would not have caught it |
+| Tests | +32 new tests across 6 suites (8 domain, 7 incidents, 8 SQL schema, +4 idempotency, +2 hash chain, +3 CLI/state): **358 passing**, 35 files, 93% coverage (3484 stmts); ruff check + format and mypy clean (90 files, 0 issues) |
+| State | **Phase 4 5/5 closed**; 37/88 total; run 12 (`b6a5cad` code, `dbf0ef5` state). No LLM spend |
+
 ---
 
 ## 11. NEXT SESSION ACTIONS
 
-1. **Phase 4 — verification & hardening:** 4.1 domain verification (DNS + CNAME), 4.2 idempotency registry persistence, 4.3 cross-run SHA-256 hash chain, 4.4 circuit breaker + GitHub issue, 4.5 Supabase schema migration + RLS. (Phases 0–3 are closed: 32/88)
-2. Then Phase 5 — product surface (CLI golden tests, web UI skeleton, SEO, waitlist) and Phase 6 — observability & deployment
-3. 2.3 follow-up (carried): fold `FederalEmploymentAgency` into a government-sources registry so `adapters_for()` and the register dispatcher share one per-country source table (`docs/SOURCES.md` checklist step 2)
-4. 2.8 follow-up (carried, new): `run_job_pipeline` loads by URL for W/G/L portals only — government sources are harvested through their adapters and need a detail loader before they are addressable by direct URL (documented in the `run_job_pipeline` docstring)
-5. Registers: new published country register = **one data row** in `registers._REGISTER_SPECS` (+ status flip in `countries.py`); verify before claiming "live"
-6. Push: retry when credentials allow (403 since session 3); all code/state/docs commits exist locally
-7. LLM credentials: add at least one free-tier key to `.env` so 2.7's LLM polish path and the R17/R18/R24/R25/R26/R27/R28 gates can be exercised against a live provider — today they are verified with `MockTransport` / a scripted `_FakeClient` only
+1. **Phase 5 — product surface:** CLI golden tests, web UI skeleton, SEO, waitlist (Phases 0–4 are closed: 37/88)
+2. Then Phase 6 — observability & deployment (render.yaml, vercel.json)
+3. 4.5 follow-up: the Supabase mirror schema is written and static-checked, but RLS policies and a real `supabase db push` are untested until real credentials exist — do not claim the migration as applied
+4. 2.3 follow-up (carried): fold `FederalEmploymentAgency` into a government-sources registry so `adapters_for()` and the register dispatcher share one per-country source table (`docs/SOURCES.md` checklist step 2)
+5. 2.8 follow-up (carried, new): `run_job_pipeline` loads by URL for W/G/L portals only — government sources are harvested through their adapters and need a detail loader before they are addressable by direct URL (documented in the `run_job_pipeline` docstring)
+6. Registers: new published country register = **one data row** in `registers._REGISTER_SPECS` (+ status flip in `countries.py`); verify before claiming "live"
+7. Push: retry when credentials allow (403 since session 3); all code/state/docs commits exist locally
+8. LLM credentials: add at least one free-tier key to `.env` so 2.7's LLM polish path and the R17/R18/R24/R25/R26/R27/R28 gates can be exercised against a live provider — today they are verified with `MockTransport` / a scripted `_FakeClient` only
 
 > Dependency note for Phase 11: `engine/credits/ledger.py` does not exist
 > yet, so `handle_webhook()` records Paddle top-ups with status

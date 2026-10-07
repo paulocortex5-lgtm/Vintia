@@ -20,6 +20,19 @@
 - Suite: 28 test files / **290 passing** / 93% line coverage of
   `engine/`; `ruff check`, `ruff format --check` and `mypy` clean
   (74 files).
+- **Phase 4 complete (5/5):** `engine/verification/domain.py`
+  (DNS A/CNAME with provider expectation table, injectable resolver),
+  tamper-evident `engine/idempotency.py` (per-entry `entry_hash`,
+  `verify()` — "unverifiable ≠ verified"), cross-run
+  `engine/hash_chain.py` (`audit()` + `record_run()`),
+  `engine/incidents.py` (GitHub issue via `gh`, offline Markdown draft
+  fallback so no incident is lost), `supabase/migrations/0001_init.sql`
+  (Postgres mirror of the bookkeeping state). `vantia status` now
+  reports chain audit + registry integrity and accepts
+  `--verify-domain`.
+- Suite: 35 test files / **358 passing** / 93% line coverage of
+  `engine/` (3484 stmts); `ruff check`, `ruff format --check` and
+  `mypy` clean (90 files).
 - Phase 1 LLM core complete (1.5/1.6/1.7): `engine/llm/providers.yaml`
   (22 providers — 12 free / 10 paid), `engine/llm/router.py`
   (key + quota filtering, free-before-paid `pick()`), `engine/llm/quota.py`
@@ -56,7 +69,6 @@
   `git push https://oauth2:<token>@github.com/paulocortex5-lgtm/Vintia.git main vantia-state`.
 
 ## What's Left
-- Phase 4 (5): verification & hardening.
 - Phase 5 (6): product surface (CLI golden tests, web UI, SEO).
 - Phase 6 (7): observability & deployment (render.yaml, vercel.json).
 - Phase 7 (3): acceptance.
@@ -68,9 +80,9 @@
 - Phase 13 (6): workspace UI + full journey.
 
 ## Current Milestone
-Phase 2 (run 9) and Phase 3 (runs 10–11) closed: **32/88 tasks**,
-32 test files / 326 passing / 93% coverage. Next: Phase 4 —
-verification & hardening (4.1–4.5).
+Phase 2 (run 9), Phase 3 (runs 10–11) and Phase 4 (run 12) closed:
+**37/88 tasks**, 35 test files / 358 passing / 93% coverage. Next:
+Phase 5 — product surface (5.1–5.6).
 
 ## Blockers
 - None hard. Real provider/infrastructure credentials (Supabase,
