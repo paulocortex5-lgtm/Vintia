@@ -3,9 +3,9 @@
   "master_prompt_version": "4.0",
   "schema_version": 4,
   "created_at": "2026-10-03T22:15:00Z",
-  "updated_at": "2026-10-06T22:51:32Z",
-  "run_count": 11,
-  "last_completed_task": "3.7",
+  "updated_at": "2026-10-07T00:18:32Z",
+  "run_count": 12,
+  "last_completed_task": "4.5",
   "in_progress_task": null,
   "consecutive_failures": {},
   "deployment": {
@@ -779,70 +779,89 @@
     "4.1": {
       "name": "Domain verification (DNS + CNAME)",
       "phase": 4,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "2.5"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/verification/domain.py",
+        "tests/test_domain_verification.py",
+        "pyproject.toml",
+        "requirements.txt"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "b6a5cad",
+      "started_at": "2026-10-07T00:18:32Z",
+      "completed_at": "2026-10-07T00:18:32Z"
     },
     "4.2": {
       "name": "Idempotency registry persistence",
       "phase": 4,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "0.5",
         "0.7"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/idempotency.py",
+        "tests/test_idempotency.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "b6a5cad",
+      "started_at": "2026-10-07T00:18:32Z",
+      "completed_at": "2026-10-07T00:18:32Z"
     },
     "4.3": {
       "name": "Cross-run SHA-256 hash chain",
       "phase": 4,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "0.5",
         "0.7"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/hash_chain.py",
+        "tests/test_hash_chain.py",
+        "engine/cli.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "b6a5cad",
+      "started_at": "2026-10-07T00:18:32Z",
+      "completed_at": "2026-10-07T00:18:32Z"
     },
     "4.4": {
       "name": "Circuit breaker + GitHub issue",
       "phase": 4,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "0.6",
         "0.7"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/incidents.py",
+        "engine/execute_step.py",
+        "tests/test_incidents.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "b6a5cad",
+      "started_at": "2026-10-07T00:18:32Z",
+      "completed_at": "2026-10-07T00:18:32Z"
     },
     "4.5": {
       "name": "Supabase schema migration + RLS",
       "phase": 4,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "0.7"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "supabase/migrations/0001_init.sql",
+        "tests/test_sql_schema.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "b6a5cad",
+      "started_at": "2026-10-07T00:18:32Z",
+      "completed_at": "2026-10-07T00:18:32Z"
     },
     "5.1": {
       "name": "CLI: apply/status/resume/verify/reset",
@@ -1700,6 +1719,24 @@
         "out": 0
       },
       "notes": "Run 11: Phase 3 closes 7/7 - SOP generator and research proposal generator (deterministic-first, schema-valid on every path, honest placeholders, refuses fake keywords, LLM polish accepts only schema-valid JSON and keeps identity fields ours), run_scholarship_pipeline wired (db -> profile -> credential map -> window -> both artifacts), offline E2E with network calls pinned dead. 326 tests passing (was 305), 93% engine coverage, ruff + mypy clean (84 files). No LLM spend. Push still 403."
+    },
+    {
+      "run": 12,
+      "started_at": "2026-10-07T00:18:32Z",
+      "tasks": [
+        "4.1",
+        "4.2",
+        "4.3",
+        "4.4",
+        "4.5"
+      ],
+      "finished_at": "2026-10-07T00:18:32Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Run 12: Phase 4 closes 5/5 - DNS domain verification with provider expectation table and injectable resolver; tamper-evident idempotency entries (entry_hash + verify); cross-run HashChain.audit()/record_run(); incident reporter that falls back to offline drafts when gh/403 refuses; Supabase/Postgres mirror schema (CHECK-constrained statuses, JSONB, task_progress view) with static DDL tests; vantia status surfaces all of it. 37/88 total. No LLM spend."
     }
   ],
   "notes": "Seed v4.0. 98 tasks across 14 phases. Free-tier only. Session 1 closeout: Phase 0 verified and committed. 96/96 unit tests pass, 97% engine coverage. 0.2 vantia-state commit is aa0f228; other Phase 0 tasks commit to main 4c84504."
