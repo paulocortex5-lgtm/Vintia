@@ -3,9 +3,9 @@
   "master_prompt_version": "4.0",
   "schema_version": 4,
   "created_at": "2026-10-03T22:15:00Z",
-  "updated_at": "2026-10-09T10:16:47Z",
-  "run_count": 12,
-  "last_completed_task": "5.3",
+  "updated_at": "2026-10-09T11:37:25Z",
+  "run_count": 13,
+  "last_completed_task": "9.6",
   "in_progress_task": null,
   "consecutive_failures": {},
   "deployment": {
@@ -1154,81 +1154,98 @@
     "9.1": {
       "name": "Resume parser (PDF/DOCX extraction)",
       "phase": 9,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "8.4"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/ats/parser.py",
+        "tests/test_ats_parser.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "ba616fa",
+      "started_at": "2026-10-09T11:37:25Z",
+      "completed_at": "2026-10-09T11:37:25Z"
     },
     "9.2": {
       "name": "ATS scoring engine (12-point)",
       "phase": 9,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "9.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/ats/scoring.py",
+        "tests/test_ats_scoring.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "ba616fa",
+      "started_at": "2026-10-09T11:37:25Z",
+      "completed_at": "2026-10-09T11:37:25Z"
     },
     "9.3": {
       "name": "Keyword matcher + gap analysis",
       "phase": 9,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "9.2"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/ats/keywords.py",
+        "tests/test_ats_keywords.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "ba616fa",
+      "started_at": "2026-10-09T11:37:25Z",
+      "completed_at": "2026-10-09T11:37:25Z"
     },
     "9.4": {
       "name": "ATS score schema + API",
       "phase": 9,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "9.3"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/api.py (POST /ats/score, GET /status)",
+        "tests/test_ats_api.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "ba616fa",
+      "started_at": "2026-10-09T11:37:25Z",
+      "completed_at": "2026-10-09T11:37:25Z"
     },
     "9.5": {
       "name": "ATS scan pipeline integration",
       "phase": 9,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "9.4",
         "8.5"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/pipeline.py (run_ats_scan)",
+        "tests/test_ats_scan.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "ba616fa",
+      "started_at": "2026-10-09T11:37:25Z",
+      "completed_at": "2026-10-09T11:37:25Z"
     },
     "9.6": {
       "name": "ATS scan E2E test",
       "phase": 9,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "9.5"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "tests/e2e/test_ats_journey.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "ba616fa",
+      "started_at": "2026-10-09T11:37:25Z",
+      "completed_at": "2026-10-09T11:37:25Z"
     },
     "10.1": {
       "name": "CV improvement prompt + schema",
@@ -1569,7 +1586,8 @@
       "8": 0.0,
       "9": 0.0,
       "10": 0.0,
-      "11": 0.0
+      "11": 0.0,
+      "13": 0.0
     },
     "by_task": {}
   },
@@ -1744,6 +1762,25 @@
         "out": 0
       },
       "notes": "Run 12: Phase 4 closes 5/5 - DNS domain verification with provider expectation table and injectable resolver; tamper-evident idempotency entries (entry_hash + verify); cross-run HashChain.audit()/record_run(); incident reporter that falls back to offline drafts when gh/403 refuses; Supabase/Postgres mirror schema (CHECK-constrained statuses, JSONB, task_progress view) with static DDL tests; vantia status surfaces all of it. 37/88 total. No LLM spend."
+    },
+    {
+      "run": 13,
+      "started_at": "2026-10-09T11:37:25Z",
+      "tasks": [
+        "9.1",
+        "9.2",
+        "9.3",
+        "9.4",
+        "9.5",
+        "9.6"
+      ],
+      "finished_at": "2026-10-09T11:37:25Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Phase 9 closed 6/6 - ATS parser/scoring/keywords + /ats/score API + run_ats_scan + offline E2E; 436 tests, 93% coverage, ruff+mypy clean"
     }
   ],
   "notes": "Seed v4.0. 98 tasks across 14 phases. Free-tier only. Session 1 closeout: Phase 0 verified and committed. 96/96 unit tests pass, 97% engine coverage. 0.2 vantia-state commit is aa0f228; other Phase 0 tasks commit to main 4c84504."
