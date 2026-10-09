@@ -79,6 +79,28 @@ def test_config_loader_returns_only_the_credits_block(tmp_path):
     assert load_credits_config(str(tmp_path)) == {"token_costs": {"x": 1}}
 
 
+def test_env_vars_override_state_tiers(monkeypatch):
+    """The .env.example VANTIA_* credit vars are honoured, not decorative."""
+    from engine.credits.config import load_credits_config
+
+    monkeypatch.setenv("VANTIA_FREE_TIER_TOKENS", "4242")
+    monkeypatch.setenv("VANTIA_CREDITS_ENABLED", "false")
+    cfg = load_credits_config(state_dir="/nonexistent/state")  # seed + overlay
+    assert cfg["free_tier_tokens"] == 4242
+    assert cfg["enabled"] is False
+    assert cfg["pro_tier_tokens"] == 100_000  # untouched rows keep state/seed values
+
+
+def test_invalid_env_override_fails_loudly(monkeypatch):
+    from engine.credits.config import load_credits_config
+
+    monkeypatch.setenv("VANTIA_FREE_TIER_TOKENS", "lots")
+    with pytest.raises(VantiaError) as excinfo:
+        load_credits_config(state_dir="/nonexistent/state")
+    assert excinfo.value.code == "credits_config_invalid"
+    assert excinfo.value.context["env"] == "VANTIA_FREE_TIER_TOKENS"
+
+
 # ── 11.3 tiers ─────────────────────────────────────────────────────────
 
 

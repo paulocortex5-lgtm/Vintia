@@ -58,3 +58,42 @@ def test_self_ping_starts_a_daemon_and_is_idempotent(monkeypatch):
     assert thread.name == "vantia-self-ping"
     assert keep_alive.start_self_ping() is thread
     monkeypatch.setattr(keep_alive, "_thread", None)
+
+
+# ── CORS (task 12.5: the purchase page calls the engine cross-origin) ──
+
+
+def test_cors_allows_the_configured_frontend_origin(monkeypatch):
+    monkeypatch.setenv("VANTIA_SELF_PING", "0")
+    from fastapi.testclient import TestClient
+
+    with TestClient(app) as client:
+        response = client.get("/health", headers={"Origin": "http://localhost:3000"})
+    assert response.headers.get("access-control-allow-origin") == "http://localhost:3000"
+
+
+def test_cors_refuses_an_unlisted_origin(monkeypatch):
+    monkeypatch.setenv("VANTIA_SELF_PING", "0")
+    from fastapi.testclient import TestClient
+
+    with TestClient(app) as client:
+        response = client.get("/health", headers={"Origin": "https://evil.example"})
+    assert "access-control-allow-origin" not in response.headers
+
+
+def test_cors_preflight_passes_for_the_checkout_post(monkeypatch):
+    """A browser POST with JSON needs an OPTIONS preflight first (R51-adjacent)."""
+    monkeypatch.setenv("VANTIA_SELF_PING", "0")
+    from fastapi.testclient import TestClient
+
+    with TestClient(app) as client:
+        preflight = client.options(
+            "/credits/checkout",
+            headers={
+                "Origin": "http://localhost:3000",
+                "Access-Control-Request-Method": "POST",
+                "Access-Control-Request-Headers": "content-type",
+            },
+        )
+    assert preflight.status_code == 200
+    assert preflight.headers.get("access-control-allow-origin") == "http://localhost:3000"

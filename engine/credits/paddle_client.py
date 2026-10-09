@@ -26,16 +26,20 @@ def _price_env(pack_id: str) -> str:
     return f"PADDLE_PRICE_{pack_id.upper()}"
 
 
-def create_checkout_transaction(
-    user_id: str,
-    pack_id: str,
-    success_url: str,
-    cancel_url: str,
-) -> str:
+def create_checkout_transaction(user_id: str, pack_id: str) -> str:
     """Create a Paddle automatic-purchase transaction and return its checkout URL.
 
     The price id is read from the environment (see Part G.5); it is never
-    hardcoded (R60). The returned URL is what the frontend redirects to.
+    hardcoded (R60). ``custom_data`` carries ``{user_id, pack_id, credits}``
+    through the transaction so the webhook can attribute the top-up without
+    any lookup.
+
+    Return/success URLs are **not** passed per transaction: the pinned
+    ``paddle-python-sdk`` surface (``CreateTransaction``) has no such
+    fields — they are configured once in Paddle Dashboard → Settings →
+    Checkout (verified against the installed SDK in task 12.2 rather than
+    accepting dead parameters).
+
     Raises :class:`~engine.errors.PaddleError` on any SDK/config failure.
     """
     if pack_id not in CREDIT_PACKS:

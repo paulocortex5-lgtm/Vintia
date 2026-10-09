@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server'
 import { baseUrl } from '@/lib/settings'
 
-export const dynamic = 'force-static'
+// Note: no `export const dynamic` here — next.config.ts enables
+// `cacheComponents`, which rejects per-segment `dynamic` (Next 16). The
+// route is static by default; found + fixed by the run-16 web build gate.
 
 export async function GET() {
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>

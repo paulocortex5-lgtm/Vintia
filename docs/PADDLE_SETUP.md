@@ -15,10 +15,17 @@ wiring.
 2. Go to **Settings → API Keys** and generate an **API key**. Copy it to
    `PADDLE_API_KEY`.
 3. Go to **Settings → Notification Destinations** and add a destination:
-   - URL: `https://vantia-engine.onrender.com/api/paddle/webhook`
+   - URL: `https://vantia-engine.onrender.com/paddle/webhook`
+     (the engine's `POST /paddle/webhook` route, task 12.3 — no `/api`
+     prefix; the engine serves its routes at the root)
    - Events: `transaction.completed`, `transaction.payment_failed`,
      `subscription.created`, `subscription.canceled`, `customer.created`
    - Copy the **destination secret** to `PADDLE_WEBHOOK_SECRET`.
+4. Go to **Settings → Checkout** and set the post-purchase **success URL**
+   to `/credits?success=1` and the **cancel URL** to `/credits/purchase`.
+   The pinned `paddle-python-sdk` transaction API has no per-transaction
+   success/cancel fields (verified against the installed SDK in task 12.2),
+   so these live in the dashboard — once per environment.
 
 Paddle retries any delivery that does not return `200` within **5 seconds**,
 so the webhook route answers immediately after recording the event row
@@ -62,23 +69,32 @@ rest are server-side only (R60).
 ## 4. How a purchase flows
 
 ```
-User → /credits/purchase → clicks Buy
-  → POST /api/credits/checkout {pack_id}          (backend)
-  → engine.credits.paddle_client.create_checkout_transaction(...)
-  → returns transaction.checkout.url
-  → Paddle Checkout overlay opens
+User → /credits/purchase (web/app/credits/purchase/page.tsx)
+  → reads packs from GET /credits/packs                (backend, task 12.5)
+  → clicks Buy
+  → POST /credits/checkout {user_id, pack_id}          (backend, task 12.2)
+  → engine.credits.paddle_client.create_checkout_transaction(user_id, pack_id)
+  → returns transaction.checkout.url  (return URLs: dashboard, §1 step 4)
+  → browser redirects to Paddle Checkout
   → user pays
-  → POST /api/paddle/webhook (transaction.completed)
+  → POST /paddle/webhook (transaction.completed)       (backend, task 12.3)
   → engine.credits.paddle_webhook.handle_webhook(...)
        1. verify Paddle-Signature (HMAC-SHA256 over "<ts>:<body>", 5s window)
-       2. idempotency check: SELECT from paddle_events WHERE event_id = ?
+       2. idempotency check: paddle_events WHERE event_id = ? (0003_paddle.sql)
        3. ledger.topup_from_paddle(user_id, credits, event_id)
+          → append-only, idempotent by ref "paddle:<event_id>"
+            (engine/credits/ledger.json authoritative,
+             credit_ledger/credit_balances mirror: 0002_credits.sql)
        4. upsert paddle_events row (source of truth, R58)
   → user lands on /credits?success=1
 ```
 
 `custom_data` carries `{user_id, pack_id, credits}` through the transaction
 so the webhook can attribute the credit without any lookup.
+
+Browser CORS: the page calls the engine cross-origin — the engine allows
+only the origins in `VANTIA_ALLOWED_ORIGINS` (comma-separated; default
+`http://localhost:3000`), never `*`.
 
 ## 5. Event handling
 
@@ -94,13 +110,16 @@ so the webhook can attribute the credit without any lookup.
 
 ```bash
 pip install -r requirements.txt   # includes paddle-python-sdk
-pytest tests/test_paddle_webhook.py -v
+pytest tests/test_paddle_webhook.py tests/test_paddle_api.py \
+       tests/test_paddle_sql.py tests/e2e/test_paddle_purchase_flow.py -v
+cd web && npm install && npm run build   # the purchase page must compile
 ```
 
-The webhook tests exercise the signature check and the duplicate-event
-no-op without any network access. Live-mode requires real sandbox keys,
-which are unavailable until a Paddle account exists — mark those steps as
-blocked rather than stubbing fake keys (R13).
+The tests exercise the signature check, the duplicate-event no-op, the
+checkout route's stable error codes, the ledger's exactly-once top-up and
+the whole offline purchase journey without any network access. Live-mode
+requires real sandbox keys, which are unavailable until a Paddle account
+exists — mark those steps as blocked rather than stubbing fake keys (R13).
 
 ## 7. Going live
 

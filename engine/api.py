@@ -1,11 +1,14 @@
 """FastAPI wrapper around the engine (§0.8, §22, task 9.4).
 
-The free-tier Render deployment exposes ``GET /health`` plus the two
-product endpoints: ``GET /status`` (build/usage summary for the dashboard
-preview) and ``POST /ats/score`` (schema-valid ATS scoring, 9.4). On
-startup a daemon thread (Approach 3, §22) begins the self-ping so the
-container never hits the 15-minute cold sleep; a GitHub Actions cron
-(§0.9) provides a second, independent keep-alive layer.
+The free-tier Render deployment exposes ``GET /health`` plus the product
+endpoints: ``GET /status`` (build/usage summary for the dashboard
+preview), ``POST /ats/score`` (schema-valid ATS scoring, 9.4), the credit
+routes ``GET /credits/balance`` + ``GET /credits/estimate`` +
+``GET /credits/packs`` + ``POST /credits/checkout`` (11.5 / 12.2 / 12.5)
+and ``POST /paddle/webhook`` (12.3). On startup a daemon thread (Approach
+3, §22) begins the self-ping so the container never hits the 15-minute
+cold sleep; a GitHub Actions cron (§0.9) provides a second, independent
+keep-alive layer.
 """
 
 from __future__ import annotations
@@ -15,20 +18,24 @@ import time
 from datetime import UTC, datetime
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from . import __version__
 from .ats import parse_resume, score_resume
 from .credits import (
+    CREDIT_PACKS,
+    create_checkout_transaction,
     default_ledger,
     default_meter,
     ensure_allowance,
+    handle_webhook,
     load_credits_config,
     tier_of,
     tier_tokens,
 )
-from .errors import SchemaValidationError, VantiaError
+from .errors import PaddleError, SchemaValidationError, VantiaError
 from .json_utils import load_json, validate
 from .keep_alive import start_self_ping
 from .state_manager import VantiaState
@@ -36,6 +43,27 @@ from .state_manager import VantiaState
 _STARTED_AT = time.monotonic()
 
 app = FastAPI(title="Vantia Engine", version=__version__, docs_url=None, redoc_url=None)
+
+
+def _allowed_origins() -> list[str]:
+    """Browser origins allowed to call the engine (Vercel → Render).
+
+    Set ``VANTIA_ALLOWED_ORIGINS`` (comma-separated) in deployment; the
+    default matches the Next dev server. Never ``*`` — the credit routes
+    are keyed by ``user_id``. Read once at import: deployment config, not
+    a per-request knob.
+    """
+    raw = os.environ.get("VANTIA_ALLOWED_ORIGINS", "http://localhost:3000")
+    origins = [o.strip() for o in raw.split(",") if o.strip()]
+    return origins or ["http://localhost:3000"]
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_allowed_origins(),
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type", "Authorization"],
+)
 
 
 class AtsScoreRequest(BaseModel):
@@ -205,6 +233,92 @@ def credits_estimate(user_id: str = "", operation: str = "") -> dict[str, Any]:
     except VantiaError as exc:
         raise HTTPException(status_code=422, detail=exc.as_dict()) from exc
     return {**report, "ts": datetime.now(UTC).isoformat()}
+
+
+@app.get("/credits/packs")
+def credits_packs() -> dict[str, Any]:
+    """Credit packs + prices for the purchase page (task 12.5, UI data).
+
+    Public (no ``user_id``): pack ids, token amounts and USD prices come
+    from state ``credits.credit_packs``; when state carries no prices the
+    response says ``price_usd: null`` instead of guessing one.
+    """
+    config = load_credits_config()
+    packs = list(config.get("credit_packs") or [])
+    if not packs:  # state degraded → derive from the code table, honestly unpriced
+        packs = [
+            {"id": pid, "tokens": tokens, "price_usd": None} for pid, tokens in CREDIT_PACKS.items()
+        ]
+    return {
+        "packs": packs,
+        "paddle_environment": os.environ.get("PADDLE_ENVIRONMENT", "sandbox"),
+        "ts": datetime.now(UTC).isoformat(),
+    }
+
+
+class CheckoutRequest(BaseModel):
+    """Body of ``POST /credits/checkout`` (task 12.2).
+
+    Fields default to ``""`` so a missing key reaches the route and comes
+    back as the same stable ``as_dict()`` 422 codes the other credit
+    endpoints use, instead of a bare Pydantic validation list.
+    """
+
+    user_id: str = Field("", description="Purchasing user; flows into custom_data")
+    pack_id: str = Field("", description="One of CREDIT_PACKS (pack_10k|pack_50k|pack_250k)")
+
+
+@app.post("/credits/checkout")
+def credits_checkout(request: CheckoutRequest) -> dict[str, Any]:
+    """Open a Paddle Checkout for one credit pack (task 12.2).
+
+    Stable 422s for caller mistakes (``user_id_required``,
+    ``unknown_pack``); a Paddle/SDK/config failure surfaces as **502**
+    ``paddle_error`` — never a fake URL and never a silent fallback.
+    Paddle is the Merchant of Record (R57): this route never touches card
+    data, it only returns ``transaction.checkout.url``.
+    """
+    if not request.user_id:
+        raise HTTPException(
+            status_code=422,
+            detail=VantiaError("user_id is required", code="user_id_required").as_dict(),
+        )
+    if request.pack_id not in CREDIT_PACKS:
+        raise HTTPException(
+            status_code=422,
+            detail=VantiaError(
+                f"unknown credit pack {request.pack_id!r}; known: {', '.join(sorted(CREDIT_PACKS))}",
+                code="unknown_pack",
+            ).as_dict(),
+        )
+    try:
+        checkout_url = create_checkout_transaction(request.user_id, request.pack_id)
+    except PaddleError as exc:
+        raise HTTPException(status_code=502, detail=exc.as_dict()) from exc
+    return {
+        "checkout_url": checkout_url,
+        "pack_id": request.pack_id,
+        "credits": CREDIT_PACKS[request.pack_id],
+        "ts": datetime.now(UTC).isoformat(),
+    }
+
+
+@app.post("/paddle/webhook")
+async def paddle_webhook(request: Request) -> dict[str, Any]:
+    """Paddle notification endpoint (task 12.3 route, §G.7 / R51).
+
+    Verifies ``Paddle-Signature`` (HMAC-SHA256, 5 s window), applies the
+    idempotent ledger top-up and answers within Paddle's 5-second window.
+    An invalid/malformed signature is **400** so Paddle stops retrying;
+    processing failures surface honestly in the response body.
+    """
+    raw = await request.body()
+    signature = request.headers.get("Paddle-Signature", "")
+    try:
+        result = handle_webhook(raw, signature)
+    except PaddleError as exc:
+        raise HTTPException(status_code=400, detail=exc.as_dict()) from exc
+    return result
 
 
 @app.on_event("startup")
