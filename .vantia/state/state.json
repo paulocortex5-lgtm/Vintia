@@ -3,9 +3,9 @@
   "master_prompt_version": "4.0",
   "schema_version": 4,
   "created_at": "2026-10-03T22:15:00Z",
-  "updated_at": "2026-10-09T22:13:46Z",
-  "run_count": 14,
-  "last_completed_task": "10.6",
+  "updated_at": "2026-10-09T23:23:30Z",
+  "run_count": 15,
+  "last_completed_task": "11.6",
   "in_progress_task": null,
   "consecutive_failures": {},
   "deployment": {
@@ -1346,82 +1346,96 @@
     "11.1": {
       "name": "Credit ledger + balance tables",
       "phase": 11,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "8.2"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/credits/ledger.py",
+        "engine/credits/config.py",
+        "supabase/migrations/0002_credits.sql"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "c1591d1",
+      "started_at": "2026-10-09T23:23:30Z",
+      "completed_at": "2026-10-09T23:23:30Z"
     },
     "11.2": {
       "name": "Token metering middleware",
       "phase": 11,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "11.1",
         "1.7"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/credits/metering.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "c1591d1",
+      "started_at": "2026-10-09T23:23:30Z",
+      "completed_at": "2026-10-09T23:23:30Z"
     },
     "11.3": {
       "name": "Tier definitions + enforcement",
       "phase": 11,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "11.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/credits/tiers.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "c1591d1",
+      "started_at": "2026-10-09T23:23:30Z",
+      "completed_at": "2026-10-09T23:23:30Z"
     },
     "11.4": {
       "name": "Credit deduction on task completion",
       "phase": 11,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "11.2",
         "11.3"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/pipeline.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "c1591d1",
+      "started_at": "2026-10-09T23:23:30Z",
+      "completed_at": "2026-10-09T23:23:30Z"
     },
     "11.5": {
       "name": "Credit balance API + UI data",
       "phase": 11,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "11.4"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/api.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "c1591d1",
+      "started_at": "2026-10-09T23:23:30Z",
+      "completed_at": "2026-10-09T23:23:30Z"
     },
     "11.6": {
       "name": "Credit system E2E test",
       "phase": 11,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "11.5"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "tests/e2e/test_credit_journey.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "c1591d1",
+      "started_at": "2026-10-09T23:23:30Z",
+      "completed_at": "2026-10-09T23:23:30Z"
     },
     "12.1": {
       "name": "Paddle account + product setup",
@@ -1604,7 +1618,8 @@
       "10": 0.0,
       "11": 0.0,
       "13": 0.0,
-      "14": 0.0
+      "14": 0.0,
+      "15": 0.0
     },
     "by_task": {}
   },
@@ -1817,6 +1832,25 @@
         "out": 0
       },
       "notes": "Phase 10 closed 6/6 - CV improvement + cover letter deterministic-first; 462 tests, 93% cov"
+    },
+    {
+      "run": 15,
+      "started_at": "2026-10-09T23:23:30Z",
+      "tasks": [
+        "11.1",
+        "11.2",
+        "11.3",
+        "11.4",
+        "11.5",
+        "11.6"
+      ],
+      "finished_at": "2026-10-09T23:23:30Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Phase 11 closed 6/6 - credit ledger + metering + tiers + deduction + /credits API + offline E2E; 516 tests, 93% cov"
     }
   ],
   "notes": "Seed v4.0. 98 tasks across 14 phases. Free-tier only. Session 1 closeout: Phase 0 verified and committed. 96/96 unit tests pass, 97% engine coverage. 0.2 vantia-state commit is aa0f228; other Phase 0 tasks commit to main 4c84504."

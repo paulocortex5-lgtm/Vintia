@@ -6,6 +6,31 @@ entry in the form `vantia(<task_id>): <name> (run N)`.
 
 ## [Unreleased]
 
+### Run 15 — Phase 11 (11.1–11.6): Credit System
+- **11.1** `engine/credits/ledger.py` — local-first append-only credit
+  ledger: signed movements with `balance_after` + caller `ref`, idempotent
+  by `(user_id, ref)`, R46 `InsufficientCredits` writes nothing, best-effort
+  Supabase mirror; `supabase/migrations/0002_credits.sql` balance/ledger
+  tables (static-tested with engine↔SQL kind parity). Corrupt store fails
+  loudly (`ledger_corrupt`) instead of resetting balances.
+- **11.2** `engine/credits/metering.py` — `operation_cost()` priced from
+  state `token_costs` (unknown operation never runs free); `CreditMeter`
+  pre-flights before work and charges on completion only.
+- **11.3** `engine/credits/tiers.py` — free/pro/business read from state;
+  recorded-not-inferred tiers; allowance granted exactly once per month
+  (idempotent ref); read-only `projected_balance()`.
+- **11.4** pipelines 9.5/10.2/10.4 accept `user_id`: pre-flight (allowance
+  + R46) before any I/O, charge only after schema-valid persistence,
+  `credits` reported in the result; no `user_id` → unchanged behavior.
+- **11.5** `GET /credits/balance` (one dashboard payload) +
+  `GET /credits/estimate` (read-only, stable 422 codes).
+- **11.6** offline E2E credit journey: allowance → metered runs → R46
+  refusal with **zero network calls** → webhook double-delivery credits
+  once → shortfall estimate → full entry history.
+- Stale `ledger_pending` webhook stub test replaced with wired behavior.
+- 52 files / 516 tests / 93% (5120 stmts); ledger 98%, tiers 97%,
+  metering 100%; ruff + format + mypy green.
+
 ### Run 14 — Phase 10 (10.1–10.6): CV improvement + cover letter
 - Reconciliation: the build board and `PLATFORM_STATE.md` both lagged the
   working tree — all six Phase 10 tasks already existed; the suite was run

@@ -1,9 +1,9 @@
 # VANTIA — PLATFORM STATE
 
-**Last updated:** 2026-10-09T22:16:41Z
+**Last updated:** 2026-10-09T23:24:35Z
 **Master prompt:** v6.0
 **Session count:** 12
-**Overall readiness:** 59%
+**Overall readiness:** 66%
 
 ---
 
@@ -11,13 +11,13 @@
 
 | Metric | Value |
 |---|---|
-| Tasks complete | 52/88 |
+| Tasks complete | 58/88 |
 | Tasks in progress | 0 |
 | Tasks blocked | 0 |
-| Tasks pending | 36 |
+| Tasks pending | 30 |
 | Audit failures | 1 (5.4 — reopened in session 11) |
 | Live previews passing | 0 |
-| E2E tests passing | 24 (5 offline suites) |
+| E2E tests passing | 26 (6 offline suites) |
 | Backend deployed | no |
 | Frontend deployed | no |
 | Database migrated | no |
@@ -42,7 +42,7 @@
 | 8 | User Workspaces | 0/5 | 0 | 0 | 5 | 0% |
 | 9 | ATS Scoring Engine | 6/6 | 0 | 0 | 0 | 100% |
 | 10 | CV Improvement + Cover Letter | 6/6 | 0 | 0 | 0 | 100% |
-| 11 | Credit System | 0/6 | 0 | 0 | 6 | 0% |
+| 11 | Credit System | 6/6 | 0 | 0 | 0 | 100% |
 | 12 | Credit Purchasing | 0/6 | 0 | 0 | 6 | 0% |
 | 13 | Workspace UI + Full Journey | 0/6 | 0 | 0 | 6 | 0% |
 
@@ -179,12 +179,12 @@
 
 | ID | Name | Status | Commit | Files | Tested | Previewed | Verified |
 |---|---|---|---|---|---|---|---|
-| 11.1 | Credit ledger + balance tables | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 11.2 | Token metering middleware | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 11.3 | Tier definitions + enforcement | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 11.4 | Credit deduction on task completion | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 11.5 | Credit balance API + UI data | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 11.6 | Credit system E2E test | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
+| 11.1 | Credit ledger + balance tables | ✅ Complete | `c1591d1` | engine/credits/ledger.py (append-only, idempotent by ref, R46, STEP-K mirror), engine/credits/config.py, supabase/migrations/0002_credits.sql, tests/test_ledger.py, tests/test_credits_sql.py | ✅ | ❌ | ✅ |
+| 11.2 | Token metering middleware | ✅ Complete | `c1591d1` | engine/credits/metering.py (operation_cost from state token_costs, CreditMeter pre-flight/charge/metered), tests/test_metering.py | ✅ | ❌ | ✅ |
+| 11.3 | Tier definitions + enforcement | ✅ Complete | `c1591d1` | engine/credits/tiers.py (free/pro/business from state, once-per-month idempotent allowance, R46 enforce, projected read), tests/test_metering.py | ✅ | ❌ | ✅ |
+| 11.4 | Credit deduction on task completion | ✅ Complete | `c1591d1` | engine/pipeline.py (`_begin_charge`/`_end_charge` on 9.5/10.2/10.4 — pre-flight before work, charge only on success, `credits` in result), tests/e2e/test_credit_journey.py | ✅ | ❌ | ✅ |
+| 11.5 | Credit balance API + UI data | ✅ Complete | `c1591d1` | engine/api.py (`GET /credits/balance` one-payload dashboard data, `GET /credits/estimate` read-only with projected allowance), tests/test_credits_api.py | ✅ | ❌ | ✅ |
+| 11.6 | Credit system E2E test | ✅ Complete | `c1591d1` | tests/e2e/test_credit_journey.py (offline journey: allowance → metered runs → R46 refusal before network → webhook double-delivery → estimate shortfall), tests/test_paddle_webhook.py (stub updated to wired behavior) | ✅ | ❌ | ✅ |
 
 ### Phase 12 — Credit Purchasing
 
@@ -225,7 +225,7 @@
 | Download improved CV | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Download cover letter | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Buy credits with Paddle | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| View credit balance + history | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| View credit balance + history | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
 | Browse visa-sponsored jobs | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Browse funded scholarships | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Generate SOP | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
@@ -572,12 +572,26 @@ Tasks marked complete in `state.json` but failing verification:
 | Tests | +4 suites (+2 unit, +2 E2E): **462 passing**, 47 files, **93% coverage (4807 stmts)**; new modules `cover.py` 96% / `improve/cv.py` 92%; ruff + format + mypy clean |
 | State | run 14 recorded; Phase 10 **6/6 closed**; 52/88 total (59%); manifest run 14 appended; commit `1003b3e` (code) + state commit |
 
+**Run 15 (session 12) — 2026-10-09 — Phase 11 closeout (11.1–11.6): Credit System**
+
+| Item | Outcome |
+|---|---|
+| 11.1 ledger + balance tables | `engine/credits/ledger.py` — local-first append-only ledger (`$VANTIA_CREDITS_DIR/ledger.json`), every movement an entry with signed amount + `balance_after` + caller `ref`, **idempotent by `(user_id, ref)`** (replay moves no money), R46 `InsufficientCredits` writes nothing, thread-safe atomic writes, best-effort Supabase mirror (`credit_ledger`/`credit_balances`, never raises); `supabase/migrations/0002_credits.sql` with `check (balance >= 0)`, kind CHECK matching `ENTRY_KINDS`, PK `(user_id, ref)` — static-tested incl. engine↔SQL parity. Corrupt store raises `ledger_corrupt` **loudly** (never resets balances — money must not vanish). `topup_from_paddle` keeps the webhook contract (idempotent per event, storage failure → `PaddleError` → `ledger_pending`) |
+| 11.2 token metering | `engine/credits/metering.py` — `operation_cost()` prices from state `credits.token_costs` (unknown op → `unknown_operation` listing known prices, never silently free); `CreditMeter` = pre-flight (before work) + charge (on completion) + `metered()` context manager; estimate separates real `balance` from `available` (projected allowance, read-only). No USD↔token rate is invented anywhere |
+| 11.3 tiers | `engine/credits/tiers.py` — free/pro/business read from state (10k/100k/1M), tier **recorded not inferred** (default free, `unknown_tier` refused), allowance granted exactly once per calendar month via ref `allowance:<user>:<YYYY-MM>`, `projected_balance()` shows unclaimed allowance without writing |
+| 11.4 deduction on completion | `engine/pipeline.py` — `user_id` kwarg on `run_ats_scan`/`run_cv_improvement`/`run_cover_letter`: `_begin_charge` pre-flights (allowance + R46) **before any file/IO or fetch**, `_end_charge` charges only after schema-valid persistence; result carries `credits` (cost/balance_after/ref); no `user_id` → behavior unchanged (`credits: None`) |
+| 11.5 balance API + UI data | `GET /credits/balance` — one dashboard payload (balance, tier, allowance, operation prices, packs, recent entries); performs the idempotent monthly grant. `GET /credits/estimate` — read-only affordability with stable 422 codes (`user_id_required`, `operation_required`, `unknown_operation`) in `as_dict()` shape like 9.4. No auth yet — Phase 8 binds `user_id` to the session |
+| 11.6 E2E | `tests/e2e/test_credit_journey.py` — offline journey: allowance → metered scan (2000) → metered improvement (8000) → **R46 refusal with zero network calls** → Paddle webhook double-delivery credits once → letter succeeds (5000) → estimate shortfall (3000) → balance payload kinds `[grant, spend, spend, topup, spend]`; touched-host pin. Plus `test_pipelines_without_user_id_stay_unmetered` |
+| Stale test fixed | `test_paddle_webhook_records_event_and_is_idempotent` asserted the pre-Phase-11 `ledger_pending`/"unavailable" stub — rewritten to the wired behavior (`credited`/`ok`, exactly-once balance) |
+| Tests | +5 suites (+4 unit, +1 E2E) +54 tests: **516 passing**, 52 files, **93% coverage (5120 stmts)**; ledger 98% / tiers 97% / metering 100% / config 93%; ruff + format + mypy clean |
+| State | run 15 recorded; Phase 11 **6/6 closed**; 58/88 total (66%); manifest run 15 appended; commit `c1591d1` (code) + state commit |
+
 ---
 
 ## 11. NEXT SESSION ACTIONS
 
-1. **Run 15 — Phase 11 (Credit System), in flight:** `engine/credits/ledger.py` first (the Phase-11 dependency note below), then 11.2 token metering, 11.3 tier definitions + enforcement, 11.4 deduction on task completion, 11.5 balance API + UI data, 11.6 offline E2E
-2. **Queue (continuous loop, see `docs/BUILD_BOARD.md`):** run 16 Phase 12 → run 17 Phase 8 → run 18 Phase 6 → run 19 Phase 5 closeout (5.4/5.5/5.6) → run 20 Phase 13 → run 21 Phase 7 acceptance
+1. **Run 16 — Phase 12 (Credit Purchasing), in flight:** audit-verify 12.3 (webhook exists + tested) and 12.1 (PADDLE_SETUP doc), then build 12.2 checkout endpoint tests (client exists, untested), 12.4 top-up idempotency (now backed by the real ledger), 12.5 credit purchase UI data/page, 12.6 webhook E2E
+2. **Queue (continuous loop, see `docs/BUILD_BOARD.md`):** run 17 Phase 8 → run 18 Phase 6 → run 19 Phase 5 closeout (5.4/5.5/5.6) → run 20 Phase 13 → run 21 Phase 7 acceptance
 3. 4.5 follow-up: the Supabase mirror schema is written and static-checked, but RLS policies and a real `supabase db push` are untested until real credentials exist — do not claim the migration as applied
 4. 2.3 follow-up (carried): fold `FederalEmploymentAgency` into a government-sources registry so `adapters_for()` and the register dispatcher share one per-country source table (`docs/SOURCES.md` checklist step 2)
 5. 2.8 follow-up (carried): `run_job_pipeline` loads by URL for W/G/L portals only — government sources are harvested through their adapters and need a detail loader before they are addressable by direct URL (documented in the `run_job_pipeline` docstring)
@@ -585,10 +599,11 @@ Tasks marked complete in `state.json` but failing verification:
 7. Push: **rotate the disclosed token first** (see §12), then retry; 403 since session 3 with the cached credential; all code/state/docs commits exist locally
 8. LLM credentials: add at least one free-tier key to `.env` so 2.7's LLM polish path and the R17/R18/R24/R25/R26/R27/R28 gates can be exercised against a live provider — today they are verified with `MockTransport` / a scripted `_FakeClient` only
 
-> Dependency note for Phase 11: `engine/credits/ledger.py` does not exist
-> yet, so `handle_webhook()` records Paddle top-ups with status
-> `ledger_pending` instead of crediting the balance. Acceptable until
-> Phase 11 wires the ledger in (`topup_from_paddle`).
+> Dependency note for Phase 11: **resolved in run 15** —
+> `engine/credits/ledger.py` now exists, so `handle_webhook()` records
+> Paddle top-ups with status `credited` (idempotent per `event_id`);
+> `ledger_pending` only remains as the honest fallback when a storage
+> write itself fails (`PaddleError`).
 
 ---
 

@@ -40,9 +40,18 @@
   verbatim quantified bullets, no invented achievements); `run_cv_improvement`
   + `run_cover_letter` wired (store resolution, traversal guard, closed-
   listing refusal); prompts/schemas audit-verified; offline E2E ×2.
-- Suite (run 14, 2026-10-09): 47 test files / **462 passing** /
-  **93% line coverage of `engine/`** (4807 stmts; new modules 92–96%);
-  `ruff check`, `ruff format --check` and `mypy` clean repo-wide.
+- **Phase 11 complete (6/6, run 15 `c1591d1`):** credit system —
+  append-only idempotent `CreditLedger` + `0002_credits.sql` balance
+  tables; `CreditMeter` (prices from state, pre-flight before work,
+  charge on completion only); free/pro/business tiers with once-per-month
+  allowance + R46 enforcement; `user_id` metering on the ATS/CV-improvement/
+  cover-letter pipelines; `GET /credits/balance` + `/credits/estimate`;
+  offline credit-journey E2E (refusal with zero network calls, webhook
+  double-delivery credits exactly once).
+- Suite (run 15, 2026-10-09): 52 test files / **516 passing** /
+  **93% line coverage of `engine/`** (5120 stmts; ledger 98%, tiers 97%,
+  metering 100%); `ruff check`, `ruff format --check` and `mypy` clean
+  repo-wide.
 - Payments migrated to Paddle (task 0.0): `paddle_client`
   (checkout transactions) + `paddle_webhook` (HMAC-SHA256 + 5 s
   replay window + `paddle_events` idempotency), `docs/PADDLE_SETUP.md`.
@@ -51,24 +60,22 @@
   indexing, logging frame access, end_run return value, quota RLock
   deadlock) — details in PLATFORM_STATE §10.
 - Version-controlled: commits exist locally on `main` through the
-  run-14 code commit `1003b3e`; pushes still blocked (see Blockers).
+  run-15 code commit `c1591d1`; pushes still blocked (see Blockers).
 
-## What's Left (36 tasks)
+## What's Left (30 tasks)
 - Phase 5 (3): 5.4 SEO (reopened), 5.5 landing pages, 5.6 waitlist.
 - Phase 6 (7): observability & deployment (status page, render.yaml,
   vercel.json, supabase guide, keep-alive docs).
 - Phase 7 (3): acceptance (full E2E, failover, paid-model switching).
 - Phase 8 (5): workspaces & multi-tenancy (auth, tables, RLS, storage).
-- Phase 11 (6): credit system & tiers (`ledger.py` is the missing
-  dependency — run 15, in flight).
-- Phase 12 (6): credit purchasing (webhook 12.3 done; 12.2 code
-  exists untested; setup doc exists).
+- Phase 12 (6): credit purchasing (webhook 12.3 done + now crediting;
+  12.2 client exists untested; setup doc exists — run 16 audits + fills).
 - Phase 13 (6): workspace UI + full journey.
 
 ## Current Milestone
-Run 14 closed Phase 10 (6/6): **52/88 = 59%**, 462 tests / 93% coverage
-(4807 stmts) / gates green. The continuous loop is on **run 15 — Phase 11**,
-then 12 → 8 → 6 → 5 → 13 → 7 per `docs/BUILD_BOARD.md`.
+Run 15 closed Phase 11 (6/6): **58/88 = 66%**, 516 tests / 93% coverage
+(5120 stmts) / gates green. The continuous loop is on **run 16 — Phase 12**,
+then 8 → 6 → 5 → 13 → 7 per `docs/BUILD_BOARD.md`.
 
 ## Blockers
 - No Supabase / Render / Vercel / Paddle credentials (`REPLACE_ME`

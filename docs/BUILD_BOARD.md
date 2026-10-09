@@ -5,8 +5,8 @@
 > what is in flight and what is queued.
 
 **Session:** 12 — continuous loop to ship-ready
-**After run 14:** 52/88 tasks complete (**59%**), run 14 closed (Phase 10 6/6), code `1003b3e`
-**Baseline suite:** 462 tests passing (47 files), 93% engine coverage (4807 stmts), `ruff` + `ruff format` + `mypy` clean repo-wide
+**After run 15:** 58/88 tasks complete (**66%**), run 15 closed (Phase 11 6/6), code `c1591d1`
+**Baseline suite:** 516 tests passing (52 files), 93% engine coverage (5120 stmts), `ruff` + `ruff format` + `mypy` clean repo-wide
 
 ---
 
@@ -50,18 +50,29 @@ it was never used and must be **rotated/revoked before any GitHub push**.
 
 ---
 
+## 0.7. RUN 15 CLOSED — Phase 11 complete (2026-10-09)
+
+| | |
+|---|---|
+| Tasks | 11.1–11.6 all ✅ — append-only idempotent ledger + `0002_credits.sql` balance tables; `CreditMeter` (pre-flight before work, charge on completion); free/pro/business tiers with once-per-month allowance; `user_id` metering wired on 9.5/10.2/10.4; `GET /credits/balance` + `/credits/estimate`; offline credit journey E2E |
+| Notable | corrupt ledger fails **loudly** (`ledger_corrupt`, never resets balances); webhook's `ledger_pending` stub replaced with real `credited` behavior; no USD↔token rate invented — prices come from state only |
+| Gates | 516 tests / 5120 stmts @ 93% (ledger 98, tiers 97, metering 100) / ruff + format + mypy green |
+| Commits | `c1591d1` (code) → state commit; manifest run 15 appended |
+
+---
+
 ## 1. CURRENTLY IN FLIGHT
 
-**Run 15 — Phase 11: Credit System** (11.1 → 11.6)
+**Run 16 — Phase 12: Credit Purchasing** (audit-verify 12.1 + 12.3, then build)
 
 | # | Task | Status |
 |---|---|---|
-| 11.1 | Credit ledger + balance tables | **in flight** — `engine/credits/ledger.py` (the missing dependency named in PLATFORM_STATE §11) + balance/entry persistence |
-| 11.2 | Token metering middleware | queued — meter LLM usage into credit costs |
-| 11.3 | Tier definitions + enforcement | queued |
-| 11.4 | Credit deduction on task completion | queued — wire deduction (+ `topup_from_paddle`) into the pipelines |
-| 11.5 | Credit balance API + UI data | queued |
-| 11.6 | Credit system E2E test | queued |
+| 12.1 | Paddle account + product setup | **audit** — `docs/PADDLE_SETUP.md` exists; verify it against the state `credit_packs` + env price ids, fill gaps |
+| 12.2 | Paddle Checkout endpoint | queued — `paddle_client.create_checkout_transaction` exists but is **untested**; add FastAPI route + tests |
+| 12.3 | Paddle webhook handler | **audit** — exists + tested (`tests/test_paddle_webhook.py`, now crediting the real ledger) → verify, record ✅ |
+| 12.4 | Credit top-up logic + idempotency | queued — now backed by the run-15 ledger; verify end-to-end idempotency, close the gap |
+| 12.5 | Credit purchase UI | queued — purchase data (packs + prices) served for the frontend |
+| 12.6 | Paddle webhook E2E test | queued — offline webhook → ledger → balance-API journey |
 
 Design rules carried from the existing generators (2.7, 3.2, 3.3):
 
@@ -81,7 +92,6 @@ Design rules carried from the existing generators (2.7, 3.2, 3.3):
 
 | Run | Phase | Tasks | Notes |
 |---|---|---|---|
-| 16 | 12 — Credit Purchasing | 12.1, 12.2, 12.4, 12.5, 12.6 | **audit:** 12.3 webhook exists + tested; 12.2 client exists but untested; 12.1 doc exists (PADDLE_SETUP) — verify + fill gaps |
 | 17 | 8 — User Workspaces | 8.1–8.5 | SQL migrations + storage + isolation E2E |
 | 18 | 6 — Observability & Deployment | 6.1–6.7 | render.yaml, vercel, status page, docs |
 | 19 | 5 — Product Surface closeout | 5.4, 5.5, 5.6 | **5.4 reopened by audit**; 6 SEO landing pages + waitlist double opt-in; verify `web/` builds |
