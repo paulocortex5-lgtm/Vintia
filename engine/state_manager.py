@@ -204,8 +204,12 @@ class VantiaState:
         return self.save(data)["tasks"][task_id]
 
     # ── Run bookkeeping (§0.1 STEP D/E/F/I) ───────────────────────────
-    def start_run(self) -> int:
-        """Bump ``run_count`` and append a fresh ``run_history`` entry."""
+    def start_run(self) -> dict[str, Any]:
+        """Bump ``run_count`` and append a fresh ``run_history`` entry.
+
+        Returns the entry (its ``"run"`` key is the id) — see the session-9
+        tooling note: the id is *not* what ``run()`` returns.
+        """
         data = self.load()
         data["run_count"] = int(data.get("run_count", 0)) + 1
         run_id = data["run_count"]

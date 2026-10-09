@@ -18,11 +18,14 @@ work.
 
 from __future__ import annotations
 
+import os
 from dataclasses import asdict
 from datetime import date
 
-from .errors import FetchError, RegisterPending
+from .ats import parse_resume, score_resume
+from .errors import FetchError, RegisterPending, VantiaError
 from .generators import generate_proposal, generate_resume, generate_sop, load_profile
+from .json_utils import atomic_write_json, load_json, validate
 from .llm import LLMClient
 from .scholarships import get_scholarship, map_credential, window_status
 from .security import fraud
@@ -231,12 +234,90 @@ def run_scholarship_pipeline(
     }
 
 
-def run_ats_scan(workspace_id: str, file_id: str, job_url: str) -> dict:
-    """Upload -> parse -> score -> persist (v4.0, §21).
+def run_ats_scan(
+    workspace_id: str,
+    file_id: str,
+    job_url: str,
+    *,
+    resume: str | bytes | dict | None = None,
+    fetcher: Fetcher | None = None,
+    store_dir: str | None = None,
+    run_id: str = "0",
+) -> dict:
+    """Upload -> parse -> score -> persist (v4.0, §21, task 9.5).
 
-    Implemented in task 9.5.
+    Resume resolution: the explicit ``resume`` argument (profile dict /
+    bytes / path) wins; otherwise the stored upload
+    ``<store>/<workspace_id>/<file_id>`` where ``store`` is ``store_dir``
+    or ``$VANTIA_WORKSPACE_DIR`` or ``workspace/``. The upload is read and
+    parsed **before any network call**, a workspace id may not escape the
+    store root (``..`` / absolute paths are refused), and an unparseable
+    upload raises instead of being scored as an empty resume (9.1 rules).
+
+    The posting is loaded through the standard loader (robots + rate limit
+    + closed-refusal, 2.1/2.8) and scored deterministically (9.2) — no LLM,
+    no key, no network beyond the posting itself. The report validates
+    against ``ats_score.schema.json`` before it is returned and is
+    persisted next to the upload as ``<file>.ats.json`` when a store file
+    was used. Fraud/injection screens stay in the job pipeline (2.8); a
+    scan never applies, it only reports.
     """
-    raise NotImplementedError("run_ats_scan is implemented in task 9.5")
+    report_path: str | None = None
+    if resume is None:
+        root = os.path.abspath(store_dir or os.environ.get("VANTIA_WORKSPACE_DIR", "workspace"))
+        target = os.path.abspath(os.path.join(root, workspace_id, file_id))
+        if not target.startswith(root + os.sep):
+            raise VantiaError(
+                "workspace path escapes the store root",
+                code="workspace_path_invalid",
+                workspace_id=workspace_id,
+                file_id=file_id,
+            )
+        if not os.path.isfile(target):
+            raise VantiaError(
+                f"resume not found for {workspace_id}/{file_id}",
+                code="profile_file_missing",
+                workspace_id=workspace_id,
+                file_id=file_id,
+            )
+        resume = target
+        report_path = target + ".ats.json"
+
+    parsed = parse_resume(resume)
+    listing = load_listing(job_url, fetcher)
+    if not listing.is_active():
+        raise FetchError(
+            f"listing is no longer active: {job_url}",
+            code="listing_inactive",
+            url=job_url,
+            closes_at=listing.closes_at,
+        )
+    report = score_resume(
+        parsed,
+        job_title=listing.title,
+        job_description=listing.description,
+        job_location=listing.location,
+    )
+    payload = report.payload(resume_id=file_id, job_id=listing.external_id or job_url)
+    schema = load_json(os.path.join(os.path.dirname(__file__), "schemas", "ats_score.schema.json"))
+    if schema is None:  # pragma: no cover — packaged file must exist
+        raise VantiaError("ats_score.schema.json missing", code="schema_missing")
+    validate(payload, schema)
+    if report_path is not None:
+        atomic_write_json(report_path, payload)
+    return {
+        "pipeline": {
+            "task": "9.5",
+            "workspace_id": workspace_id,
+            "file_id": file_id,
+            "job_url": job_url,
+            "run_id": run_id,
+        },
+        "job": asdict(listing),
+        "report": payload,
+        "report_path": report_path,
+        "parser": {**parsed.metadata, "warnings": list(parsed.parse_warnings)},
+    }
 
 
 def run_cv_improvement(workspace_id: str, file_id: str) -> dict:

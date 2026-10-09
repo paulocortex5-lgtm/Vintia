@@ -1,6 +1,7 @@
-"""Pipeline tests: the implemented job pipeline + the honest stubs.
+"""Pipeline tests: the implemented pipelines + the honest stubs.
 
-``run_job_pipeline`` (2.8) is wired end to end; the remaining pipelines
+``run_job_pipeline`` (2.8), ``run_scholarship_pipeline`` (3.6) and
+``run_ats_scan`` (9.5) are wired end to end; the two remaining pipelines
 still raise ``NotImplementedError`` naming the task that implements it,
 so a stub can never be mistaken for finished work. The full journey
 (fraud, registers, profiles, robots) lives in
@@ -34,9 +35,12 @@ def test_scholarship_pipeline_is_implemented_and_rejects_unknown_programs():
     assert excinfo.value.code == "scholarship_not_found"
 
 
-def test_ats_scan_is_a_task_9_5_stub():
-    with pytest.raises(NotImplementedError, match="task 9.5"):
-        run_ats_scan("ws_1", "file_1", "https://x.com/job")
+def test_ats_scan_is_implemented_and_rejects_unknown_urls():
+    # not a stub any more (9.5): fails on substance (no adapter for the host)
+    # with an explicit resume, before any file/network work
+    with pytest.raises(FetchError) as excinfo:
+        run_ats_scan("ws_1", "file_1", "https://x.com/job", resume={"name": "X"})
+    assert excinfo.value.code == "unsupported_portal"
 
 
 def test_cv_improvement_is_a_task_10_2_stub():

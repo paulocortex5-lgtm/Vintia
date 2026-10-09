@@ -80,7 +80,9 @@ def _resolve_runner(path: str) -> Callable[[], Any]:
         try:
             module = importlib.import_module(module_path)
         except ModuleNotFoundError as exc:
-            raise click.ClickException(f"cannot import runner module {module_path!r}: {exc}") from exc
+            raise click.ClickException(
+                f"cannot import runner module {module_path!r}: {exc}"
+            ) from exc
         if os.getcwd() not in sys.path:
             sys.path.insert(0, os.getcwd())
             try:
@@ -185,11 +187,15 @@ def _run_task(
 
 @main.command("apply")
 @click.argument("task", required=False, default=None)
-@click.option("--execute", "execute_path", required=True, help="Runner as 'module.attr' or 'script.py:attr'.")
+@click.option(
+    "--execute", "execute_path", required=True, help="Runner as 'module.attr' or 'script.py:attr'."
+)
 @click.option("--run-id", type=int, default=None, help="Reuse an existing run id.")
 @click.option("--commit", "commit_flag", is_flag=True, help="git-commit the tree after success.")
 @click.option("--force", is_flag=True, help="Run a blocked/already-complete task anyway.")
-def apply_task(task: str | None, execute_path: str, run_id: int | None, commit_flag: bool, force: bool) -> None:
+def apply_task(
+    task: str | None, execute_path: str, run_id: int | None, commit_flag: bool, force: bool
+) -> None:
     """Run one task through the StepExecutor harness.
 
     Executes ``runner = import(EXECUTE_PATH)()`` with full bookkeeping
@@ -220,7 +226,9 @@ def apply_task(task: str | None, execute_path: str, run_id: int | None, commit_f
 
 
 @main.command("resume")
-@click.option("--execute", "execute_path", required=True, help="Runner as 'module.attr' or 'script.py:attr'.")
+@click.option(
+    "--execute", "execute_path", required=True, help="Runner as 'module.attr' or 'script.py:attr'."
+)
 @click.option("--run-id", type=int, default=None, help="Reuse an existing run id.")
 def resume(execute_path: str, run_id: int | None) -> None:
     """Pick up the in-progress task after a crash.
@@ -321,7 +329,9 @@ def status(
 
 
 @main.command("verify")
-@click.option("--task", "task_ids", default=None, help="Comma-separated tasks whose artifacts are checked.")
+@click.option(
+    "--task", "task_ids", default=None, help="Comma-separated tasks whose artifacts are checked."
+)
 @click.option("--domain", default=None, help="Also run the task 4.1 DNS check for this domain.")
 @click.option("--expect", "expected", default=None, help="Expected CNAME provider/suffix.")
 @click.option("--json", "as_json", is_flag=True, help="Emit a machine-readable report.")
@@ -374,9 +384,7 @@ def verify(task_ids: str | None, domain: str | None, expected: str | None, as_js
         if task is None:
             missing_artifacts[task_id] = ["task not in state"]
             continue
-        absent = [
-            a for a in task.get("artifacts", []) if not os.path.exists(a)
-        ]
+        absent = [a for a in task.get("artifacts", []) if not os.path.exists(a)]
         if absent:
             missing_artifacts[task_id] = absent
     checks.append(
@@ -435,7 +443,9 @@ def reset_state(assume_yes: bool, hard: bool) -> None:
         return
     if not state.exists:
         raise click.ClickException(f"no state at {state.path}; run `vantia init` first")
-    chain.append({"event": "state_reset", "ts": utc_now(), "run_count": state.load().get("run_count")})
+    chain.append(
+        {"event": "state_reset", "ts": utc_now(), "run_count": state.load().get("run_count")}
+    )
     state.reset()
     registry = IdempotencyRegistry()
     if os.path.exists(registry.path):

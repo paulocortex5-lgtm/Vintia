@@ -36,14 +36,12 @@ _MAX_CHAIN = 5
 def _default_resolve(name: str, rtype: str) -> list[str]:
     """System DNS via dnspython when installed, else stdlib A-only."""
     try:
-        import dns.resolver  # type: ignore[import-not-found]
+        from dns import resolver as _dns_resolver  # type: ignore[import-not-found]
     except ImportError:
-        dns = None
-    else:
-        dns = dns.resolver  # type: ignore[assignment]
-    if dns is not None:
+        _dns_resolver = None  # type: ignore[assignment]
+    if _dns_resolver is not None:
         try:
-            answers = dns.resolve(name, rtype)
+            answers = _dns_resolver.resolve(name, rtype)
         except Exception:  # noqa: BLE001 — NXDOMAIN/timeout/NoAnswer all mean "no records"
             return []
         if rtype == "CNAME":

@@ -100,9 +100,7 @@ def test_apply_reuses_explicit_run_id(inited: CliRunner) -> None:
 
 def _block_01(cli: CliRunner) -> list[int]:
     """Three consecutive failed applies are what block a task (STEP G.5)."""
-    return [
-        cli.invoke(main, ["apply", "--execute", RUNNER_FAIL]).exit_code for _ in range(3)
-    ]
+    return [cli.invoke(main, ["apply", "--execute", RUNNER_FAIL]).exit_code for _ in range(3)]
 
 
 def test_apply_failure_retries_then_blocks(inited: CliRunner) -> None:
@@ -135,9 +133,7 @@ def test_apply_bad_runner_exits_nonzero(inited: CliRunner) -> None:
 
 def test_apply_script_path_runner(inited: CliRunner) -> None:
     """`script.py:attr` sidesteps site-packages namespace collisions."""
-    result = inited.invoke(
-        main, ["apply", "0.2", "--execute", RUNNER_OK]
-    )
+    result = inited.invoke(main, ["apply", "0.2", "--execute", RUNNER_OK])
     assert result.exit_code == 0, result.output
     assert VantiaState().load()["tasks"]["0.2"]["status"] == "complete"
 
