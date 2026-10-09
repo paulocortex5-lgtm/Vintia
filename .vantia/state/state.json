@@ -3,9 +3,9 @@
   "master_prompt_version": "4.0",
   "schema_version": 4,
   "created_at": "2026-10-03T22:15:00Z",
-  "updated_at": "2026-10-09T11:37:25Z",
-  "run_count": 13,
-  "last_completed_task": "9.6",
+  "updated_at": "2026-10-09T22:13:46Z",
+  "run_count": 14,
+  "last_completed_task": "10.6",
   "in_progress_task": null,
   "consecutive_failures": {},
   "deployment": {
@@ -1250,82 +1250,98 @@
     "10.1": {
       "name": "CV improvement prompt + schema",
       "phase": 10,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "1.7",
         "9.4"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/prompts/v1_cv_improve.md",
+        "engine/schemas/cv_improvement.schema.json"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "1003b3e",
+      "started_at": "2026-10-09T22:13:46Z",
+      "completed_at": "2026-10-09T22:13:46Z"
     },
     "10.2": {
       "name": "CV improver engine",
       "phase": 10,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "10.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/improve/cv.py",
+        "engine/pipeline.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "1003b3e",
+      "started_at": "2026-10-09T22:13:46Z",
+      "completed_at": "2026-10-09T22:13:46Z"
     },
     "10.3": {
       "name": "Cover letter prompt + schema",
       "phase": 10,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "1.7",
         "9.4"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/prompts/v1_cover_letter.md",
+        "engine/schemas/cover_letter.schema.json"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "1003b3e",
+      "started_at": "2026-10-09T22:13:46Z",
+      "completed_at": "2026-10-09T22:13:46Z"
     },
     "10.4": {
       "name": "Cover letter generator",
       "phase": 10,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "10.3"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/generators/cover.py",
+        "engine/pipeline.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "1003b3e",
+      "started_at": "2026-10-09T22:13:46Z",
+      "completed_at": "2026-10-09T22:13:46Z"
     },
     "10.5": {
       "name": "CV improvement E2E test",
       "phase": 10,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "10.2"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "tests/e2e/test_cv_improvement_flow.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "1003b3e",
+      "started_at": "2026-10-09T22:13:46Z",
+      "completed_at": "2026-10-09T22:13:46Z"
     },
     "10.6": {
       "name": "Cover letter E2E test",
       "phase": 10,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "10.4"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "tests/e2e/test_cover_letter_flow.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "1003b3e",
+      "started_at": "2026-10-09T22:13:46Z",
+      "completed_at": "2026-10-09T22:13:46Z"
     },
     "11.1": {
       "name": "Credit ledger + balance tables",
@@ -1587,7 +1603,8 @@
       "9": 0.0,
       "10": 0.0,
       "11": 0.0,
-      "13": 0.0
+      "13": 0.0,
+      "14": 0.0
     },
     "by_task": {}
   },
@@ -1781,6 +1798,25 @@
         "out": 0
       },
       "notes": "Phase 9 closed 6/6 - ATS parser/scoring/keywords + /ats/score API + run_ats_scan + offline E2E; 436 tests, 93% coverage, ruff+mypy clean"
+    },
+    {
+      "run": 14,
+      "started_at": "2026-10-09T22:13:46Z",
+      "tasks": [
+        "10.1",
+        "10.2",
+        "10.3",
+        "10.4",
+        "10.5",
+        "10.6"
+      ],
+      "finished_at": "2026-10-09T22:13:46Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Phase 10 closed 6/6 - CV improvement + cover letter deterministic-first; 462 tests, 93% cov"
     }
   ],
   "notes": "Seed v4.0. 98 tasks across 14 phases. Free-tier only. Session 1 closeout: Phase 0 verified and committed. 96/96 unit tests pass, 97% engine coverage. 0.2 vantia-state commit is aa0f228; other Phase 0 tasks commit to main 4c84504."

@@ -4,9 +4,9 @@
 > permanent record; this file is the *right now* view so you can always see
 > what is in flight and what is queued.
 
-**Session:** 11 — audit → continuous loop to ship-ready
-**After run 13:** 46/88 tasks complete (**52%**), run 13 closed, HEAD `d6f3287`
-**Baseline suite:** 436 tests passing (42 files), 93% engine coverage, `ruff` + `ruff format` + `mypy` clean repo-wide
+**Session:** 12 — continuous loop to ship-ready
+**After run 14:** 52/88 tasks complete (**59%**), run 14 closed (Phase 10 6/6), code `1003b3e`
+**Baseline suite:** 462 tests passing (47 files), 93% engine coverage (4807 stmts), `ruff` + `ruff format` + `mypy` clean repo-wide
 
 ---
 
@@ -38,18 +38,30 @@ it was never used and must be **rotated/revoked before any GitHub push**.
 
 ---
 
+## 0.6. RUN 14 CLOSED — Phase 10 complete (2026-10-09)
+
+| | |
+|---|---|
+| Reconciled first | Board said 10.2/10.4/10.5/10.6 "queued", `PLATFORM_STATE.md` said Phase 10 0/6, `state.json` said pending — but the tree already had all six tasks. Suite run (462 green, gates clean) **before** anything was recorded |
+| Tasks | 10.1–10.6 all ✅ — prompts/schemas audit-verified; `engine/improve/cv.py` (92% cov) fact-preserving edits; `engine/generators/cover.py` (96% cov) facts-only letters; `run_cv_improvement` + `run_cover_letter` wired; 2 offline E2E suites |
+| Honesty notes | identity never model-owned (`original_cv_id`/`resume_id`/`job_id` re-stamped), summary counts recounted from shipped lists, JD keywords never invented without resume evidence |
+| Gates | 462 tests / 4807 stmts @ 93% / ruff + format + mypy green |
+| Commits | `1003b3e` (code) → state commit; manifest run 14 appended |
+
+---
+
 ## 1. CURRENTLY IN FLIGHT
 
-**Run 14 — Phase 10: CV Improvement + Cover Letter** (10.1 → 10.6)
+**Run 15 — Phase 11: Credit System** (11.1 → 11.6)
 
 | # | Task | Status |
 |---|---|---|
-| 10.1 | CV improvement prompt + schema | **audit-verified** — `v1_cv_improve.md` + `cv_improvement.schema.json` exist and are tested (`tests/test_prompts.py`, `tests/test_schemas.py`) → record ✅ |
-| 10.2 | CV improvement engine | queued — deterministic-first on the 2.7/3.2 pattern (`engine/improve/`) |
-| 10.3 | Cover letter prompt + schema | **audit-verified** — `v1_cover_letter.md` + `cover_letter.schema.json` exist and are tested → record ✅ |
-| 10.4 | Cover letter generator | queued — `run_cover_letter` stub raises until wired |
-| 10.5 | CV improvement E2E | queued |
-| 10.6 | Cover letter E2E test | queued |
+| 11.1 | Credit ledger + balance tables | **in flight** — `engine/credits/ledger.py` (the missing dependency named in PLATFORM_STATE §11) + balance/entry persistence |
+| 11.2 | Token metering middleware | queued — meter LLM usage into credit costs |
+| 11.3 | Tier definitions + enforcement | queued |
+| 11.4 | Credit deduction on task completion | queued — wire deduction (+ `topup_from_paddle`) into the pipelines |
+| 11.5 | Credit balance API + UI data | queued |
+| 11.6 | Credit system E2E test | queued |
 
 Design rules carried from the existing generators (2.7, 3.2, 3.3):
 
@@ -69,7 +81,6 @@ Design rules carried from the existing generators (2.7, 3.2, 3.3):
 
 | Run | Phase | Tasks | Notes |
 |---|---|---|---|
-| 15 | 11 — Credit System | 11.1–11.6 | `ledger.py` is the missing dependency named in §11 of PLATFORM_STATE |
 | 16 | 12 — Credit Purchasing | 12.1, 12.2, 12.4, 12.5, 12.6 | **audit:** 12.3 webhook exists + tested; 12.2 client exists but untested; 12.1 doc exists (PADDLE_SETUP) — verify + fill gaps |
 | 17 | 8 — User Workspaces | 8.1–8.5 | SQL migrations + storage + isolation E2E |
 | 18 | 6 — Observability & Deployment | 6.1–6.7 | render.yaml, vercel, status page, docs |

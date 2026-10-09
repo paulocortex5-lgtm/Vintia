@@ -6,6 +6,25 @@ entry in the form `vantia(<task_id>): <name> (run N)`.
 
 ## [Unreleased]
 
+### Run 14 — Phase 10 (10.1–10.6): CV improvement + cover letter
+- Reconciliation: the build board and `PLATFORM_STATE.md` both lagged the
+  working tree — all six Phase 10 tasks already existed; the suite was run
+  (462 green, 93% cov) before anything was recorded.
+- **10.1 / 10.3** recorded (audit-verified): `v1_cv_improve.md` +
+  `cv_improvement.schema.json`, `v1_cover_letter.md` +
+  `cover_letter.schema.json` (already tested in `test_prompts`/`test_schemas`).
+- **10.2** `engine/improve/cv.py` — deterministic fact-preserving CV edits
+  (canonical rebuild, honest placeholders, keyword mirroring only for
+  evidenced skills, sanctioned verb/filler swaps), ≤30 ranked improvements,
+  recomputed summaries; `run_cv_improvement` wired (store resolution +
+  traversal guard + `<file>.improve.json`).
+- **10.4** `engine/generators/cover.py` — facts-only cover letters (real
+  title/employer, ≤2 verbatim quantified bullets, resume's own keyword
+  spelling, Achievement dropped rather than faked); `run_cover_letter` wired
+  (robots/rate-limit/closed-refusal, `<file>.cover.json`).
+- **10.5 / 10.6** offline E2E flows for both pipelines.
+- 47 files / 462 tests / 93% (4807 stmts); new modules 92–96%; gates green.
+
 ### Run 13 — Phase 9 (9.1–9.6): ATS scoring engine
 - **9.1** Resume parser (PDF/DOCX/TXT/MD/JSON) with honest extraction
   confidence and loud extractor failures — repaired 3 latent bugs (unbound

@@ -1,9 +1,9 @@
 # VANTIA — PLATFORM STATE
 
-**Last updated:** 2026-10-09T12:00:00Z
+**Last updated:** 2026-10-09T22:16:41Z
 **Master prompt:** v6.0
-**Session count:** 11
-**Overall readiness:** 52%
+**Session count:** 12
+**Overall readiness:** 59%
 
 ---
 
@@ -11,13 +11,13 @@
 
 | Metric | Value |
 |---|---|
-| Tasks complete | 46/88 |
+| Tasks complete | 52/88 |
 | Tasks in progress | 0 |
 | Tasks blocked | 0 |
-| Tasks pending | 42 |
+| Tasks pending | 36 |
 | Audit failures | 1 (5.4 — reopened in session 11) |
 | Live previews passing | 0 |
-| E2E tests passing | 3/14 |
+| E2E tests passing | 24 (5 offline suites) |
 | Backend deployed | no |
 | Frontend deployed | no |
 | Database migrated | no |
@@ -41,7 +41,7 @@
 | 7 | Acceptance | 0/3 | 0 | 0 | 3 | 0% |
 | 8 | User Workspaces | 0/5 | 0 | 0 | 5 | 0% |
 | 9 | ATS Scoring Engine | 6/6 | 0 | 0 | 0 | 100% |
-| 10 | CV Improvement + Cover Letter | 0/6 | 0 | 0 | 6 | 0% |
+| 10 | CV Improvement + Cover Letter | 6/6 | 0 | 0 | 0 | 100% |
 | 11 | Credit System | 0/6 | 0 | 0 | 6 | 0% |
 | 12 | Credit Purchasing | 0/6 | 0 | 0 | 6 | 0% |
 | 13 | Workspace UI + Full Journey | 0/6 | 0 | 0 | 6 | 0% |
@@ -168,12 +168,12 @@
 
 | ID | Name | Status | Commit | Files | Tested | Previewed | Verified |
 |---|---|---|---|---|---|---|---|
-| 10.1 | CV improvement prompt + schema | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 10.2 | CV improver engine | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 10.3 | Cover letter prompt + schema | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 10.4 | Cover letter generator | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 10.5 | CV improvement E2E test | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 10.6 | Cover letter E2E test | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
+| 10.1 | CV improvement prompt + schema | ✅ Complete | `1003b3e` | engine/prompts/v1_cv_improve.md, engine/schemas/cv_improvement.schema.json (tested in tests/test_prompts.py, tests/test_schemas.py) | ✅ | ❌ | ✅ |
+| 10.2 | CV improver engine | ✅ Complete | `1003b3e` | engine/improve/cv.py (deterministic fact-preserving edits, ≤30 ranked, schema-valid polish), engine/pipeline.py (`run_cv_improvement`), tests/test_improve.py | ✅ | ❌ | ✅ |
+| 10.3 | Cover letter prompt + schema | ✅ Complete | `1003b3e` | engine/prompts/v1_cover_letter.md, engine/schemas/cover_letter.schema.json (tested in tests/test_prompts.py, tests/test_schemas.py) | ✅ | ❌ | ✅ |
+| 10.4 | Cover letter generator | ✅ Complete | `1003b3e` | engine/generators/cover.py (facts-only letter), engine/pipeline.py (`run_cover_letter`), tests/test_cover_letter.py | ✅ | ❌ | ✅ |
+| 10.5 | CV improvement E2E test | ✅ Complete | `1003b3e` | tests/e2e/test_cv_improvement_flow.py (offline flow, traversal guard, schema-valid) | ✅ | ❌ | ✅ |
+| 10.6 | Cover letter E2E test | ✅ Complete | `1003b3e` | tests/e2e/test_cover_letter_flow.py (offline flow) | ✅ | ❌ | ✅ |
 
 ### Phase 11 — Credit System
 
@@ -218,18 +218,18 @@
 |---|---|---|---|---|---|---|
 | Sign up / sign in | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Upload CV to workspace | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Scan CV against job | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| View ATS score + report | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Improve CV with AI | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Generate cover letter | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Scan CV against job | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| View ATS score + report | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Improve CV with AI | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Generate cover letter | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
 | Download improved CV | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Download cover letter | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Buy credits with Paddle | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | View credit balance + history | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Browse visa-sponsored jobs | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Browse funded scholarships | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Generate SOP | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Generate research proposal | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Generate SOP | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Generate research proposal | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
 | Check credential equivalence | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
 | Fraud filter blocks scams | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
 
@@ -560,12 +560,24 @@ Tasks marked complete in `state.json` but failing verification:
 | Tests | 42 files / **436 passing** / **93% coverage (4398 stmts, incl. engine/ats at 93–99%)**; no LLM spend |
 | State | run 13 recorded; Phase 9 **6/6 closed**; 46/88 total (52%); manifest run 13 appended; commits `ba616fa` (code) + `d6f3287` (state) |
 
+**Run 14 (session 12) — 2026-10-09 — Phase 10 closeout (10.1–10.6): CV improvement + cover letter**
+
+| Item | Outcome |
+|---|---|
+| Reconciliation first | The board said 10.2/10.4/10.5/10.6 "queued" and this snapshot said Phase 10 0/6, but the working tree already contained all six tasks — the suite was run (462 green, 93% cov, gates clean) **before** anything was recorded |
+| 10.1 / 10.3 prompts + schemas | audit-verified: `v1_cv_improve.md` + `cv_improvement.schema.json`, `v1_cover_letter.md` + `cover_letter.schema.json` already shipped and tested (`tests/test_prompts.py`, `tests/test_schemas.py`) → recorded ✅ |
+| 10.2 CV improver engine | `engine/improve/cv.py` — deterministic fact-preserving edits only: canonical section rebuild (structured JSON profile → real CV), honest placeholder lines, keyword mirroring **only** for words evidenced in the resume (a JD keyword with no evidence is never added — not even as a suggestion), sanctioned weak-verb swaps + filler removal, capped at 30 priority-ranked improvements; summary counts are always recomputed from the shipped list; optional LLM polish re-validates against the schema and re-stamps `original_cv_id`. `run_cv_improvement` wired in `engine/pipeline.py` (store resolution + traversal guard + `<file>.improve.json`) |
+| 10.4 cover-letter generator | `engine/generators/cover.py` — facts-only letter: real title/employer (omitted when unknown, never `[Company]`), ≤2 **verbatim** quantified bullets (Achievement section dropped rather than faked when absent), matched keywords spelled the way the resume spells them, no fake availability/contacts; polish path keeps our `resume_id`/`job_id`/metadata and recounts word counts. `run_cover_letter` wired (posting via `load_listing` with robots/rate-limit/closed-refusal, `<file>.cover.json`) |
+| 10.5 / 10.6 E2E | `tests/e2e/test_cv_improvement_flow.py` + `tests/e2e/test_cover_letter_flow.py` — offline journeys: store resolution, traversal refusal, schema validation on every path |
+| Tests | +4 suites (+2 unit, +2 E2E): **462 passing**, 47 files, **93% coverage (4807 stmts)**; new modules `cover.py` 96% / `improve/cv.py` 92%; ruff + format + mypy clean |
+| State | run 14 recorded; Phase 10 **6/6 closed**; 52/88 total (59%); manifest run 14 appended; commit `1003b3e` (code) + state commit |
+
 ---
 
 ## 11. NEXT SESSION ACTIONS
 
-1. **Run 14 — Phase 10 (CV improvement + cover letter), in flight:** 10.2 CV improver engine + 10.4 cover-letter generator (deterministic-first on the 2.7/3.2 polish pattern), then 10.5/10.6 offline E2E; **audit note:** 10.1/10.3 (prompts `v1_cv_improve`/`v1_cover_letter` + schemas) already exist and are tested — verify and record them as ✅ in the same run
-2. **Queue (continuous loop, see `docs/BUILD_BOARD.md`):** run 15 Phase 11 (`ledger.py` first — the Phase-11 dependency note below) → run 16 Phase 12 → run 17 Phase 8 → run 18 Phase 6 → run 19 Phase 5 closeout (5.4/5.5/5.6) → run 20 Phase 13 → run 21 Phase 7 acceptance
+1. **Run 15 — Phase 11 (Credit System), in flight:** `engine/credits/ledger.py` first (the Phase-11 dependency note below), then 11.2 token metering, 11.3 tier definitions + enforcement, 11.4 deduction on task completion, 11.5 balance API + UI data, 11.6 offline E2E
+2. **Queue (continuous loop, see `docs/BUILD_BOARD.md`):** run 16 Phase 12 → run 17 Phase 8 → run 18 Phase 6 → run 19 Phase 5 closeout (5.4/5.5/5.6) → run 20 Phase 13 → run 21 Phase 7 acceptance
 3. 4.5 follow-up: the Supabase mirror schema is written and static-checked, but RLS policies and a real `supabase db push` are untested until real credentials exist — do not claim the migration as applied
 4. 2.3 follow-up (carried): fold `FederalEmploymentAgency` into a government-sources registry so `adapters_for()` and the register dispatcher share one per-country source table (`docs/SOURCES.md` checklist step 2)
 5. 2.8 follow-up (carried): `run_job_pipeline` loads by URL for W/G/L portals only — government sources are harvested through their adapters and need a detail loader before they are addressable by direct URL (documented in the `run_job_pipeline` docstring)
