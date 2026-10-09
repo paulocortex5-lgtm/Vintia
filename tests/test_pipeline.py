@@ -1,11 +1,11 @@
-"""Pipeline tests: the implemented pipelines + the honest stubs.
+"""Pipeline tests: all five pipelines are wired and honest.
 
-``run_job_pipeline`` (2.8), ``run_scholarship_pipeline`` (3.6) and
-``run_ats_scan`` (9.5) are wired end to end; the two remaining pipelines
-still raise ``NotImplementedError`` naming the task that implements it,
-so a stub can never be mistaken for finished work. The full journey
-(fraud, registers, profiles, robots) lives in
-``tests/e2e/test_job_pipeline.py``.
+``run_job_pipeline`` (2.8), ``run_scholarship_pipeline`` (3.6),
+``run_ats_scan`` (9.5), ``run_cv_improvement`` (10.2) and
+``run_cover_letter`` (10.4) are implemented — each proven here to fail
+*on substance* (bad upload, unknown portal) before any file/network work,
+never by raising ``NotImplementedError``. The full journeys live in
+``tests/e2e/``.
 """
 
 import pytest
@@ -43,11 +43,16 @@ def test_ats_scan_is_implemented_and_rejects_unknown_urls():
     assert excinfo.value.code == "unsupported_portal"
 
 
-def test_cv_improvement_is_a_task_10_2_stub():
-    with pytest.raises(NotImplementedError, match="task 10.2"):
-        run_cv_improvement("ws_1", "file_1")
+def test_cv_improvement_is_implemented_and_refuses_bad_uploads():
+    # not a stub any more (10.2): fails on the upload before any work
+    with pytest.raises(VantiaError) as excinfo:
+        run_cv_improvement("ws_1", "missing.md")
+    assert excinfo.value.code == "profile_file_missing"
 
 
-def test_cover_letter_is_a_task_10_4_stub():
-    with pytest.raises(NotImplementedError, match="task 10.4"):
-        run_cover_letter("ws_1", "resume_1", "https://x.com/job")
+def test_cover_letter_is_implemented_and_rejects_unknown_urls():
+    # not a stub any more (10.4): fails on substance with an explicit resume,
+    # before any file/network work
+    with pytest.raises(FetchError) as excinfo:
+        run_cover_letter("ws_1", "cv", "https://x.com/job", resume={"name": "X"})
+    assert excinfo.value.code == "unsupported_portal"

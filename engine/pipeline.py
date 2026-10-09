@@ -11,9 +11,11 @@ drop), closed listings are refused (``listing_inactive``). The LLM is
 an accelerator — pass ``client``/``chain`` to polish the resume, or
 leave them ``None`` for the deterministic ship path.
 
-The remaining pipelines still raise ``NotImplementedError`` naming the
-task that implements them, so a stub can never be mistaken for finished
-work.
+The five pipelines are now all wired: ``run_job_pipeline`` (2.8),
+``run_scholarship_pipeline`` (3.6), ``run_ats_scan`` (9.5),
+``run_cv_improvement`` (10.2) and ``run_cover_letter`` (10.4) — each one
+deterministic-first, schema-valid on every path, and honest about what it
+does not know.
 """
 
 from __future__ import annotations
@@ -24,7 +26,14 @@ from datetime import date
 
 from .ats import parse_resume, score_resume
 from .errors import FetchError, RegisterPending, VantiaError
-from .generators import generate_proposal, generate_resume, generate_sop, load_profile
+from .generators import (
+    generate_cover_letter,
+    generate_proposal,
+    generate_resume,
+    generate_sop,
+    load_profile,
+)
+from .improve import improve_cv
 from .json_utils import atomic_write_json, load_json, validate
 from .llm import LLMClient
 from .scholarships import get_scholarship, map_credential, window_status
@@ -234,6 +243,43 @@ def run_scholarship_pipeline(
     }
 
 
+def _resolve_upload(
+    workspace_id: str,
+    file_id: str,
+    resume: str | bytes | dict | None,
+    store_dir: str | None,
+) -> tuple[str | bytes | dict, str | None]:
+    """Resolve the upload for the 10.x/9.x pipelines.
+
+    The explicit ``resume`` argument (profile dict / bytes / path) wins;
+    otherwise the stored upload ``<store>/<workspace_id>/<file_id>`` where
+    ``store`` is ``store_dir`` or ``$VANTIA_WORKSPACE_DIR`` or
+    ``workspace/``. A workspace id may not escape the store root
+    (``..`` / absolute paths are refused). Returns ``(source, store_path)``
+    where ``store_path`` is the resolved file when one was read from the
+    store (``None`` for explicit sources).
+    """
+    if resume is not None:
+        return resume, None
+    root = os.path.abspath(store_dir or os.environ.get("VANTIA_WORKSPACE_DIR", "workspace"))
+    target = os.path.abspath(os.path.join(root, workspace_id, file_id))
+    if not target.startswith(root + os.sep):
+        raise VantiaError(
+            "workspace path escapes the store root",
+            code="workspace_path_invalid",
+            workspace_id=workspace_id,
+            file_id=file_id,
+        )
+    if not os.path.isfile(target):
+        raise VantiaError(
+            f"resume not found for {workspace_id}/{file_id}",
+            code="profile_file_missing",
+            workspace_id=workspace_id,
+            file_id=file_id,
+        )
+    return target, target
+
+
 def run_ats_scan(
     workspace_id: str,
     file_id: str,
@@ -263,27 +309,11 @@ def run_ats_scan(
     scan never applies, it only reports.
     """
     report_path: str | None = None
-    if resume is None:
-        root = os.path.abspath(store_dir or os.environ.get("VANTIA_WORKSPACE_DIR", "workspace"))
-        target = os.path.abspath(os.path.join(root, workspace_id, file_id))
-        if not target.startswith(root + os.sep):
-            raise VantiaError(
-                "workspace path escapes the store root",
-                code="workspace_path_invalid",
-                workspace_id=workspace_id,
-                file_id=file_id,
-            )
-        if not os.path.isfile(target):
-            raise VantiaError(
-                f"resume not found for {workspace_id}/{file_id}",
-                code="profile_file_missing",
-                workspace_id=workspace_id,
-                file_id=file_id,
-            )
-        resume = target
-        report_path = target + ".ats.json"
+    source, store_path = _resolve_upload(workspace_id, file_id, resume, store_dir)
+    if store_path is not None:
+        report_path = store_path + ".ats.json"
 
-    parsed = parse_resume(resume)
+    parsed = parse_resume(source)
     listing = load_listing(job_url, fetcher)
     if not listing.is_active():
         raise FetchError(
@@ -320,17 +350,115 @@ def run_ats_scan(
     }
 
 
-def run_cv_improvement(workspace_id: str, file_id: str) -> dict:
-    """Parse CV -> LLM improvements (v4.0, §11).
+def run_cv_improvement(
+    workspace_id: str,
+    file_id: str,
+    *,
+    resume: str | bytes | dict | None = None,
+    store_dir: str | None = None,
+    job_description: str = "",
+    job_title: str = "",
+    client: LLMClient | None = None,
+    chain: list | None = None,
+    run_id: str = "0",
+) -> dict:
+    """Upload -> parse -> improve -> persist (v4.0 §11, task 10.2).
 
-    Implemented in task 10.2.
+    Deterministic ship layer (fact-preserving edits only); pass
+    ``job_description``/``job_title`` to enable keyword mirroring, and
+    ``client``/``chain`` for the optional LLM polish. The upload is read
+    before any work (same resolution + traversal rules as 9.5) and the
+    payload validates against ``cv_improvement.schema.json``.
     """
-    raise NotImplementedError("run_cv_improvement is implemented in task 10.2")
+    source, store_path = _resolve_upload(workspace_id, file_id, resume, store_dir)
+    parsed = parse_resume(source)
+    artifact = improve_cv(
+        parsed,
+        original_cv_id=file_id,
+        job_description=job_description,
+        job_title=job_title,
+        client=client,
+        chain=chain,
+        run_id=run_id,
+    )
+    report_path = store_path + ".improve.json" if store_path else None
+    if report_path is not None:
+        atomic_write_json(report_path, artifact.payload)
+    return {
+        "pipeline": {
+            "task": "10.2",
+            "workspace_id": workspace_id,
+            "file_id": file_id,
+            "run_id": run_id,
+        },
+        "improvement": artifact.payload,
+        "provider": artifact.provider,
+        "polished": artifact.polished,
+        "fallback": artifact.fallback,
+        "envelope": artifact.envelope,
+        "report_path": report_path,
+        "parser": {**parsed.metadata, "warnings": list(parsed.parse_warnings)},
+    }
 
 
-def run_cover_letter(workspace_id: str, resume_id: str, job_url: str) -> dict:
-    """Generate a cover letter from a stored resume (v4.0, §12).
+def run_cover_letter(
+    workspace_id: str,
+    resume_id: str,
+    job_url: str,
+    *,
+    resume: str | bytes | dict | None = None,
+    fetcher: Fetcher | None = None,
+    store_dir: str | None = None,
+    tone: str = "professional",
+    language: str = "en",
+    client: LLMClient | None = None,
+    chain: list | None = None,
+    run_id: str = "0",
+) -> dict:
+    """Upload -> parse -> load posting -> letter -> persist (v4.0 §12, task 10.4).
 
-    Implemented in task 10.4.
+    Deterministic ship layer writes only from the resume's facts and the
+    posting's facts; the posting is loaded through the standard loader
+    (robots + rate limit + closed-refusal) and the payload validates
+    against ``cover_letter.schema.json``.
     """
-    raise NotImplementedError("run_cover_letter is implemented in task 10.4")
+    source, store_path = _resolve_upload(workspace_id, resume_id, resume, store_dir)
+    parsed = parse_resume(source)
+    listing = load_listing(job_url, fetcher)
+    if not listing.is_active():
+        raise FetchError(
+            f"listing is no longer active: {job_url}",
+            code="listing_inactive",
+            url=job_url,
+            closes_at=listing.closes_at,
+        )
+    artifact = generate_cover_letter(
+        parsed,
+        listing,
+        resume_id=resume_id,
+        tone=tone,
+        language=language,
+        client=client,
+        chain=chain,
+        run_id=run_id,
+    )
+    report_path = store_path + ".cover.json" if store_path else None
+    if report_path is not None:
+        atomic_write_json(report_path, artifact.payload)
+    return {
+        "pipeline": {
+            "task": "10.4",
+            "workspace_id": workspace_id,
+            "resume_id": resume_id,
+            "job_url": job_url,
+            "run_id": run_id,
+        },
+        "job": asdict(listing),
+        "cover_letter": artifact.payload,
+        "provider": artifact.provider,
+        "polished": artifact.polished,
+        "fallback": artifact.fallback,
+        "envelope": artifact.envelope,
+        "report_path": report_path,
+        "parser": {**parsed.metadata, "warnings": list(parsed.parse_warnings)},
+    }

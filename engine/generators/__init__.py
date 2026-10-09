@@ -15,6 +15,7 @@ a prompt.
 
 from __future__ import annotations
 
+from .cover import CoverLetterArtifact, generate_cover_letter
 from .profile import load_profile
 from .proposal import ProposalArtifact, generate_proposal
 from .resume import (
@@ -28,11 +29,13 @@ from .sop import SopArtifact, generate_sop
 
 __all__ = [
     "CandidateProfile",
+    "CoverLetterArtifact",
     "Education",
     "Experience",
     "ProposalArtifact",
     "ResumeArtifact",
     "SopArtifact",
+    "generate_cover_letter",
     "generate_proposal",
     "generate_resume",
     "generate_sop",
