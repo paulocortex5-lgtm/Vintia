@@ -6,6 +6,26 @@ entry in the form `vantia(<task_id>): <name> (run N)`.
 
 ## [Unreleased]
 
+### Run 13 — Phase 9 (9.1–9.6): ATS scoring engine
+- **9.1** Resume parser (PDF/DOCX/TXT/MD/JSON) with honest extraction
+  confidence and loud extractor failures — repaired 3 latent bugs (unbound
+  `_strings` on profiles without `languages`, MIME-tail format hints always
+  falling back to `txt`, missing-extra errors escaping unwrapped).
+- **9.2** Twelve-point scoring rubric (`CATEGORY_WEIGHTS` = 100): deterministic,
+  demand-detected categories, dated-facts-only experience, a suggestion for
+  every sub-100 category; schema-valid payload on every path.
+- **9.3** Keyword matcher + gap analysis (exact/stem/synonym) — stemmer plural
+  rule fixed so `databases` matches `database`.
+- **9.4** `POST /ats/score` (422 stable codes vs 500 for our own payload bugs)
+  + `GET /status` state summary.
+- **9.5** `run_ats_scan`: store resolution with traversal guard, parse-before-
+  network, robots/rate-limit/closed-refusal, report persisted as
+  `<file>.ats.json`.
+- **9.6** `tests/e2e/test_ats_journey.py` — offline journey, touched-host pin,
+  robots refusal, API-scores-stored-upload.
+- Tooling: `state.start_run()` annotation corrected, `domain.py` dnspython
+  typing fixed, repo-wide ruff/format/mypy green. 42 files / 436 tests / 93%.
+
 ### Session 11 — audit & reconciliation (no run)
 - **Drift repaired:** `PLATFORM_STATE.md` §3 rows for Phases 2–5 restored from
   HEAD (a local edit had reverted them to ⏳ and deleted §10 sessions);

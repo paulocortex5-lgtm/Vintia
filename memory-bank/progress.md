@@ -28,10 +28,15 @@
   golden-file tests; `web/` Next.js skeleton adopted (`1efcae1`)
   incl. a static sitemap route. 5.4 (SEO) was claimed but **not**
   evidenced → reopened; 5.5/5.6 pending.
-- Suite (audited 2026-10-09): 36 test files / **381 passing** /
-  93% line coverage of `engine/` *excluding the in-flight
-  `engine/ats/` package* (83% including it); `ruff check`,
-  `ruff format --check` and `mypy` clean on the committed tree.
+- **Phase 9 complete (6/6, run 13 `ba616fa`):** `engine/ats/` — resume
+  parser (PDF/DOCX/TXT/MD/JSON, honest confidence, loud failures),
+  twelve-point deterministic rubric with demand detection, keyword
+  matcher + gap report; `POST /ats/score` + `GET /status`;
+  `run_ats_scan` (parse-before-network, traversal guard, report
+  persisted); offline E2E with touched-host pin.
+- Suite (run 13, 2026-10-09): 42 test files / **436 passing** /
+  **93% line coverage of `engine/`** (4398 stmts; engine/ats at 93–99%);
+  `ruff check`, `ruff format --check` and `mypy` clean repo-wide.
 - Payments migrated to Paddle (task 0.0): `paddle_client`
   (checkout transactions) + `paddle_webhook` (HMAC-SHA256 + 5 s
   replay window + `paddle_events` idempotency), `docs/PADDLE_SETUP.md`.
@@ -42,26 +47,24 @@
 - Version-controlled: commits exist locally on `main` through
   `1efcae1`; pushes still blocked (see Blockers).
 
-## What's Left (48 tasks)
+## What's Left (42 tasks)
 - Phase 5 (3): 5.4 SEO (reopened), 5.5 landing pages, 5.6 waitlist.
 - Phase 6 (7): observability & deployment (status page, render.yaml,
   vercel.json, supabase guide, keep-alive docs).
 - Phase 7 (3): acceptance (full E2E, failover, paid-model switching).
 - Phase 8 (5): workspaces & multi-tenancy (auth, tables, RLS, storage).
-- Phase 9 (6): ATS scoring — **in flight (run 13)**; parser + keyword
-  matcher written but untested, `scoring.py` broken and being rebuilt.
-- Phase 10 (4 of 6): CV improver + cover letter engines + E2E
-  (10.1/10.3 prompts/schemas already exist and are tested).
+- Phase 10 (4): CV improver + cover letter engines + E2E
+  (10.1/10.3 prompts/schemas already exist and are tested — record them).
 - Phase 11 (6): credit system & tiers (`ledger.py` is the missing
   dependency).
-- Phase 12 (5 of 6): credit purchasing (webhook 12.3 done; 12.2 code
+- Phase 12 (5): credit purchasing (webhook 12.3 done; 12.2 code
   exists untested; setup doc exists).
 - Phase 13 (6): workspace UI + full journey.
 
 ## Current Milestone
-Session 11 audit closed the drift (40/88 = 45%, run 12 backfilled in
-the manifest). The continuous loop is on **run 13 — Phase 9**, then
-10 → 11 → 12 → 8 → 6 → 5 → 13 → 7 per `docs/BUILD_BOARD.md`.
+Run 13 closed Phase 9 (6/6): **46/88 = 52%**, 436 tests / 93% coverage /
+gates green. The continuous loop is on **run 14 — Phase 10**, then
+11 → 12 → 8 → 6 → 5 → 13 → 7 per `docs/BUILD_BOARD.md`.
 
 ## Blockers
 - No Supabase / Render / Vercel / Paddle credentials (`REPLACE_ME`

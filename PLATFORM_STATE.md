@@ -3,7 +3,7 @@
 **Last updated:** 2026-10-09T12:00:00Z
 **Master prompt:** v6.0
 **Session count:** 11
-**Overall readiness:** 45%
+**Overall readiness:** 52%
 
 ---
 
@@ -11,13 +11,13 @@
 
 | Metric | Value |
 |---|---|
-| Tasks complete | 40/88 |
+| Tasks complete | 46/88 |
 | Tasks in progress | 0 |
 | Tasks blocked | 0 |
-| Tasks pending | 48 |
+| Tasks pending | 42 |
 | Audit failures | 1 (5.4 — reopened in session 11) |
 | Live previews passing | 0 |
-| E2E tests passing | 2/14 |
+| E2E tests passing | 3/14 |
 | Backend deployed | no |
 | Frontend deployed | no |
 | Database migrated | no |
@@ -40,7 +40,7 @@
 | 6 | Observability & Deployment | 0/7 | 0 | 0 | 7 | 0% |
 | 7 | Acceptance | 0/3 | 0 | 0 | 3 | 0% |
 | 8 | User Workspaces | 0/5 | 0 | 0 | 5 | 0% |
-| 9 | ATS Scoring Engine | 0/6 | 0 | 0 | 6 | 0% |
+| 9 | ATS Scoring Engine | 6/6 | 0 | 0 | 0 | 100% |
 | 10 | CV Improvement + Cover Letter | 0/6 | 0 | 0 | 6 | 0% |
 | 11 | Credit System | 0/6 | 0 | 0 | 6 | 0% |
 | 12 | Credit Purchasing | 0/6 | 0 | 0 | 6 | 0% |
@@ -157,12 +157,12 @@
 
 | ID | Name | Status | Commit | Files | Tested | Previewed | Verified |
 |---|---|---|---|---|---|---|---|
-| 9.1 | Resume parser (PDF/DOCX extraction) | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 9.2 | ATS scoring engine (12-point) | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 9.3 | Keyword matcher + gap analysis | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 9.4 | ATS score schema + API | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 9.5 | ATS scan pipeline integration | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 9.6 | ATS scan E2E test | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
+| 9.1 | Resume parser (PDF/DOCX extraction) | ✅ Complete | `ba616fa` | engine/ats/parser.py (PDF/DOCX/TXT/MD/JSON, format detection incl. MIME hints, loud `resume_extractor_unavailable`/`resume_parse_error`, honest `extraction_confidence`), tests/test_ats_parser.py | ✅ | ❌ | ✅ |
+| 9.2 | ATS scoring engine (12-point) | ✅ Complete | `ba616fa` | engine/ats/scoring.py (CATEGORY_WEIGHTS = 100, deterministic rubric, demand detection, suggestion per sub-100 category), tests/test_ats_scoring.py | ✅ | ❌ | ✅ |
+| 9.3 | Keyword matcher + gap analysis | ✅ Complete | `ba616fa` | engine/ats/keywords.py (job/resume keywords, exact/stem/synonym match, coverage, honest gap report; stemmer plural fix), tests/test_ats_keywords.py | ✅ | ❌ | ✅ |
+| 9.4 | ATS score schema + API | ✅ Complete | `ba616fa` | engine/api.py (`POST /ats/score` schema-valid on every path, 422 vs 500 split; `GET /status`), tests/test_ats_api.py | ✅ | ❌ | ✅ |
+| 9.5 | ATS scan pipeline integration | ✅ Complete | `ba616fa` | engine/pipeline.py (`run_ats_scan`: store resolution → parse-before-network → traversal guard → listing load → score → schema validate → persist `<file>.ats.json`), tests/test_ats_scan.py | ✅ | ❌ | ✅ |
+| 9.6 | ATS scan E2E test | ✅ Complete | `ba616fa` | tests/e2e/test_ats_journey.py (offline journey on MockTransport, touched-host pin, robots refusal, API scores a stored upload) | ✅ | ❌ | ✅ |
 
 ### Phase 10 — CV Improvement + Cover Letter
 
@@ -271,7 +271,7 @@
 | Multi-provider failover | tests/e2e/test_multi_provider_failover.py | — | ⏳ | — (not created) |
 | Paid model switching | tests/e2e/test_paid_model_switching.py | — | ⏳ | — (not created) |
 | Workspace isolation | tests/e2e/test_workspace_isolation.py | — | ⏳ | — (not created) |
-| ATS scan flow | tests/e2e/test_ats_scan_flow.py | — | ⏳ | — (not created) |
+| ATS scan flow | tests/e2e/test_ats_journey.py | 2026-10-09 | ✅ | 3 journeys (offline scan with touched-host pin + persisted report, robots refusal, API scores a stored upload); run 13 named the file `test_ats_journey.py` to keep test basenames unique |
 | CV improvement | tests/e2e/test_cv_improvement.py | — | ⏳ | — (not created) |
 | Cover letter | tests/e2e/test_cover_letter.py | — | ⏳ | — (not created) |
 | Credit system | tests/e2e/test_credit_system.py | — | ⏳ | — (not created) |
@@ -279,12 +279,15 @@
 | User onboarding | tests/e2e/test_user_onboarding.py | — | ⏳ | — (not created) |
 | Full user journey | tests/e2e/test_full_journey.py | — | ⏳ | — (not created) |
 
-> Unit tests (separate from E2E): 36 files / 381 passing (audited
-> 2026-10-09). Engine line coverage: **93%** excluding the in-flight
-> `engine/ats/` package (428 statements, untested until run 13;
-> 83% including it). Verified via `python -m pytest --cov=engine`.
-> Both `tests/e2e/` files run offline (MockTransport / network
-> pinned dead) and are collected with the unit suite.
+> Unit tests (separate from E2E): 42 files / **436 passing** (run 13,
+> 2026-10-09). Engine line coverage: **93%** (4398 statements, 304
+> missed) — now *including* the tested `engine/ats/` package (parser
+> 93%, scoring 97%, keywords 99%). Verified via
+> `python -m pytest --cov=engine`. All three `tests/e2e/` files run
+> offline (MockTransport / network pinned dead) and are collected with
+> the unit suite. `ruff check` + `ruff format --check` + `mypy` clean
+> repo-wide (the §12 lint/type debt stays cleared — run 13 re-verified
+> the gate across all 108 files / 59 source modules).
 
 ---
 ## 7. AUDIT FAILURES
@@ -339,6 +342,10 @@ Tasks marked complete in `state.json` but failing verification:
 | `dbf0ef5` | state | vantia(state): 4.1,4.2,4.3,4.4,4.5 complete (run 12, b6a5cad) — Phase 4 closed 5/5, 37/88 total | — | ⏳ blocked |
 | `9775b07` | 5.1, 5.2 | feat(cli): implement full CLI command surface with apply, resume, verify, and reset functionalities | ⏳ blocked | — |
 | `1efcae1` | 5.3 | vantia(5.3): Next.js web skeleton - adopt untracked web/ (session 11 audit) | ⏳ blocked | — |
+| `2020baf` | state | vantia(state): audit - 5.4 reopened (SEO unevidenced), 5.1-5.3 backfilled, manifest run-12 appended - 40/88 | — | ⏳ blocked |
+| `1afe5d3` | docs | vantia(docs): session 11 audit - restore Phase 2-5 task rows + sessions, adopt build board, backfill changelog/memory-bank/README | ⏳ blocked | — |
+| `ba616fa` | 9.1–9.6 | vantia(9.1,9.2,9.3,9.4,9.5,9.6): ATS parser + 12-point scoring + keyword gaps + /ats/score API + run_ats_scan + E2E (run 13) | ⏳ blocked | — |
+| `d6f3287` | state | vantia(state): 9.1,9.2,9.3,9.4,9.5,9.6 complete (run 13, ba616fa) - Phase 9 closed 6/6, 46/88 total | — | ⏳ blocked |
 
 > ⏳ **Push blocked this session (and session 3).** The environment's
 > cached GitHub credential is `denisprosperous`, an account without
@@ -539,12 +546,26 @@ Tasks marked complete in `state.json` but failing verification:
 | Security | a GitHub classic token was pasted in chat → treated as **compromised**: never used, never written to the repo; rotate/revoke before the first push (§12) |
 | Build loop | runs 13→21 queued in `docs/BUILD_BOARD.md`: Phase 9 → 10 → 11 → 12 → 8 → 6 → 5 (5.4–5.6) → 13 → 7 |
 
+**Run 13 — 2026-10-09 — Phase 9 closeout (9.1–9.6): ATS scoring engine**
+
+| Item | Outcome |
+|---|---|
+| 9.1 parser | `engine/ats/parser.py` repaired + hardened: `_strings` unbound-local crash on profiles without `languages`/`certifications` (any such JSON profile crashed!), `detect_format` never accepted MIME-tail hints so `content_type` uploads silently fell back to `txt`, extractor resolution moved inside the `try` so a missing `pypdf`/`python-docx` yields the friendly `resume_extractor_unavailable` install hint. Tests: JSON/markdown/DOCX round-trips, loud failures, contact/confidence honesty, span maths |
+| 9.2 scoring | `engine/ats/scoring.py` rebuilt from the broken half-file: `CATEGORY_WEIGHTS` (12 categories = 100.0), deterministic rubric with explicit demand detection (years/cert/language/education/location rules), dated-facts-only spans, every sub-100 category ships a suggestion, `keyword_match` via the gap report. Payload validates against `ats_score.schema.json` on every path; deterministic across runs |
+| 9.3 keywords | `engine/ats/keywords.py` tested + stemmer fixed: the `"es"` rule stripped `databases→databas` so plurals never matched (`database`) — replaced with sibilant handling + trailing-`s`; duplicate stopwords removed (ruff B033) |
+| 9.4 API | `POST /ats/score` (422 stable codes for bad uploads vs 500 if *our* payload fails the schema) + `GET /status` (real state summary for the preview dashboard) |
+| 9.5 pipeline | `run_ats_scan` implemented: store resolution with traversal guard, **parse before any network**, robots/rate-limit/closed-refusal via `load_listing`, deterministic score, schema validation, report persisted as `<file>.ats.json` |
+| 9.6 E2E | `tests/e2e/test_ats_journey.py` — offline journey with touched-host pin (only `boards-api.greenhouse.io`), robots refusal, API-scores-a-stored-upload |
+| Tooling | stale stub test `test_ats_scan_is_a_task_9_5_stub` replaced with wired-behavior test; `state.start_run()` return annotation corrected (`dict`, not `int` — the session-9 tooling note, now enforced by mypy); `domain.py` dnspython import rewritten mypy-clean; `ruff format` sweep (8 files); **ruff check + format + mypy all green repo-wide** |
+| Tests | 42 files / **436 passing** / **93% coverage (4398 stmts, incl. engine/ats at 93–99%)**; no LLM spend |
+| State | run 13 recorded; Phase 9 **6/6 closed**; 46/88 total (52%); manifest run 13 appended; commits `ba616fa` (code) + `d6f3287` (state) |
+
 ---
 
 ## 11. NEXT SESSION ACTIONS
 
-1. **Run 13 — Phase 9 (ATS scoring engine), in flight:** repair `engine/ats/scoring.py` (broken `CATEGORY_WEIGHTS` / missing `score_resume`), land tests for 9.1–9.3, then 9.4 schema+API, 9.5 `run_ats_scan`, 9.6 E2E — close Phase 9 6/6
-2. **Queue (continuous loop, see `docs/BUILD_BOARD.md`):** run 14 Phase 10 (10.2/10.4 engines + 10.5/10.6 E2E; 10.1/10.3 prompts+schemas already exist and are tested) → run 15 Phase 11 (`ledger.py` first — the Phase-11 dependency note below) → run 16 Phase 12 → run 17 Phase 8 → run 18 Phase 6 → run 19 Phase 5 closeout (5.4/5.5/5.6) → run 20 Phase 13 → run 21 Phase 7 acceptance + repo-wide lint/format sweep
+1. **Run 14 — Phase 10 (CV improvement + cover letter), in flight:** 10.2 CV improver engine + 10.4 cover-letter generator (deterministic-first on the 2.7/3.2 polish pattern), then 10.5/10.6 offline E2E; **audit note:** 10.1/10.3 (prompts `v1_cv_improve`/`v1_cover_letter` + schemas) already exist and are tested — verify and record them as ✅ in the same run
+2. **Queue (continuous loop, see `docs/BUILD_BOARD.md`):** run 15 Phase 11 (`ledger.py` first — the Phase-11 dependency note below) → run 16 Phase 12 → run 17 Phase 8 → run 18 Phase 6 → run 19 Phase 5 closeout (5.4/5.5/5.6) → run 20 Phase 13 → run 21 Phase 7 acceptance
 3. 4.5 follow-up: the Supabase mirror schema is written and static-checked, but RLS policies and a real `supabase db push` are untested until real credentials exist — do not claim the migration as applied
 4. 2.3 follow-up (carried): fold `FederalEmploymentAgency` into a government-sources registry so `adapters_for()` and the register dispatcher share one per-country source table (`docs/SOURCES.md` checklist step 2)
 5. 2.8 follow-up (carried): `run_job_pipeline` loads by URL for W/G/L portals only — government sources are harvested through their adapters and need a detail loader before they are addressable by direct URL (documented in the `run_job_pipeline` docstring)
