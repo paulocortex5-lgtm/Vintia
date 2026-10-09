@@ -14,6 +14,7 @@ import types
 
 import pytest
 
+from engine.credits.ledger import default_ledger, reset_default_ledger
 from engine.credits.paddle_webhook import handle_webhook, verify_signature
 from engine.errors import PaddleError
 
@@ -95,21 +96,25 @@ def test_verify_signature_rejects_missing_secret_or_header():
 # ── Idempotent processing (R50) ───────────────────────────────────────
 
 
-def test_handle_webhook_records_event_and_is_idempotent():
+def test_handle_webhook_records_event_and_is_idempotent(tmp_path, monkeypatch):
+    """Run 15: the Phase-11 ledger exists — a completed transaction credits."""
+    monkeypatch.setenv("VANTIA_CREDITS_DIR", str(tmp_path))
+    reset_default_ledger()
     client = FakeSupabaseClient()
     body = _event()
     header = _sign(body)
 
     first = handle_webhook(body, header, supabase_client=client)
-    assert first["status"] == "ledger_pending"
+    assert first["status"] == "credited"
     assert first["event_id"] == EVENT_ID
-    assert first["ledger"] == "unavailable"  # Phase 11 ledger not built yet
+    assert first["ledger"] == "ok"
+    assert default_ledger().balance(USER_ID) == 10_000
 
     row = client.rows[0]
     assert row["event_id"] == EVENT_ID
     assert row["credits"] == 10000
     assert row["user_id"] == USER_ID
-    assert row["status"] == "ledger_pending"
+    assert row["status"] == "credited"
     assert row["data"] == json.loads(body)
     assert row["processed_at"].endswith("Z")
 
@@ -119,6 +124,8 @@ def test_handle_webhook_records_event_and_is_idempotent():
         "event_id": EVENT_ID,
     }
     assert len(client.rows) == 1
+    assert default_ledger().balance(USER_ID) == 10_000  # exactly once, never double
+    reset_default_ledger()
 
 
 def test_handle_webhook_ignores_non_completed_events():

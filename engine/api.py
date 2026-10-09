@@ -20,6 +20,14 @@ from pydantic import BaseModel, Field
 
 from . import __version__
 from .ats import parse_resume, score_resume
+from .credits import (
+    default_ledger,
+    default_meter,
+    ensure_allowance,
+    load_credits_config,
+    tier_of,
+    tier_tokens,
+)
 from .errors import SchemaValidationError, VantiaError
 from .json_utils import load_json, validate
 from .keep_alive import start_self_ping
@@ -126,6 +134,77 @@ def ats_score(request: AtsScoreRequest) -> dict[str, Any]:
     except SchemaValidationError as exc:
         raise HTTPException(status_code=500, detail=exc.as_dict()) from exc
     return {"report": payload, "schema": "ats_score.schema.json"}
+
+
+def _require_user_id(user_id: str) -> str:
+    """Shared 422 for the credit routes (stable code, same shape as 9.4)."""
+    if not user_id:
+        raise HTTPException(
+            status_code=422,
+            detail=VantiaError(
+                "user_id query parameter is required", code="user_id_required"
+            ).as_dict(),
+        )
+    return user_id
+
+
+@app.get("/credits/balance")
+def credits_balance(user_id: str = "") -> dict[str, Any]:
+    """Balance + tier + pricing + recent entries for the credits dashboard (11.5).
+
+    One payload the UI needs, so the frontend never has to stitch calls
+    together. The read performs the idempotent this-month allowance grant
+    (11.3) — a fresh user therefore sees their real free-tier balance, not
+    a placeholder. No auth yet: Phase 8's workspace layer will bind
+    ``user_id`` to the verified session; until then the id is caller-stated.
+    """
+    user_id = _require_user_id(user_id)
+    config = load_credits_config()
+    ledger = default_ledger()
+    allowance = ensure_allowance(ledger, user_id, config=config)
+    tier = tier_of(ledger, user_id)
+    entries = ledger.entries(user_id)
+    return {
+        "user_id": user_id,
+        "balance": ledger.balance(user_id),
+        "tier": tier,
+        "monthly_allowance": tier_tokens(tier, config),
+        "allowance": {
+            "granted": allowance["granted"],
+            "month": allowance["month"],
+            "amount": allowance["amount"],
+        },
+        "operations": dict(config.get("token_costs") or {}),
+        "packs": list(config.get("credit_packs") or []),
+        "entry_count": len(entries),
+        "recent_entries": entries[-20:],
+        "ts": datetime.now(UTC).isoformat(),
+    }
+
+
+@app.get("/credits/estimate")
+def credits_estimate(user_id: str = "", operation: str = "") -> dict[str, Any]:
+    """Cost/affordability of one operation before committing to it (11.5).
+
+    Read-only: an unclaimed monthly allowance is *projected*, never
+    granted here, so the estimate has no side effects (11.3). An
+    unpriced operation is 422 with ``unknown_operation`` — it is never
+    silently priced at zero.
+    """
+    user_id = _require_user_id(user_id)
+    if not operation:
+        raise HTTPException(
+            status_code=422,
+            detail=VantiaError(
+                "operation query parameter is required", code="operation_required"
+            ).as_dict(),
+        )
+    meter = default_meter()
+    try:
+        report = meter.estimate(user_id, operation)
+    except VantiaError as exc:
+        raise HTTPException(status_code=422, detail=exc.as_dict()) from exc
+    return {**report, "ts": datetime.now(UTC).isoformat()}
 
 
 @app.on_event("startup")

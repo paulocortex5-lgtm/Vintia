@@ -15,16 +15,21 @@ The five pipelines are now all wired: ``run_job_pipeline`` (2.8),
 ``run_scholarship_pipeline`` (3.6), ``run_ats_scan`` (9.5),
 ``run_cv_improvement`` (10.2) and ``run_cover_letter`` (10.4) — each one
 deterministic-first, schema-valid on every path, and honest about what it
-does not know.
+does not know. The three priced product runs (9.5 / 10.2 / 10.4)
+additionally accept ``user_id`` for credit metering (task 11.4):
+pre-flight (allowance + R46) before any work, charge on completion only,
+and the charge is reported in the result's ``credits`` field.
 """
 
 from __future__ import annotations
 
 import os
+import uuid
 from dataclasses import asdict
 from datetime import date
 
 from .ats import parse_resume, score_resume
+from .credits import CreditMeter, default_meter
 from .errors import FetchError, RegisterPending, VantiaError
 from .generators import (
     generate_cover_letter,
@@ -280,6 +285,37 @@ def _resolve_upload(
     return target, target
 
 
+def _begin_charge(
+    user_id: str | None, operation: str, run_id: str, *ids: str
+) -> tuple[CreditMeter | None, str | None]:
+    """Task 11.4 pre-flight: tier allowance + R46 *before* any work starts.
+
+    Returns ``(meter, ref)`` — ``(None, None)`` when no ``user_id`` was
+    given, which keeps the un-metered local path unchanged. The ref makes
+    the completion charge idempotent and auditable.
+    """
+    if not user_id:
+        return None, None
+    meter = default_meter()
+    ref = f"{operation}:{run_id}:{':'.join(ids)}:{uuid.uuid4().hex[:12]}"
+    meter.preflight(user_id, operation)
+    return meter, ref
+
+
+def _end_charge(
+    meter: CreditMeter | None,
+    user_id: str | None,
+    operation: str,
+    ref: str | None,
+    *,
+    meta: dict | None = None,
+) -> dict | None:
+    """Task 11.4 completion charge — only after the caller succeeded."""
+    if meter is None or user_id is None or ref is None:
+        return None
+    return meter.charge(user_id, operation, ref, meta=meta)
+
+
 def run_ats_scan(
     workspace_id: str,
     file_id: str,
@@ -289,6 +325,7 @@ def run_ats_scan(
     fetcher: Fetcher | None = None,
     store_dir: str | None = None,
     run_id: str = "0",
+    user_id: str | None = None,
 ) -> dict:
     """Upload -> parse -> score -> persist (v4.0, §21, task 9.5).
 
@@ -307,7 +344,12 @@ def run_ats_scan(
     persisted next to the upload as ``<file>.ats.json`` when a store file
     was used. Fraud/injection screens stay in the job pipeline (2.8); a
     scan never applies, it only reports.
+
+    Task 11.4: pass ``user_id`` to meter the run — pre-flight (allowance +
+    R46) before any work, ``cv_scan`` charged only on success and reported
+    in ``credits``; without ``user_id`` nothing about the run changes.
     """
+    meter, charge_ref = _begin_charge(user_id, "cv_scan", run_id, workspace_id, file_id)
     report_path: str | None = None
     source, store_path = _resolve_upload(workspace_id, file_id, resume, store_dir)
     if store_path is not None:
@@ -347,6 +389,13 @@ def run_ats_scan(
         "report": payload,
         "report_path": report_path,
         "parser": {**parsed.metadata, "warnings": list(parsed.parse_warnings)},
+        "credits": _end_charge(
+            meter,
+            user_id,
+            "cv_scan",
+            charge_ref,
+            meta={"pipeline": "9.5", "workspace_id": workspace_id, "file_id": file_id},
+        ),
     }
 
 
@@ -361,6 +410,7 @@ def run_cv_improvement(
     client: LLMClient | None = None,
     chain: list | None = None,
     run_id: str = "0",
+    user_id: str | None = None,
 ) -> dict:
     """Upload -> parse -> improve -> persist (v4.0 §11, task 10.2).
 
@@ -369,7 +419,12 @@ def run_cv_improvement(
     ``client``/``chain`` for the optional LLM polish. The upload is read
     before any work (same resolution + traversal rules as 9.5) and the
     payload validates against ``cv_improvement.schema.json``.
+
+    Task 11.4: with ``user_id`` the run is metered — ``cv_improvement``
+    pre-flighted (allowance + R46) before any work and charged only on
+    success; the charge lands in ``credits``.
     """
+    meter, charge_ref = _begin_charge(user_id, "cv_improvement", run_id, workspace_id, file_id)
     source, store_path = _resolve_upload(workspace_id, file_id, resume, store_dir)
     parsed = parse_resume(source)
     artifact = improve_cv(
@@ -398,6 +453,13 @@ def run_cv_improvement(
         "envelope": artifact.envelope,
         "report_path": report_path,
         "parser": {**parsed.metadata, "warnings": list(parsed.parse_warnings)},
+        "credits": _end_charge(
+            meter,
+            user_id,
+            "cv_improvement",
+            charge_ref,
+            meta={"pipeline": "10.2", "workspace_id": workspace_id, "file_id": file_id},
+        ),
     }
 
 
@@ -414,6 +476,7 @@ def run_cover_letter(
     client: LLMClient | None = None,
     chain: list | None = None,
     run_id: str = "0",
+    user_id: str | None = None,
 ) -> dict:
     """Upload -> parse -> load posting -> letter -> persist (v4.0 §12, task 10.4).
 
@@ -421,7 +484,12 @@ def run_cover_letter(
     posting's facts; the posting is loaded through the standard loader
     (robots + rate limit + closed-refusal) and the payload validates
     against ``cover_letter.schema.json``.
+
+    Task 11.4: with ``user_id`` the run is metered — ``cover_letter``
+    pre-flighted (allowance + R46) before any work (including the fetch)
+    and charged only on success; the charge lands in ``credits``.
     """
+    meter, charge_ref = _begin_charge(user_id, "cover_letter", run_id, workspace_id, resume_id)
     source, store_path = _resolve_upload(workspace_id, resume_id, resume, store_dir)
     parsed = parse_resume(source)
     listing = load_listing(job_url, fetcher)
@@ -461,4 +529,11 @@ def run_cover_letter(
         "envelope": artifact.envelope,
         "report_path": report_path,
         "parser": {**parsed.metadata, "warnings": list(parsed.parse_warnings)},
+        "credits": _end_charge(
+            meter,
+            user_id,
+            "cover_letter",
+            charge_ref,
+            meta={"pipeline": "10.4", "workspace_id": workspace_id, "file_id": resume_id},
+        ),
     }
