@@ -3,9 +3,9 @@
   "master_prompt_version": "4.0",
   "schema_version": 4,
   "created_at": "2026-10-03T22:15:00Z",
-  "updated_at": "2026-10-07T00:18:32Z",
+  "updated_at": "2026-10-09T10:16:47Z",
   "run_count": 12,
-  "last_completed_task": "4.5",
+  "last_completed_task": "5.3",
   "in_progress_task": null,
   "consecutive_failures": {},
   "deployment": {
@@ -866,40 +866,49 @@
     "5.1": {
       "name": "CLI: apply/status/resume/verify/reset",
       "phase": 5,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "2.9",
         "3.7"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/cli.py",
+        "tests/test_cli.py",
+        "tests/cli_runners.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
+      "commit_sha": "9775b07",
       "started_at": null,
       "completed_at": null
     },
     "5.2": {
       "name": "Golden-file CLI tests",
       "phase": 5,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "5.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "tests/test_cli.py",
+        "tests/cli_runners.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
+      "commit_sha": "9775b07",
       "started_at": null,
       "completed_at": null
     },
     "5.3": {
       "name": "Web UI skeleton (Next.js)",
       "phase": 5,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "5.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "web/ (Next.js skeleton + static sitemap route)"
+      ],
       "attempts": 0,
-      "commit_sha": null,
+      "commit_sha": "1efcae1",
       "started_at": null,
       "completed_at": null
     },
@@ -912,9 +921,7 @@
       ],
       "artifacts": [],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "started_at": null
     },
     "5.5": {
       "name": "SEO landing pages (6)",

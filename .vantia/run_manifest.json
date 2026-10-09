@@ -3,7 +3,7 @@
   "branch": "vantia-state",
   "purpose": "Authoritative Vantia build state, artifacts and audit trail. This branch is an orphan: it shares no history with `main` and must never be merged into it.",
   "created_at": "2026-10-03T23:58:00Z",
-  "updated_at": "2026-10-06T22:51:32Z",
+  "updated_at": "2026-10-09T10:16:47Z",
   "runs": [
     {
       "run_id": 1,
@@ -225,6 +225,29 @@
       },
       "engine_coverage_pct": 93.0,
       "cost_usd": 0.0
+    },
+    {
+      "run_id": 12,
+      "master_prompt_version": "6.0",
+      "session": 10,
+      "started_at": "2026-10-07T00:18:32Z",
+      "completed_at": "2026-10-07T00:18:32Z",
+      "phase": 4,
+      "tasks_completed": [
+        "4.1",
+        "4.2",
+        "4.3",
+        "4.4",
+        "4.5"
+      ],
+      "tests": {
+        "files": 35,
+        "passed": 358,
+        "failed": 0
+      },
+      "engine_coverage_pct": 93.0,
+      "cost_usd": 0.0,
+      "note": "backfilled in session 11 audit - was recorded in state/docs but never appended here"
     }
   ],
   "files": {
@@ -237,7 +260,7 @@
   "notes": [
     "`.vantia/` is gitignored on `main`; staging here requires `git add -f`.",
     "`git merge-base main vantia-state` must exit non-zero. If it exits zero the isolation guarantee is broken.",
-    "Never hand-edit state.json — use engine.state_manager so the lock, backup, hash chain and mirror update atomically.",
+    "Never hand-edit state.json \u2014 use engine.state_manager so the lock, backup, hash chain and mirror update atomically.",
     "A corrupt state file is intentional: it fails loudly rather than being silently repaired. Recover with `git checkout vantia-state -- .vantia/state/state.json`."
   ]
 }
