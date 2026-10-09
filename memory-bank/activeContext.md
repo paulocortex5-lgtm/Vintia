@@ -1,47 +1,43 @@
 # Active Context
 
 ## Current Focus
-Session 10 (continuous loop). Runs 9–12 closed: Phase 2 (9/9), Phase 3
-(7/7) and Phase 4 (5/5) complete, **37/88 overall (42%)**. The loop now
-moves to Phase 5 — product surface — then Phases 6 → 9 → 10 →
-11 → 12 → 8 → 13 → 7 (acceptance), updating state + manifest +
-PLATFORM_STATE each run.
+Session 11 (audit → continuous loop). The audit reconciled every
+conflicting claim: **40/88 tasks complete (45%)**, Phases 0–4 closed,
+Phase 5 at 3/6 (5.4 reopened — no schema.org evidence). The loop is
+now on **run 13 — Phase 9 (ATS scoring)**: repair the broken
+`engine/ats/scoring.py`, test 9.1/9.3, then 9.4 schema+API, 9.5
+`run_ats_scan`, 9.6 E2E. Queue afterwards: 10 → 11 → 12 → 8 → 6 →
+5 (5.4–5.6) → 13 → 7, updating state + manifest + PLATFORM_STATE +
+BUILD_BOARD + CHANGELOG + memory-bank each run.
 
-## Recent Changes
-- `engine/verification/domain.py` (4.1) — DNS A/CNAME check against a
-  provider expectation table (render/vercel CNAME targets) through an
-  injectable resolver; `resolver_unavailable` reported **loudly** when
-  `dnspython` is missing; `DomainReport` is JSON-serialisable for the
-  status page.
-- `engine/idempotency.py` (4.2) — every registry entry carries an
-  `entry_hash` (SHA-256 over canonical JSON); `verify()` recomputes
-  all and reports tampered **and** legacy unhashed entries;
-  `entries()` added.
-- `engine/hash_chain.py` (4.3) — `audit()` (ok/length/tip/
-  first_bad_seq) and `record_run()`; run 12 is the first `run_finished`
-  record in the cross-run chain.
-- `engine/incidents.py` (4.4) — `open_issue` via `gh`; on failure the
-  incident is written as an offline Markdown draft + index entry under
-  `.vantia/issues/`. `StepExecutor._open_incident` is guarded so a
-  failing reporter never masks the original block.
-- `supabase/migrations/0001_init.sql` (4.5) — Postgres mirror of
-  `.vantia/state.json` (runs, tasks, artifacts, idempotency_registry,
-  hash_chain, incidents + `task_progress` view); sync is
-  `INSERT ... ON CONFLICT`, never hand-edited.
-- `engine/cli.py` — `status` reports chain audit + registry integrity
-  and accepts `--verify-domain --domain … --expect …`.
-- Suite: 35 files / 358 passing / 93% engine coverage (3484 stmts);
-  ruff check + format and mypy clean (90 files).
-- Commits: `b6a5cad` (code), `dbf0ef5` (state); docs commit records
-  session 10 in PLATFORM_STATE §10/§11.
+## Recent Changes (session 11 audit)
+- `PLATFORM_STATE.md` — restored from HEAD `6c7ccfd` (a local edit
+  had reverted §3 rows for Phases 2–5 to ⏳ and deleted §10 sessions
+  1/2/5–9), then applied only verified updates: §1/§2 metrics,
+  Phase 5 rows (5.1/5.2 → `9775b07`, 5.3 → `1efcae1`), §6 counts
+  (381 passing, 93% coverage excluding `engine/ats`), §7 audit row
+  for 5.4, §9 commit rows, §10 sessions 10–11, §11 queue, §12
+  token-rotation risk.
+- `.vantia/state/state.json` — 5.4 reopened to pending; 5.1–5.3
+  backfilled with commit SHAs + artifacts; `last_completed_task=5.3`.
+- `.vantia/run_manifest.json` — run 12 appended (it had never been
+  recorded).
+- `web/` adopted as task 5.3 (`1efcae1`); `docs/BUILD_BOARD.md`
+  adopted as the live in-flight/queue view with the full audit table.
+- `CHANGELOG.md` backfilled runs 2–12; memory-bank brought current.
+- Security: the classic token pasted in chat was **not used**; it is
+  compromised and must be rotated before any push.
 
 ## Next Steps
-1. Phase 5: 5.1 CLI golden tests, 5.2 web UI skeleton, 5.3 SEO, 5.4
-   waitlist, etc. (Phases 0–4 closed: 37/88).
-2. Phase 6 observability & deployment.
-3. Phases 9 → 10 → 11 → 12 → 8 → 13 → 7 after that.
+1. Run 13 — Phase 9: fix `engine/ats/scoring.py`, tests for parser/
+   keywords/scoring, `POST /ats/score` + `/status`, `run_ats_scan`,
+   E2E; close 9.1–9.6 (46/88).
+2. Runs 14–21 per `docs/BUILD_BOARD.md` §2 until ship-ready.
 
 ## Known Issues
+- `engine/ats/scoring.py` is syntactically broken until run 13 lands
+  (9.1/9.3 also untested) — the suite passes only because nothing
+  imports `engine.ats` yet.
 - The 4.5 Supabase mirror schema is written and static-tested, but RLS
   policies and a real `supabase db push` are untested until real
   credentials exist — do not claim the migration as applied.
@@ -52,9 +48,9 @@ PLATFORM_STATE each run.
 - `run_job_pipeline` loads by URL for W/G/L portals only; government
   listings need a detail loader (carried).
 - `engine/credits/ledger.py` does not exist yet — Paddle top-ups stay
-  `ledger_pending` until Phase 11.
-- Push to origin blocked (HTTP 403) since session 3; commits are local
-  and ready per `docs/RUNBOOK.md` inline-token procedure.
+  `ledger_pending` until Phase 11 (run 15).
+- Push to origin blocked: cached credential 403s since session 3, and
+  the token disclosed in chat must be **rotated first**.
 - `engine/api.py` uses deprecated `@app.on_event("startup")`.
 - Header/master-prompt drift: PLATFORM_STATE says v6.0, seed says 4.0;
   denominator is 88 tasks.

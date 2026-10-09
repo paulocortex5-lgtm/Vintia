@@ -18,6 +18,16 @@ recruitment agencies with a direct, verified pipeline for:
 > **Product promise:** *Every application Vantia produces is targeted, verified,
 > and free of third-party intermediaries.*
 
+## Build status
+
+Live progress is tracked in [`PLATFORM_STATE.md`](PLATFORM_STATE.md)
+(per-task record, audit trail, risks) and the working
+[`docs/BUILD_BOARD.md`](docs/BUILD_BOARD.md) (what is in flight *right now*
+and what comes next). Last audited 2026-10-09: **40/88 tasks (45%)**,
+Phases 0–4 closed, 381 tests passing, 93% engine coverage — **not yet
+ready to ship**; the continuous build loop is on run 13 (Phase 9, ATS
+scoring).
+
 ## Quickstart
 
 ```bash

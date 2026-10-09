@@ -1,9 +1,9 @@
 # VANTIA — PLATFORM STATE
 
-**Last updated:** 2026-10-07T00:20:00Z
+**Last updated:** 2026-10-09T12:00:00Z
 **Master prompt:** v6.0
-**Session count:** 10
-**Overall readiness:** 42%
+**Session count:** 11
+**Overall readiness:** 45%
 
 ---
 
@@ -11,13 +11,13 @@
 
 | Metric | Value |
 |---|---|
-| Tasks complete | 37/88 |
+| Tasks complete | 40/88 |
 | Tasks in progress | 0 |
 | Tasks blocked | 0 |
-| Tasks pending | 51 |
-| Audit failures | 0 |
+| Tasks pending | 48 |
+| Audit failures | 1 (5.4 — reopened in session 11) |
 | Live previews passing | 0 |
-| E2E tests passing | 0/14 |
+| E2E tests passing | 2/14 |
 | Backend deployed | no |
 | Frontend deployed | no |
 | Database migrated | no |
@@ -35,8 +35,8 @@
 | 1 | Schemas + Prompts + LLM Router | 7/7 | 0 | 0 | 0 | 100% |
 | 2 | Jobs Trail | 9/9 | 0 | 0 | 0 | 100% |
 | 3 | Scholarship Engine | 7/7 | 0 | 0 | 0 | 100% |
-| 4 | Verification & Hardening | 0/5 | 0 | 0 | 5 | 0% |
-| 5 | Product Surface | 0/6 | 0 | 0 | 6 | 0% |
+| 4 | Verification & Hardening | 5/5 | 0 | 0 | 0 | 100% |
+| 5 | Product Surface | 3/6 | 0 | 0 | 3 | 50% |
 | 6 | Observability & Deployment | 0/7 | 0 | 0 | 7 | 0% |
 | 7 | Acceptance | 0/3 | 0 | 0 | 3 | 0% |
 | 8 | User Workspaces | 0/5 | 0 | 0 | 5 | 0% |
@@ -116,10 +116,10 @@
 
 | ID | Name | Status | Commit | Files | Tested | Previewed | Verified |
 |---|---|---|---|---|---|---|---|
-| 5.1 | CLI: apply/status/resume/verify/reset | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 5.2 | Golden-file CLI tests | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 5.3 | Web UI skeleton (Next.js) | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 5.4 | SEO: schema.org + sitemap | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
+| 5.1 | CLI: apply/status/resume/verify/reset | ✅ Complete | `9775b07` | engine/cli.py (init/apply/status/resume/verify/reset, dependency-aware apply, block handling), tests/test_cli.py, tests/cli_runners.py | ✅ | ❌ | ✅ |
+| 5.2 | Golden-file CLI tests | ✅ Complete | `9775b07` | tests/test_cli.py (init idempotency, status after init, apply completes task + appends chain, failure→retry→block, reset), tests/cli_runners.py | ✅ | ❌ | ✅ |
+| 5.3 | Web UI skeleton (Next.js) | ✅ Complete | `1efcae1` | web/ (Next.js app router: layout, page, globals.css, next.config.ts, tsconfig, static sitemap route, lib/settings.ts baseUrl) | ✅ | ❌ | ✅ |
+| 5.4 | SEO: schema.org + sitemap | ⏳ Pending | — | audit (s11): sitemap route exists, but **no schema.org/JSON-LD** and metadata still "Create Next App" — reopened, lands in run 19 | ❌ | ❌ | ❌ |
 | 5.5 | SEO landing pages (6) | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
 | 5.6 | Waitlist + double opt-in | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
 
@@ -279,11 +279,12 @@
 | User onboarding | tests/e2e/test_user_onboarding.py | — | ⏳ | — (not created) |
 | Full user journey | tests/e2e/test_full_journey.py | — | ⏳ | — (not created) |
 
-> Unit tests (separate from E2E): 32 files / 326 passing / 93% engine
-> line coverage (3289 statements, 225 missed). Verified via
-> `python -m pytest --cov=engine`. Both `tests/e2e/` files run offline
-> (MockTransport / network pinned dead) and are collected with the
-> unit suite.
+> Unit tests (separate from E2E): 36 files / 381 passing (audited
+> 2026-10-09). Engine line coverage: **93%** excluding the in-flight
+> `engine/ats/` package (428 statements, untested until run 13;
+> 83% including it). Verified via `python -m pytest --cov=engine`.
+> Both `tests/e2e/` files run offline (MockTransport / network
+> pinned dead) and are collected with the unit suite.
 
 ---
 ## 7. AUDIT FAILURES
@@ -292,7 +293,7 @@ Tasks marked complete in `state.json` but failing verification:
 
 | Task | Claimed | Actual | Reason | Action |
 |---|---|---|---|---|
-| — | — | — | — | — |
+| 5.4 | ✅ Complete (local `state.json` edit, 2026-10-09) | sitemap route only | No schema.org/JSON-LD anywhere; `layout.tsx` metadata still the create-next-app default; "SEO" task not evidenced by files | Reopened to ⏳ pending in session 11 audit; implemented in run 19 (Phase 5 closeout) |
 
 ---
 
@@ -336,6 +337,8 @@ Tasks marked complete in `state.json` but failing verification:
 | `86f713a` | state | vantia(state): 3.2,3.3,3.6,3.7 complete (run 11, 3821a8e) — Phase 3 closed 7/7, 32/88 total | — | ⏳ blocked |
 | `b6a5cad` | 4.1, 4.2, 4.3, 4.4, 4.5 | vantia(4.1,4.2,4.3,4.4,4.5): domain verification, tamper-evident idempotency, cross-run chain audit, incident reporter, Supabase schema (run 12) | ⏳ blocked | — |
 | `dbf0ef5` | state | vantia(state): 4.1,4.2,4.3,4.4,4.5 complete (run 12, b6a5cad) — Phase 4 closed 5/5, 37/88 total | — | ⏳ blocked |
+| `9775b07` | 5.1, 5.2 | feat(cli): implement full CLI command surface with apply, resume, verify, and reset functionalities | ⏳ blocked | — |
+| `1efcae1` | 5.3 | vantia(5.3): Next.js web skeleton - adopt untracked web/ (session 11 audit) | ⏳ blocked | — |
 
 > ⏳ **Push blocked this session (and session 3).** The environment's
 > cached GitHub credential is `denisprosperous`, an account without
@@ -516,17 +519,37 @@ Tasks marked complete in `state.json` but failing verification:
 | Tests | +32 new tests across 6 suites (8 domain, 7 incidents, 8 SQL schema, +4 idempotency, +2 hash chain, +3 CLI/state): **358 passing**, 35 files, 93% coverage (3484 stmts); ruff check + format and mypy clean (90 files, 0 issues) |
 | State | **Phase 4 5/5 closed**; 37/88 total; run 12 (`b6a5cad` code, `dbf0ef5` state). No LLM spend |
 
+### Session 10 — 2026-10-07 — run 12 bookkeeping + CLI surface (5.1/5.2)
+
+| Item | Outcome |
+|---|---|
+| Run 12 docs/state | `6c7ccfd` (docs) and `dbf0ef5` (state) recorded the Phase 4 closeout; content is the *Run 12* block above |
+| CLI surface (unrecorded) | `9775b07` implemented the full CLI (`init / apply / status / resume / verify / reset`, 355 lines + 285 lines of tests) — landed **after** the run-12 docs commit and was never recorded in `state.json` / `PLATFORM_STATE.md` / manifest. Caught by the session 11 audit; 5.1/5.2 backfilled as ✅ |
+| Manifest | run 12 was never appended to `run_manifest.json` (still ended at run 11) — backfilled in session 11 |
+
+### Session 11 — 2026-10-09 — audit + reconciliation, then continuous build loop
+
+**Operating note (user direction):** loop continuously through the remaining task batches without stopping after each pass; keep the working board (current task + next queue) visible every cycle; update every progress `.md` while moving.
+
+| Item | Outcome |
+|---|---|
+| Drift found | (a) local `PLATFORM_STATE.md` edit had reverted §3 rows for Phases 2–5 to ⏳ and deleted §10 sessions 1/2/5–9 — restored from HEAD `6c7ccfd`; (b) local `state.json` edit claimed 5.1–5.4 complete — 5.1/5.2/5.3 **verified** (`9775b07`, `1efcae1`), 5.4 **failed** verification → reopened (§7); (c) untracked `engine/ats/` — 9.1/9.3 written but untested, 9.2 `scoring.py` had a fatal `SyntaxError` so `import engine.ats` failed; (d) manifest missing run 12; (e) CHANGELOG stuck at Run 1, memory-bank stale |
+| Reconciliation | 40/88 complete (45%); `web/` adopted as 5.3 (`1efcae1`); `docs/BUILD_BOARD.md` adopted as the live in-flight/queue view; §1/§2/§3/§6/§7/§9 corrected |
+| Verified baseline | 36 test files / **381 passing** / 0 failing; engine coverage **93%** excluding `engine/ats` (83% including it — 428 untested statements, covered by run 13); `ruff check engine` currently red on `engine/ats` only |
+| Security | a GitHub classic token was pasted in chat → treated as **compromised**: never used, never written to the repo; rotate/revoke before the first push (§12) |
+| Build loop | runs 13→21 queued in `docs/BUILD_BOARD.md`: Phase 9 → 10 → 11 → 12 → 8 → 6 → 5 (5.4–5.6) → 13 → 7 |
+
 ---
 
 ## 11. NEXT SESSION ACTIONS
 
-1. **Phase 5 — product surface:** CLI golden tests, web UI skeleton, SEO, waitlist (Phases 0–4 are closed: 37/88)
-2. Then Phase 6 — observability & deployment (render.yaml, vercel.json)
+1. **Run 13 — Phase 9 (ATS scoring engine), in flight:** repair `engine/ats/scoring.py` (broken `CATEGORY_WEIGHTS` / missing `score_resume`), land tests for 9.1–9.3, then 9.4 schema+API, 9.5 `run_ats_scan`, 9.6 E2E — close Phase 9 6/6
+2. **Queue (continuous loop, see `docs/BUILD_BOARD.md`):** run 14 Phase 10 (10.2/10.4 engines + 10.5/10.6 E2E; 10.1/10.3 prompts+schemas already exist and are tested) → run 15 Phase 11 (`ledger.py` first — the Phase-11 dependency note below) → run 16 Phase 12 → run 17 Phase 8 → run 18 Phase 6 → run 19 Phase 5 closeout (5.4/5.5/5.6) → run 20 Phase 13 → run 21 Phase 7 acceptance + repo-wide lint/format sweep
 3. 4.5 follow-up: the Supabase mirror schema is written and static-checked, but RLS policies and a real `supabase db push` are untested until real credentials exist — do not claim the migration as applied
 4. 2.3 follow-up (carried): fold `FederalEmploymentAgency` into a government-sources registry so `adapters_for()` and the register dispatcher share one per-country source table (`docs/SOURCES.md` checklist step 2)
-5. 2.8 follow-up (carried, new): `run_job_pipeline` loads by URL for W/G/L portals only — government sources are harvested through their adapters and need a detail loader before they are addressable by direct URL (documented in the `run_job_pipeline` docstring)
+5. 2.8 follow-up (carried): `run_job_pipeline` loads by URL for W/G/L portals only — government sources are harvested through their adapters and need a detail loader before they are addressable by direct URL (documented in the `run_job_pipeline` docstring)
 6. Registers: new published country register = **one data row** in `registers._REGISTER_SPECS` (+ status flip in `countries.py`); verify before claiming "live"
-7. Push: retry when credentials allow (403 since session 3); all code/state/docs commits exist locally
+7. Push: **rotate the disclosed token first** (see §12), then retry; 403 since session 3 with the cached credential; all code/state/docs commits exist locally
 8. LLM credentials: add at least one free-tier key to `.env` so 2.7's LLM polish path and the R17/R18/R24/R25/R26/R27/R28 gates can be exercised against a live provider — today they are verified with `MockTransport` / a scripted `_FakeClient` only
 
 > Dependency note for Phase 11: `engine/credits/ledger.py` does not exist
@@ -547,6 +570,7 @@ Tasks marked complete in `state.json` but failing verification:
 | Vercel free tier non-commercial | Legal issue if monetized | Document; upgrade when revenue starts |
 | Master prompt header says 98 tasks (v6.0 assessment: 99, incl. Task 0.0), catalog lists 88 | Progress denominator confusion | `state.json` + `engine/seed/state.json` both define 88 tasks; use 88 until the prompt's catalog is re-cut. Task 0.0 (Stripe purge) was executed as cross-cutting work and is recorded in §10, not as a catalogue row |
 | Provider/infra credentials are REPLACE_ME placeholders | Network-success paths untested | Insert real keys during launch prep |
+| A GitHub classic PAT was pasted into chat in session 11 (cleartext) | Token is **compromised** — anyone with the log can use it | Never used and never written to the repo; **rotate/revoke on GitHub before the first push**, then push per `docs/RUNBOOK.md` with an inline `oauth2:<token>@…` URL only |
 | No LLM API keys in this environment (no `.env`, all `.env.example` values are placeholders) | Every LLM call path runs dry-run only; live token / latency / 429 behaviour untested | Deterministic layers ship as the default path (2.7 falls back to it); add keys at launch prep and re-run the live-path tests |
 | Pre-existing ruff/mypy debt in modules untouched this run (api.py, execute_step.py, retry.py, state_manager.py, test_execute_step.py) | Repo-wide lint/type gate not clean | ✅ **Cleared in run 6 (session 7):** `ruff check` + `ruff format --check` + `mypy` all pass on all 60 files. Nothing left to sweep |
 | The other 49 European countries (all except GB) carry `sponsor_register="none"` (= *no known* public register, not *verified* absence — DE's "none" is the one documented fact among them) | Under-scored targeting if a country actually publishes one; wrong negative claim if it does not | The register layer already dispatches on the status (empty badge set, never a gate); when a register is discovered it's a one-row addition to `registers._REGISTER_SPECS` + a status flip in `countries.py` (session 7 follow-up, §11 item 5–6) |
