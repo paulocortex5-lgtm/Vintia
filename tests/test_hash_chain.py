@@ -166,3 +166,21 @@ def test_audit_reports_a_tamper_across_sessions(tmp_path):
     report = HashChain(path).audit()
     assert report["ok"] is False
     assert report["first_bad_seq"] == 0
+
+
+def test_append_emits_structured_log_with_run_id_and_hash(tmp_path, capsys):
+    """Task 6.1: stdout carries the append's SHA-256 pair under the run id."""
+    from engine.logging_config import configure_logging
+
+    configure_logging(run_id="run61-log-test")
+    chain = HashChain(str(tmp_path / "chain.json"))
+    record = chain.append({"event": "sync", "table": "state"})
+
+    line = [ln for ln in capsys.readouterr().out.splitlines() if ln.strip()][-1]
+    entry = json.loads(line)
+    assert entry["run_id"] == "run61-log-test"
+    assert entry["msg"] == "hash_chain append"
+    assert entry["data"]["sha256"] == record["hash"] == chain.tip
+    assert entry["data"]["prev_hash"] == record["prev_hash"]
+    assert len(entry["data"]["sha256"]) == 64
+    assert entry["data"]["seq"] == 0

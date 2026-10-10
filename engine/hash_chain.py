@@ -11,12 +11,14 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 from typing import Any
 
 from .json_utils import atomic_write_json, load_json
-from .logging_config import utc_now
+from .logging_config import log_data, utc_now
 
 GENESIS_HASH = "0" * 64
+LOGGER = logging.getLogger("vantia.hash_chain")
 
 
 def sha256_hex(data: bytes) -> str:
@@ -72,6 +74,18 @@ class HashChain:
         record["hash"] = sha256_hex(_canonical(record))
         self._records.append(record)
         self._save()
+        # task 6.1: every append lands in the structured JSON log with its
+        # run_id (via _RUN_ID) and the SHA-256 pair, so stdout is auditable
+        # even when the chain file itself is out of reach.
+        log_data(
+            LOGGER,
+            logging.INFO,
+            "hash_chain append",
+            seq=record["seq"],
+            sha256=record["hash"],
+            prev_hash=record["prev_hash"],
+            event_type=record["event_type"],
+        )
         return record
 
     def verify(self) -> tuple[bool, int]:

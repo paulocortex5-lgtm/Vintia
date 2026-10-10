@@ -1,0 +1,44 @@
+# Render Blueprint — Vantia engine (task 6.4).
+#
+# Nothing has been deployed yet: connect the repo in the Render dashboard
+# and Apply Blueprint once the real secrets exist there (they are never
+# written into git). Secret-like env vars use `sync: false` so they are
+# set in the dashboard only. Keep-alive: Render sleeps the free tier
+# after ~15 min; the three-layer defence is documented in
+# docs/KEEP_ALIVE.md.
+services:
+  - type: web
+    name: vantia-engine
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeploy: false
+    envVars:
+      # Non-secret, safe to commit:
+      - key: VANTIA_SELF_PING
+        value: "1"
+      - key: PADDLE_ENVIRONMENT
+        value: sandbox
+      # Secrets / environment-specific — set in the Render dashboard:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_JWT_SECRET
+        sync: false
+      - key: PADDLE_API_KEY
+        sync: false
+      - key: PADDLE_WEBHOOK_SECRET
+        sync: false
+      - key: PADDLE_PRICE_PACK_10K
+        sync: false
+      - key: PADDLE_PRICE_PACK_50K
+        sync: false
+      - key: PADDLE_PRICE_PACK_250K
+        sync: false
+      - key: VANTIA_ALLOWED_ORIGINS
+        sync: false
