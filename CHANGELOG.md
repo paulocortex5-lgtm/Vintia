@@ -6,6 +6,29 @@ entry in the form `vantia(<task_id>): <name> (run N)`.
 
 ## [Unreleased]
 
+### Run 17 — Phase 8 (8.1–8.5): User Workspaces
+- **8.1** `engine/auth/` — offline HS256 Supabase JWT verification
+  (algorithm pinned, `sub`+`exp` required, placeholder secret refuses
+  loudly) + coded refresh flow; `AuthError` taxonomy; PyJWT declared in
+  requirements/pyproject (was importable but undeclared).
+- **8.2** `0004_workspaces.sql` — profiles / workspaces / workspace_files
+  with cascade FKs and a tier CHECK parity-tested against the engine's
+  `TIERS`; `WorkspaceService` (idempotent profile, ownership guard,
+  loud `workspace_backend_unconfigured`); `SupabaseClient.delete()`.
+- **8.3** `0005_rls.sql` — RLS on all three tables, 12 policies scoped to
+  `auth.uid()` (files via parent ownership), no `using (true)`, hardened
+  `vantia_jwt_hook` that stamps the profile tier (dashboard registration
+  is a documented launch step).
+- **8.4** `WorkspaceStorage` — user-scoped object paths, traversal-proof
+  segments, size/extension validation before any HTTP, honest
+  `storage_unconfigured` / `workspace_file_missing` / `workspace_forbidden`.
+- **8.5** offline two-user isolation E2E: cross-user access refused
+  before **zero** storage calls; expired tokens stop everything;
+  traversal never reaches HTTP; touched-host pin.
+- Migrations 0004/0005 written + static-tested, **not applied** (no live
+  Postgres — recorded honestly).
+- 60 files / 583 tests / 94% (5409 stmts); auth 98%, storage 95%.
+
 ### Run 16 — Phase 12 (12.1–12.6): Credit Purchasing
 - **12.1** `docs/PADDLE_SETUP.md` audited against the code: phantom
   `/api/*` route paths corrected to the real `POST /credits/checkout` /

@@ -5,8 +5,8 @@
 > what is in flight and what is queued.
 
 **Session:** 12 — continuous loop to ship-ready
-**After run 16:** 64/88 tasks complete (**73%**), run 16 closed (Phase 12 6/6), code `e9146e9`
-**Baseline suite:** 540 tests passing (55 files), 94% engine coverage (5177 stmts), `ruff` + `ruff format` + `mypy` clean repo-wide, **web `next build` EXIT=0**
+**After run 17:** 69/88 tasks complete (**78%**), run 17 closed (Phase 8 5/5), code `2b40f3c`
+**Baseline suite:** 583 tests passing (60 files), 94% engine coverage (5409 stmts), `ruff` + `ruff format` + `mypy` clean repo-wide, **web `next build` EXIT=0**
 
 ---
 
@@ -73,21 +73,35 @@ it was never used and must be **rotated/revoked before any GitHub push**.
 
 ---
 
+## 0.9. RUN 17 CLOSED — Phase 8 complete (2026-10-10)
+
+| | |
+|---|---|
+| Tasks | 8.1–8.5 all ✅ — offline HS256 JWT verify + refresh (`engine/auth/`, 98% cov); `0004_workspaces.sql` profiles/workspaces/files (tier parity-tested vs engine TIERS); `0005_rls.sql` 12 `auth.uid()` policies + hardened `vantia_jwt_hook`; `WorkspaceStorage` (user-scoped paths, validate-before-network, honest codes); two-user isolation E2E with zero-storage-call refusal |
+| Defects found | PyJWT imported but never declared → added to requirements/pyproject; `SupabaseClient` lacked `delete()` (added); fake-client filter unpacking bug in tests caught by first run |
+| Honest limits | migrations 0004/0005 written + static-tested, **not applied** (no live Postgres); dashboard hook registration documented as launch step |
+| Gates | 583 tests / 5409 stmts @ 94% / ruff + format + mypy green |
+| Commits | `2b40f3c` (code) → state commit; manifest run 17 appended |
+
+---
+
 ## 1. CURRENTLY IN FLIGHT
 
-**Run 17 — Phase 8: User Workspaces** (8.1 → 8.5)
+**Run 18 — Phase 6: Observability & Deployment** (6.1 → 6.7)
 
 | # | Task | Status |
 |---|---|---|
-| 8.1 | Supabase Auth integration | **in flight** — `engine/auth/`: JWT extract/refresh, offline-verifiable against fakes (no real credentials here) |
-| 8.2 | User profile + workspace tables | queued — `0004_workspaces.sql` migration + static tests |
-| 8.3 | Workspace RLS policies + JWT hook | queued — SQL policies, static-tested |
-| 8.4 | Private file storage (Supabase Storage) | queued — `engine/workspace/` storage layer with graceful degradation |
-| 8.5 | Workspace isolation E2E test | queued — cross-user access refusal, offline |
+| 6.1 | Structured logging (run_id, hashes) | **in flight** — audit `engine/logging_config.py` against the task; add run_id/hash fields where missing |
+| 6.2 | Public status page | queued — `/status` exists (9.4); build the public page/route on top |
+| 6.3 | Docker + reproducibility | **audit** — `Dockerfile` exists from Phase 0; verify pins/reproducibility, fill gaps |
+| 6.4 | Render deployment config | queued — `render.yaml` |
+| 6.5 | Vercel deployment config | queued — `vercel.json` for `web/` |
+| 6.6 | Supabase setup guide + SQL migration | queued — migration rollout doc for 0001–0005 |
+| 6.7 | Keep-alive documentation | **audit** — workflows + RUNBOOK exist; verify + record |
 
-Honest limit (unchanged): Supabase credentials are `REPLACE_ME` — every
-8.x path is verified against an in-memory fake + static SQL checks, never
-claimed as applied to a live database.
+Honest limit (unchanged): no Render/Vercel/Supabase credentials — configs
+are validated structurally (YAML/JSON parse, schema checks, docs review),
+never claimed as deployed.
 
 Design rules carried from the existing generators (2.7, 3.2, 3.3):
 
@@ -107,7 +121,6 @@ Design rules carried from the existing generators (2.7, 3.2, 3.3):
 
 | Run | Phase | Tasks | Notes |
 |---|---|---|---|
-| 18 | 6 — Observability & Deployment | 6.1–6.7 | render.yaml, vercel, status page, docs |
 | 19 | 5 — Product Surface closeout | 5.4, 5.5, 5.6 | **5.4 reopened by audit**; 6 SEO landing pages + waitlist double opt-in; verify `web/` builds |
 | 20 | 13 — Workspace UI + Full Journey | 13.1–13.6 | the user-facing surface |
 | 21 | 7 — Acceptance | 7.1–7.3 | full E2E, failover, paid-model switching |

@@ -343,6 +343,29 @@
       "engine_coverage_pct": 94.0,
       "cost_usd": 0.0,
       "note": "Phase 12 built in session 12; code commit e9146e9; web build gate verified (next build EXIT=0); sitemap dynamic-export defect found + fixed"
+    },
+    {
+      "run_id": 17,
+      "master_prompt_version": "4.0",
+      "session": 12,
+      "started_at": "2026-10-10T12:55:42Z",
+      "completed_at": "2026-10-10T12:55:42Z",
+      "phase": 8,
+      "tasks_completed": [
+        "8.1",
+        "8.2",
+        "8.3",
+        "8.4",
+        "8.5"
+      ],
+      "tests": {
+        "files": 60,
+        "passed": 583,
+        "failed": 0
+      },
+      "engine_coverage_pct": 94.0,
+      "cost_usd": 0.0,
+      "note": "Phase 8 built in session 12; code commit 2b40f3c; migrations written + static-tested, NOT applied (no live Postgres)"
     }
   ],
   "files": {

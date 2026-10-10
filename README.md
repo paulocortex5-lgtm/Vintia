@@ -23,10 +23,10 @@ recruitment agencies with a direct, verified pipeline for:
 Live progress is tracked in [`PLATFORM_STATE.md`](PLATFORM_STATE.md)
 (per-task record, audit trail, risks) and the working
 [`docs/BUILD_BOARD.md`](docs/BUILD_BOARD.md) (what is in flight *right now*
-and what comes next). Last updated after run 16: **64/88 tasks (73%)**,
-Phases 0–4 + 9–12 closed, 540 tests passing, 94% engine coverage, web
+and what comes next). Last updated after run 17: **69/88 tasks (78%)**,
+Phases 0–4 + 8–12 closed, 583 tests passing, 94% engine coverage, web
 build green — **not yet ready to ship**; the continuous build loop is on
-run 17 (Phase 8, user workspaces).
+run 18 (Phase 6, observability & deployment).
 
 ## Quickstart
 

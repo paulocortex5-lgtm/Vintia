@@ -3,9 +3,9 @@
   "master_prompt_version": "4.0",
   "schema_version": 4,
   "created_at": "2026-10-03T22:15:00Z",
-  "updated_at": "2026-10-10T11:47:08Z",
-  "run_count": 16,
-  "last_completed_task": "12.6",
+  "updated_at": "2026-10-10T12:55:42Z",
+  "run_count": 17,
+  "last_completed_task": "8.5",
   "in_progress_task": null,
   "consecutive_failures": {},
   "deployment": {
@@ -1088,68 +1088,86 @@
     "8.1": {
       "name": "Supabase Auth integration",
       "phase": 8,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "0.7"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/auth/jwt_auth.py",
+        "engine/errors.py",
+        "tests/test_auth.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "2b40f3c",
+      "started_at": "2026-10-10T12:55:42Z",
+      "completed_at": "2026-10-10T12:55:42Z"
     },
     "8.2": {
       "name": "User profile + workspace tables",
       "phase": 8,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "8.1",
         "4.5"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "supabase/migrations/0004_workspaces.sql",
+        "engine/workspace/service.py",
+        "tests/test_workspace_service.py",
+        "tests/test_workspaces_sql.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "2b40f3c",
+      "started_at": "2026-10-10T12:55:42Z",
+      "completed_at": "2026-10-10T12:55:42Z"
     },
     "8.3": {
       "name": "Workspace RLS policies + JWT hook",
       "phase": 8,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "8.2"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "supabase/migrations/0005_rls.sql",
+        "tests/test_workspaces_sql.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "2b40f3c",
+      "started_at": "2026-10-10T12:55:42Z",
+      "completed_at": "2026-10-10T12:55:42Z"
     },
     "8.4": {
       "name": "Private file storage (Supabase Storage)",
       "phase": 8,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "8.3"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/workspace/storage.py",
+        "engine/persistence/supabase_client.py",
+        "tests/test_workspace_storage.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "2b40f3c",
+      "started_at": "2026-10-10T12:55:42Z",
+      "completed_at": "2026-10-10T12:55:42Z"
     },
     "8.5": {
       "name": "Workspace isolation E2E test",
       "phase": 8,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "8.4"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "tests/e2e/test_workspace_isolation.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "2b40f3c",
+      "started_at": "2026-10-10T12:55:42Z",
+      "completed_at": "2026-10-10T12:55:42Z"
     },
     "9.1": {
       "name": "Resume parser (PDF/DOCX extraction)",
@@ -1641,7 +1659,8 @@
       "13": 0.0,
       "14": 0.0,
       "15": 0.0,
-      "16": 0.0
+      "16": 0.0,
+      "17": 0.0
     },
     "by_task": {}
   },
@@ -1892,6 +1911,24 @@
         "out": 0
       },
       "notes": "Phase 12 closed 6/6 - checkout+webhook routes, packs UI data, purchase page (web build verified), 0003_paddle.sql, CORS; 540 tests, 94% cov"
+    },
+    {
+      "run": 17,
+      "started_at": "2026-10-10T12:55:42Z",
+      "tasks": [
+        "8.1",
+        "8.2",
+        "8.3",
+        "8.4",
+        "8.5"
+      ],
+      "finished_at": "2026-10-10T12:55:42Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Phase 8 closed 5/5 - auth JWT offline verify, 0004/0005 migrations + RLS + jwt hook, storage layer, isolation E2E; 583 tests, 94% cov"
     }
   ],
   "notes": "Seed v4.0. 98 tasks across 14 phases. Free-tier only. Session 1 closeout: Phase 0 verified and committed. 96/96 unit tests pass, 97% engine coverage. 0.2 vantia-state commit is aa0f228; other Phase 0 tasks commit to main 4c84504."

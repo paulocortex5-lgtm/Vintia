@@ -1,9 +1,9 @@
 # VANTIA — PLATFORM STATE
 
-**Last updated:** 2026-10-10T11:36:37Z
+**Last updated:** 2026-10-10T12:55:42Z
 **Master prompt:** v6.0
 **Session count:** 12
-**Overall readiness:** 73%
+**Overall readiness:** 78%
 
 ---
 
@@ -11,13 +11,13 @@
 
 | Metric | Value |
 |---|---|
-| Tasks complete | 64/88 |
+| Tasks complete | 69/88 |
 | Tasks in progress | 0 |
 | Tasks blocked | 0 |
-| Tasks pending | 24 |
+| Tasks pending | 19 |
 | Audit failures | 1 (5.4 — reopened in session 11) |
 | Live previews passing | 0 |
-| E2E tests passing | 27 (7 offline suites) |
+| E2E tests passing | 31 (8 offline suites) |
 | Backend deployed | no |
 | Frontend deployed | no |
 | Database migrated | no |
@@ -39,7 +39,7 @@
 | 5 | Product Surface | 3/6 | 0 | 0 | 3 | 50% |
 | 6 | Observability & Deployment | 0/7 | 0 | 0 | 7 | 0% |
 | 7 | Acceptance | 0/3 | 0 | 0 | 3 | 0% |
-| 8 | User Workspaces | 0/5 | 0 | 0 | 5 | 0% |
+| 8 | User Workspaces | 5/5 | 0 | 0 | 0 | 100% |
 | 9 | ATS Scoring Engine | 6/6 | 0 | 0 | 0 | 100% |
 | 10 | CV Improvement + Cover Letter | 6/6 | 0 | 0 | 0 | 100% |
 | 11 | Credit System | 6/6 | 0 | 0 | 0 | 100% |
@@ -147,11 +147,11 @@
 
 | ID | Name | Status | Commit | Files | Tested | Previewed | Verified |
 |---|---|---|---|---|---|---|---|
-| 8.1 | Supabase Auth integration | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 8.2 | User profile + workspace tables | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 8.3 | Workspace RLS policies + JWT hook | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 8.4 | Private file storage (Supabase Storage) | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 8.5 | Workspace isolation E2E test | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
+| 8.1 | Supabase Auth integration | ✅ Complete | `2b40f3c` | engine/auth/jwt_auth.py (offline HS256 verify, pinned alg, `sub`/`exp` required, leeway, stable codes `missing_token`/`token_expired`/`invalid_token`/`auth_not_configured`; refresh via MockTransport), engine/errors.py (`AuthError`), PyJWT declared in requirements/pyproject, tests/test_auth.py | ✅ | ❌ | ✅ |
+| 8.2 | User profile + workspace tables | ✅ Complete | `2b40f3c` | supabase/migrations/0004_workspaces.sql (profiles/workspaces/workspace_files, cascade FKs, tier CHECK parity with engine TIERS), engine/workspace/service.py (ensure_profile/create/list/assert_owner/files, loud `workspace_backend_unconfigured`), tests/test_workspace_service.py + tests/test_workspaces_sql.py | ✅ | ❌ | ✅ |
+| 8.3 | Workspace RLS policies + JWT hook | ✅ Complete | `2b40f3c` | supabase/migrations/0005_rls.sql (RLS on all 3 tables, 12 `auth.uid()`-scoped policies, no `using (true)`, `vantia_jwt_hook` stamps tier with `set search_path` hardening — dashboard registration is a documented launch step), tests/test_workspaces_sql.py | ✅ | ❌ | ✅ |
+| 8.4 | Private file storage (Supabase Storage) | ✅ Complete | `2b40f3c` | engine/workspace/storage.py (user-scoped object paths `<user>/<ws>/<file>`, size/type validation from state before any network, traversal-proof segments, honest `storage_unconfigured`/`workspace_file_missing`/`workspace_forbidden`), engine/persistence/supabase_client.py (`delete()` added), tests/test_workspace_storage.py | ✅ | ❌ | ✅ |
+| 8.5 | Workspace isolation E2E test | ✅ Complete | `2b40f3c` | tests/e2e/test_workspace_isolation.py (two users offline: A uploads/records/downloads, B sees `[]` + `workspace_forbidden` before **zero** storage calls; expired token stops all work; traversal never hits HTTP; delete round trip; touched-host pin) | ✅ | ❌ | ✅ |
 
 ### Phase 9 — ATS Scoring Engine
 
@@ -216,8 +216,8 @@
 
 | User-facing feature | Backend | Frontend | Auth | Tested | Previewed | Ready? |
 |---|---|---|---|---|---|---|
-| Sign up / sign in | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Upload CV to workspace | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Sign up / sign in | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Upload CV to workspace | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
 | Scan CV against job | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
 | View ATS score + report | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
 | Improve CV with AI | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
@@ -601,12 +601,25 @@ Tasks marked complete in `state.json` but failing verification:
 | Tests | +3 suites +24 tests: **540 passing**, 55 files, **94% coverage (5177 stmts)**; `engine/api.py` 97%, paddle webhook 85%; ruff + format + mypy clean; **web `next build` EXIT=0** |
 | State | run 16 recorded; Phase 12 **6/6 closed**; 64/88 total (73%); manifest run 16 appended; commit `e9146e9` (code) + state commit |
 
+**Run 17 (session 12) — 2026-10-10 — Phase 8 closeout (8.1–8.5): User Workspaces**
+
+| Item | Outcome |
+|---|---|
+| 8.1 Supabase Auth | `engine/auth/jwt_auth.py` — **offline** HS256 verification against `SUPABASE_JWT_SECRET` (algorithm pinned: `none`/RS confusion impossible), `sub`+`exp` required, audience `authenticated`, configurable leeway; stable codes `missing_token` / `token_expired` / `invalid_token` / `auth_not_configured` (a placeholder secret **refuses** rather than trusting the header — no insecure fallback anywhere). `AuthError` added to the taxonomy. Refresh: `POST {SUPABASE_URL}/auth/v1/token?grant_type=refresh_token` with injectable url/client, every failure mode coded (`refresh_rejected` + status, `auth_response_invalid`, `auth_unreachable`). PyJWT was importable but undeclared → declared in `requirements.txt` + `pyproject.toml`. Tests: 15 (expired, forged sig, wrong aud, missing claims, alg-confusion, unconfigured secret, refresh matrix) |
+| 8.2 profile + workspace tables | `supabase/migrations/0004_workspaces.sql` — `profiles` (tier CHECK **parity-tested against `engine.credits.tiers.TIERS`**), `workspaces`, `workspace_files` with cascade FKs + unique-per-workspace filename; engine side `engine/workspace/service.py` (`ensure_profile` idempotent, `create_workspace`, `list_workspaces` scoped per user, `assert_owner` → `workspace_forbidden`/`workspace_not_found`, file metadata CRUD) — unconfigured backend raises `workspace_backend_unconfigured` **loudly** (empty list ≠ "no data") |
+| 8.3 RLS + JWT hook | `supabase/migrations/0005_rls.sql` — RLS enabled on all 3 tables, 12 policies all scoped `(select auth.uid())::text = user_id` (file policies via parent-workspace ownership), **no `using (true)` and no `for all`**, `vantia_jwt_hook` stamps the profile tier into every access token (`security definer` + `set search_path` hardening). Dashboard hook registration documented as a launch step — never claimed applied |
+| 8.4 private file storage | `engine/workspace/storage.py` — object paths `<user_id>/<workspace_id>/<filename>` (every segment traversal-proof), size cap + extension allow-list **validated before any HTTP**, honest `storage_unconfigured` / `workspace_file_missing` (404 never becomes empty bytes) / `workspace_forbidden` (403) / status-carrying failures. `SupabaseClient.delete()` added for metadata rows |
+| 8.5 isolation E2E | `tests/e2e/test_workspace_isolation.py` — two users fully offline: A signs in → uploads → records → downloads; B's verified token sees `[]` and is refused by `assert_owner` **before zero storage calls**; expired token stops everything; traversal upload never reaches HTTP; delete round trip; touched-host pin (`supabase.test` only) |
+| Honest limits | `0004`/`0005` are written + static-tested, **not applied** (no live Postgres — same constraint as 0001–0003); live sign-in against Supabase Auth untested until real credentials exist |
+| Tests | +5 suites +43 tests: **583 passing**, 60 files, **94% coverage (5409 stmts)**; `engine/auth/jwt_auth.py` 98%, `engine/workspace/storage.py` 95%; ruff + format + mypy clean |
+| State | run 17 recorded; Phase 8 **5/5 closed**; 69/88 total (78%); manifest run 17 appended; commit `2b40f3c` (code) + state commit |
+
 ---
 
 ## 11. NEXT SESSION ACTIONS
 
-1. **Run 17 — Phase 8 (User Workspaces), in flight:** 8.1 Supabase Auth integration (`engine/auth/` — JWT extraction/refresh, offline-verifiable), 8.2 profile + workspace tables migration, 8.3 RLS policies + JWT hook, 8.4 private file storage, 8.5 workspace isolation E2E — all statically tested against an in-memory fake Supabase (no real credentials in this environment)
-2. **Queue (continuous loop, see `docs/BUILD_BOARD.md`):** run 18 Phase 6 → run 19 Phase 5 closeout (5.4/5.5/5.6) → run 20 Phase 13 → run 21 Phase 7 acceptance
+1. **Run 18 — Phase 6 (Observability & Deployment), in flight:** 6.1 structured logging (run_id + hashes), 6.2 public status page, 6.3 Docker reproducibility, 6.4 `render.yaml`, 6.5 Vercel config, 6.6 Supabase setup guide + SQL migration rollout doc, 6.7 keep-alive documentation — config/docs verified offline where possible (no live Render/Vercel/Supabase credentials)
+2. **Queue (continuous loop, see `docs/BUILD_BOARD.md`):** run 19 Phase 5 closeout (5.4/5.5/5.6) → run 20 Phase 13 → run 21 Phase 7 acceptance
 3. 4.5 follow-up: the Supabase mirror schema is written and static-checked, but RLS policies and a real `supabase db push` are untested until real credentials exist — do not claim the migration as applied
 4. 2.3 follow-up (carried): fold `FederalEmploymentAgency` into a government-sources registry so `adapters_for()` and the register dispatcher share one per-country source table (`docs/SOURCES.md` checklist step 2)
 5. 2.8 follow-up (carried): `run_job_pipeline` loads by URL for W/G/L portals only — government sources are harvested through their adapters and need a detail loader before they are addressable by direct URL (documented in the `run_job_pipeline` docstring)

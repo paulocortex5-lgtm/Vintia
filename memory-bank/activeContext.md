@@ -1,18 +1,19 @@
 # Active Context
 
 ## Current Focus
-Session 12 (continuous loop). Run 16 closed **Phase 12 (6/6)**:
-**64/88 tasks complete (73%)**, 540 tests / 94% coverage (5177 stmts) /
+Session 12 (continuous loop). Run 17 closed **Phase 8 (5/5)**:
+**69/88 tasks complete (78%)**, 583 tests / 94% coverage (5409 stmts) /
 ruff+format+mypy green / web `next build` EXIT=0. The loop is now on
-**run 17 — Phase 8 (User Workspaces)**: 8.1 Supabase Auth (`engine/auth/`,
-JWT extract/refresh offline-verified), 8.2 profile + workspace tables
-(`0004_workspaces.sql`), 8.3 RLS policies + JWT hook, 8.4 private file
-storage, 8.5 workspace isolation E2E — all against an in-memory fake
-Supabase (credentials stay `REPLACE_ME`). Queue afterwards: 6 → 5
-(5.4–5.6) → 13 → 7, updating state + manifest + PLATFORM_STATE +
-BUILD_BOARD + CHANGELOG + memory-bank each run.
+**run 18 — Phase 6 (Observability & Deployment)**: 6.1 structured logging
+audit, 6.2 public status page, 6.3 Docker reproducibility audit, 6.4
+`render.yaml`, 6.5 `vercel.json`, 6.6 Supabase setup + migration rollout
+guide (0001–0005), 6.7 keep-alive docs audit — configs validated
+structurally, never claimed deployed (no Render/Vercel/Supabase
+credentials). Queue afterwards: 5 (5.4–5.6) → 13 → 7, updating state +
+manifest + PLATFORM_STATE + BUILD_BOARD + CHANGELOG + memory-bank each
+run.
 
-## Recent Changes (session 12: runs 14 + 15 + 16)
+## Recent Changes (session 12: runs 14–17)
 - **Run 14 (Phase 10, `1003b3e`)**: reconciled board vs snapshot vs tree —
   the tree was ahead of both docs (all six tasks existed); suite run before
   recording. Recorded audit-verified 10.1/10.3; verified + wired 10.2
@@ -35,6 +36,14 @@ BUILD_BOARD + CHANGELOG + memory-bank each run.
   (found + fixed the pre-existing sitemap `dynamic`/`cacheComponents`
   defect); engine CORS (`VANTIA_ALLOWED_ORIGINS`); env tier vars made real
   config overlays; offline purchase E2E; state run 16 + manifest appended.
+- **Run 17 (Phase 8, `2b40f3c`)**: user workspaces — `engine/auth/`
+  offline HS256 JWT verify + refresh (PyJWT now declared); `0004`/
+  `0005` migrations (tables + 12 `auth.uid()` RLS policies + hardened
+  tier-stamping JWT hook, static-tested, **not applied**);
+  `WorkspaceService` ownership guard + `WorkspaceStorage`
+  (validate-before-network, honest codes, `SupabaseClient.delete()`
+  added); two-user isolation E2E (refused before zero storage calls);
+  state run 17 + manifest appended.
 
 ## Recent Changes (session 11: audit + run 13)
 - **Audit** reconciled every conflicting claim: restored `PLATFORM_STATE.md`
@@ -55,11 +64,11 @@ BUILD_BOARD + CHANGELOG + memory-bank each run.
   compromised and must be rotated before any push.
 
 ## Next Steps
-1. Run 17 — Phase 8: 8.1 auth (`engine/auth/` JWT extract/refresh),
-   8.2 `0004_workspaces.sql` profile + workspace tables, 8.3 RLS +
-   JWT hook, 8.4 storage layer, 8.5 isolation E2E (offline fakes);
-   close 5/5 (69/88).
-2. Runs 18–21 per `docs/BUILD_BOARD.md` §2 until ship-ready.
+1. Run 18 — Phase 6: 6.1 structured logging audit, 6.2 status page,
+   6.3 Docker audit, 6.4 render.yaml, 6.5 vercel.json, 6.6 Supabase
+   guide + migration rollout, 6.7 keep-alive docs audit; close 7/7
+   (76/88).
+2. Runs 19–21 per `docs/BUILD_BOARD.md` §2 until ship-ready.
 
 ## Known Issues
 - The 4.5 Supabase mirror schema is written and static-tested, but RLS
