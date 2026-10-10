@@ -1,9 +1,9 @@
 # VANTIA — PLATFORM STATE
 
-**Last updated:** 2026-10-10T12:55:42Z
+**Last updated:** 2026-10-10T13:52:35Z
 **Master prompt:** v6.0
 **Session count:** 12
-**Overall readiness:** 78%
+**Overall readiness:** 86%
 
 ---
 
@@ -11,10 +11,10 @@
 
 | Metric | Value |
 |---|---|
-| Tasks complete | 69/88 |
+| Tasks complete | 76/88 |
 | Tasks in progress | 0 |
 | Tasks blocked | 0 |
-| Tasks pending | 19 |
+| Tasks pending | 12 |
 | Audit failures | 1 (5.4 — reopened in session 11) |
 | Live previews passing | 0 |
 | E2E tests passing | 31 (8 offline suites) |
@@ -37,7 +37,7 @@
 | 3 | Scholarship Engine | 7/7 | 0 | 0 | 0 | 100% |
 | 4 | Verification & Hardening | 5/5 | 0 | 0 | 0 | 100% |
 | 5 | Product Surface | 3/6 | 0 | 0 | 3 | 50% |
-| 6 | Observability & Deployment | 0/7 | 0 | 0 | 7 | 0% |
+| 6 | Observability & Deployment | 7/7 | 0 | 0 | 0 | 100% |
 | 7 | Acceptance | 0/3 | 0 | 0 | 3 | 0% |
 | 8 | User Workspaces | 5/5 | 0 | 0 | 0 | 100% |
 | 9 | ATS Scoring Engine | 6/6 | 0 | 0 | 0 | 100% |
@@ -127,13 +127,13 @@
 
 | ID | Name | Status | Commit | Files | Tested | Previewed | Verified |
 |---|---|---|---|---|---|---|---|
-| 6.1 | Structured logging (run_id, hashes) | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 6.2 | Public status page | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 6.3 | Docker + reproducibility | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 6.4 | Render deployment config (render.yaml) | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 6.5 | Vercel deployment config | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 6.6 | Supabase setup guide + SQL migration | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 6.7 | Keep-alive documentation | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
+| 6.1 | Structured logging (run_id, hashes) | ✅ Complete | `bb0b130` | engine/logging_config.py (JSON-line formatter + run_id, audit-verified from 0.6) + engine/hash_chain.py now emits `log_data(...)` with seq/SHA-256 pair on every append, tests/test_hash_chain.py (stdout line carries run_id + hashes) | ✅ | ❌ | ✅ |
+| 6.2 | Public status page | ✅ Complete | `bb0b130` | web/app/status/page.tsx (reads engine `GET /status`, live progress, honest unreachable state, 30s refresh); verified by `next build` EXIT=0 | ✅ | ✅ | ✅ |
+| 6.3 | Docker + reproducibility | ✅ Complete | `bb0b130` | Dockerfile — base digest-pinned (`python:3.12-slim@sha256:a6e34c…`, resolved via Docker Hub API), pip==25.2 pin, `pip check`, deps-before-code layer caching, non-root `USER vantia`; static-tested in tests/test_deploy_configs.py | ✅ | ❌ | ✅ |
+| 6.4 | Render deployment config (render.yaml) | ✅ Complete | `bb0b130` | render.yaml (Docker Blueprint, `/health` check, autoDeploy false, all secrets `sync: false` — no literals) + docs/RENDER_DEPLOY.md (steps, env table, local docker verification, honest NOT DEPLOYED) | ✅ | ❌ | ✅ |
+| 6.5 | Vercel deployment config | ✅ Complete | `bb0b130` | web/vercel.json (nextjs, **`npm ci` from committed package-lock**, build/output) + docs/VERCEL_DEPLOY.md (root dir, NEXT_PUBLIC_* table, CORS contract, honest NOT DEPLOYED) | ✅ | ❌ | ✅ |
+| 6.6 | Supabase setup guide + SQL migration | ✅ Complete | `bb0b130` | docs/SUPABASE_SETUP.md — rollout of 0001–0005 in order (parity-tested against the migrations dir), post-apply verification queries (RLS, 12 policies, hook), dashboard steps (JWT hook, storage bucket), honest NOT APPLIED | ✅ | ❌ | ✅ |
+| 6.7 | Keep-alive documentation | ✅ Complete | `bb0b130` | docs/KEEP_ALIVE.md (3-layer table mirrored from RUNBOOK §4, verification, pre-deploy red-state note, failure matrix) — workflow cron parity-tested (`*/14` in keep-alive.yml) | ✅ | ❌ | ✅ |
 
 ### Phase 7 — Acceptance
 
@@ -614,12 +614,29 @@ Tasks marked complete in `state.json` but failing verification:
 | Tests | +5 suites +43 tests: **583 passing**, 60 files, **94% coverage (5409 stmts)**; `engine/auth/jwt_auth.py` 98%, `engine/workspace/storage.py` 95%; ruff + format + mypy clean |
 | State | run 17 recorded; Phase 8 **5/5 closed**; 69/88 total (78%); manifest run 17 appended; commit `2b40f3c` (code) + state commit |
 
+**Run 18 (session 12) — 2026-10-10 — Phase 6 closeout (6.1–6.7): Observability & Deployment**
+
+| Item | Outcome |
+|---|---|
+| Reconciliation first | Board listed run 18 tasks as audit/in-flight-queued while snapshot/state said Phase 6 0/6 — reality: Phase 8 had closed and Phase 6 artifacts (Dockerfile, logging, workflows, RUNBOOK sections) partially existed from Phase 0 but the seven task-defining artifacts were **missing** (render.yaml, vercel.json, all four promised runbooks). Audited first, built the gaps, re-ran gates before recording |
+| 6.1 structured logging | audit: JSON-line formatter + `run_id` existed (0.6, tested) — gap was **hashes**: `hash_chain.append` now emits `log_data(... seq, sha256, prev_hash, event_type ...)` so stdout carries the chain's SHA-256 pair under the run id; test parses the actual stdout JSON line |
+| 6.2 status page | `web/app/status/page.tsx` — renders engine `GET /status` verbatim (readiness %, next task, run count), 30 s auto-refresh, honest "engine unreachable" state, no invented numbers; `next build` EXIT=0 |
+| 6.3 Docker + reproducibility | base image digest-pinned (`python:3.12-slim@sha256:a6e34c59…`, resolved live via Docker Hub tags API), **pip==25.2** pin (verified on PyPI) + `pip check`, deps-before-code layer caching kept, **non-root `USER vantia`** added; static tests pin every one of these |
+| 6.4 Render config | `render.yaml` Blueprint: Docker runtime, `/health` gate, `autoDeploy: false`, every secret `sync: false` (no literals — test-enforced) + `docs/RENDER_DEPLOY.md` (step-by-step, env table, local docker verification, **NOT DEPLOYED**) |
+| 6.5 Vercel config | `web/vercel.json`: nextjs, **`npm ci`** (reproducible from the committed package-lock), explicit build/output + `docs/VERCEL_DEPLOY.md` (root dir, `NEXT_PUBLIC_*` table, the CORS contract both sides must satisfy, **NOT DEPLOYED**) |
+| 6.6 Supabase guide | `docs/SUPABASE_SETUP.md` — rollout of migrations **0001→0005 in numeric order (parity-tested against the migrations directory)**, post-apply verification SQL (RLS on, exactly 12 policies, no `qual = 'true'`, hook exists), dashboard steps (JWT hook registration, private bucket + storage policies), honest **NOT APPLIED** |
+| 6.7 keep-alive docs | `docs/KEEP_ALIVE.md` — three-layer table mirrored from RUNBOOK §4, verification commands, the pre-deploy "expected red" rule, failure matrix; cron parity-tested against `.github/workflows/keep-alive.yml` (`*/14`) |
+| Gate added | `tests/test_deploy_configs.py` (14 tests) — configs parse, cross-reference each other, promise only existing files, never embed secrets (`ghp_`/`REPLACE_ME` scans), runbook status headers must say NOT DEPLOYED/NOT APPLIED |
+| Tests | +1 suite +14 tests (plus 1 hash-log test): **597 passing**, 61 files, **94% coverage (5412 stmts)**; ruff + format + mypy clean; **web `next build` EXIT=0** (status page compiles) |
+| Honest limits | No Render/Vercel/Supabase credentials — everything deployment-shaped is validated **structurally only**; nothing is claimed deployed, applied, or live |
+| State | run 18 recorded; Phase 6 **7/7 closed**; 76/88 total (86%); manifest run 18 appended; commit `bb0b130` (code) + state commit |
+
 ---
 
 ## 11. NEXT SESSION ACTIONS
 
-1. **Run 18 — Phase 6 (Observability & Deployment), in flight:** 6.1 structured logging (run_id + hashes), 6.2 public status page, 6.3 Docker reproducibility, 6.4 `render.yaml`, 6.5 Vercel config, 6.6 Supabase setup guide + SQL migration rollout doc, 6.7 keep-alive documentation — config/docs verified offline where possible (no live Render/Vercel/Supabase credentials)
-2. **Queue (continuous loop, see `docs/BUILD_BOARD.md`):** run 19 Phase 5 closeout (5.4/5.5/5.6) → run 20 Phase 13 → run 21 Phase 7 acceptance
+1. **Run 19 — Phase 5 closeout (5.4, 5.5, 5.6), in flight:** 5.4 SEO (reopened by the session-11 audit — needs schema.org/JSON-LD + real metadata, not the stock sitemap route), 5.5 six SEO landing pages, 5.6 waitlist double opt-in; `web/` build gate stays on
+2. **Queue (continuous loop, see `docs/BUILD_BOARD.md`):** run 20 Phase 13 → run 21 Phase 7 acceptance
 3. 4.5 follow-up: the Supabase mirror schema is written and static-checked, but RLS policies and a real `supabase db push` are untested until real credentials exist — do not claim the migration as applied
 4. 2.3 follow-up (carried): fold `FederalEmploymentAgency` into a government-sources registry so `adapters_for()` and the register dispatcher share one per-country source table (`docs/SOURCES.md` checklist step 2)
 5. 2.8 follow-up (carried): `run_job_pipeline` loads by URL for W/G/L portals only — government sources are harvested through their adapters and need a detail loader before they are addressable by direct URL (documented in the `run_job_pipeline` docstring)

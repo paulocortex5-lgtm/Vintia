@@ -3,9 +3,9 @@
   "master_prompt_version": "4.0",
   "schema_version": 4,
   "created_at": "2026-10-03T22:15:00Z",
-  "updated_at": "2026-10-10T12:55:42Z",
-  "run_count": 17,
-  "last_completed_task": "8.5",
+  "updated_at": "2026-10-10T13:52:35Z",
+  "run_count": 18,
+  "last_completed_task": "6.7",
   "in_progress_task": null,
   "consecutive_failures": {},
   "deployment": {
@@ -952,95 +952,115 @@
     "6.1": {
       "name": "Structured logging (run_id, hashes)",
       "phase": 6,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "0.6"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/hash_chain.py",
+        "engine/logging_config.py",
+        "tests/test_hash_chain.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "bb0b130",
+      "started_at": "2026-10-10T13:52:34Z",
+      "completed_at": "2026-10-10T13:52:34Z"
     },
     "6.2": {
       "name": "Public status page",
       "phase": 6,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "5.3",
         "6.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "web/app/status/page.tsx",
+        "engine/api.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "bb0b130",
+      "started_at": "2026-10-10T13:52:34Z",
+      "completed_at": "2026-10-10T13:52:34Z"
     },
     "6.3": {
       "name": "Docker + reproducibility",
       "phase": 6,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "0.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "Dockerfile"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "bb0b130",
+      "started_at": "2026-10-10T13:52:34Z",
+      "completed_at": "2026-10-10T13:52:35Z"
     },
     "6.4": {
       "name": "Render deployment config (render.yaml)",
       "phase": 6,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "0.8"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "render.yaml",
+        "docs/RENDER_DEPLOY.md"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "bb0b130",
+      "started_at": "2026-10-10T13:52:35Z",
+      "completed_at": "2026-10-10T13:52:35Z"
     },
     "6.5": {
       "name": "Vercel deployment config",
       "phase": 6,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "5.3"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "web/vercel.json",
+        "docs/VERCEL_DEPLOY.md"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "bb0b130",
+      "started_at": "2026-10-10T13:52:35Z",
+      "completed_at": "2026-10-10T13:52:35Z"
     },
     "6.6": {
       "name": "Supabase setup guide + SQL migration",
       "phase": 6,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "4.5"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "docs/SUPABASE_SETUP.md"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "bb0b130",
+      "started_at": "2026-10-10T13:52:35Z",
+      "completed_at": "2026-10-10T13:52:35Z"
     },
     "6.7": {
       "name": "Keep-alive documentation",
       "phase": 6,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "0.9",
         "0.8"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "docs/KEEP_ALIVE.md",
+        ".github/workflows/keep-alive.yml"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "bb0b130",
+      "started_at": "2026-10-10T13:52:35Z",
+      "completed_at": "2026-10-10T13:52:35Z"
     },
     "7.1": {
       "name": "Acceptance demo (full E2E)",
@@ -1660,7 +1680,8 @@
       "14": 0.0,
       "15": 0.0,
       "16": 0.0,
-      "17": 0.0
+      "17": 0.0,
+      "18": 0.0
     },
     "by_task": {}
   },
@@ -1929,6 +1950,26 @@
         "out": 0
       },
       "notes": "Phase 8 closed 5/5 - auth JWT offline verify, 0004/0005 migrations + RLS + jwt hook, storage layer, isolation E2E; 583 tests, 94% cov"
+    },
+    {
+      "run": 18,
+      "started_at": "2026-10-10T13:52:34Z",
+      "tasks": [
+        "6.1",
+        "6.2",
+        "6.3",
+        "6.4",
+        "6.5",
+        "6.6",
+        "6.7"
+      ],
+      "finished_at": "2026-10-10T13:52:35Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Phase 8->Phase 6 closed 7/7 - hash logging, status page, digest-pinned Docker, render/vercel configs, 4 runbooks; 597 tests, 94% cov, web build green"
     }
   ],
   "notes": "Seed v4.0. 98 tasks across 14 phases. Free-tier only. Session 1 closeout: Phase 0 verified and committed. 96/96 unit tests pass, 97% engine coverage. 0.2 vantia-state commit is aa0f228; other Phase 0 tasks commit to main 4c84504."

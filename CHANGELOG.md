@@ -6,6 +6,30 @@ entry in the form `vantia(<task_id>): <name> (run N)`.
 
 ## [Unreleased]
 
+### Run 18 — Phase 6 (6.1–6.7): Observability & Deployment
+- **6.1** `hash_chain.append` now emits structured JSON log lines with
+  `run_id` + `seq`/`sha256`/`prev_hash` — stdout is auditable even when
+  the chain file is out of reach (test parses the real stdout line).
+- **6.2** `web/app/status/page.tsx` public status page (live `GET /status`
+  data, honest unreachable state, 30 s refresh); `next build` EXIT=0.
+- **6.3** Dockerfile reproducibility: base digest-pinned
+  (`python:3.12-slim@sha256:a6e34c59…`, resolved via Docker Hub API),
+  pip==25.2 + `pip check`, non-root `USER vantia`.
+- **6.4** `render.yaml` Blueprint (Docker, `/health`, `autoDeploy: false`,
+  secrets `sync: false`) + `docs/RENDER_DEPLOY.md` (**NOT DEPLOYED**).
+- **6.5** `web/vercel.json` (`npm ci` from the committed lockfile) +
+  `docs/VERCEL_DEPLOY.md` incl. the CORS contract (**NOT DEPLOYED**).
+- **6.6** `docs/SUPABASE_SETUP.md` — 0001→0005 rollout in order
+  (parity-tested), post-apply verification SQL, dashboard steps
+  (**NOT APPLIED**).
+- **6.7** `docs/KEEP_ALIVE.md` — three layers, verification, pre-deploy
+  red-state rule, failure matrix; cron parity-tested (`*/14`).
+- Gate: `tests/test_deploy_configs.py` (14 tests) — cross-config parity,
+  secret scans (`ghp_`/`REPLACE_ME`), required NOT-DEPLOYED headers.
+- Defects found: the four promised Phase-6 runbooks never existed;
+  Dockerfile base unpinned + root user; logging lacked hash fields.
+- 61 files / 597 tests / 94% (5412 stmts); web build green.
+
 ### Run 17 — Phase 8 (8.1–8.5): User Workspaces
 - **8.1** `engine/auth/` — offline HS256 Supabase JWT verification
   (algorithm pinned, `sub`+`exp` required, placeholder secret refuses

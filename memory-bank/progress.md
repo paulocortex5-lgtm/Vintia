@@ -48,9 +48,17 @@
   cover-letter pipelines; `GET /credits/balance` + `/credits/estimate`;
   offline credit-journey E2E (refusal with zero network calls, webhook
   double-delivery credits exactly once).
-- Suite (run 17, 2026-10-10): 60 test files / **583 passing** /
-  **94% line coverage of `engine/`** (5409 stmts; auth 98%, storage 95%);
-  `ruff check`, `ruff format --check` and `mypy` clean repo-wide.
+- Suite (run 18, 2026-10-10): 61 test files / **597 passing** /
+  **94% line coverage of `engine/`** (5412 stmts);
+  `ruff check`, `ruff format --check` and `mypy` clean repo-wide;
+  **web `next build` EXIT=0** (status page included).
+- **Phase 6 complete (7/7, run 18 `bb0b130`):** observability & deploy —
+  hash-pair structured logging on chain append; `web/app/status/page.tsx`;
+  Dockerfile digest-pinned + pip==25.2 + non-root; `render.yaml` +
+  `web/vercel.json` (`npm ci`); `RENDER_DEPLOY.md`, `VERCEL_DEPLOY.md`,
+  `SUPABASE_SETUP.md` (0001→0005 rollout, parity-tested), `KEEP_ALIVE.md`;
+  `tests/test_deploy_configs.py` cross-config/secret gate. All validated
+  **structurally — nothing deployed or applied** (no credentials).
 - **Phase 8 complete (5/5, run 17 `2b40f3c`):** user workspaces —
   offline HS256 JWT verification + refresh (PyJWT declared);
   `0004_workspaces.sql` (profiles/workspaces/files, cascade FKs, tier
@@ -71,21 +79,20 @@
 - Engine bugs found by the tests and fixed (state_manager task
   indexing, logging frame access, end_run return value, quota RLock
   deadlock) — details in PLATFORM_STATE §10.
-- Version-controlled: commits exist locally on `main` through the
-  run-17 code commit `2b40f3c` (pushed continuously with the disclosed
-  token under user authorization; user rotates it at 100% build).
+- Version-controlled: commits exist on `main` through the run-18 code
+  commit `bb0b130` (pushed continuously with the disclosed token under
+  user authorization; user rotates it at 100% build).
 
-## What's Left (19 tasks)
-- Phase 5 (3): 5.4 SEO (reopened), 5.5 landing pages, 5.6 waitlist.
-- Phase 6 (7): observability & deployment (status page, render.yaml,
-  vercel.json, supabase guide, keep-alive docs) — run 18, in flight.
+## What's Left (12 tasks)
+- Phase 5 (3): 5.4 SEO (reopened), 5.5 landing pages, 5.6 waitlist —
+  run 19, in flight.
 - Phase 7 (3): acceptance (full E2E, failover, paid-model switching).
 - Phase 13 (6): workspace UI + full journey.
 
 ## Current Milestone
-Run 17 closed Phase 8 (5/5): **69/88 = 78%**, 583 tests / 94% coverage
-(5409 stmts) / gates green. The continuous loop is on **run 18 — Phase 6**,
-then 5 → 13 → 7 per `docs/BUILD_BOARD.md`.
+Run 18 closed Phase 6 (7/7): **76/88 = 86%**, 597 tests / 94% coverage
+(5412 stmts) / gates green / web build green. The continuous loop is on
+**run 19 — Phase 5 closeout**, then 13 → 7 per `docs/BUILD_BOARD.md`.
 
 ## Blockers
 - No Supabase / Render / Vercel / Paddle credentials (`REPLACE_ME`

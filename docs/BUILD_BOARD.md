@@ -5,8 +5,8 @@
 > what is in flight and what is queued.
 
 **Session:** 12 — continuous loop to ship-ready
-**After run 17:** 69/88 tasks complete (**78%**), run 17 closed (Phase 8 5/5), code `2b40f3c`
-**Baseline suite:** 583 tests passing (60 files), 94% engine coverage (5409 stmts), `ruff` + `ruff format` + `mypy` clean repo-wide, **web `next build` EXIT=0**
+**After run 18:** 76/88 tasks complete (**86%**), run 18 closed (Phase 6 7/7), code `bb0b130`
+**Baseline suite:** 597 tests passing (61 files), 94% engine coverage (5412 stmts), `ruff` + `ruff format` + `mypy` clean repo-wide, **web `next build` EXIT=0**
 
 ---
 
@@ -85,23 +85,32 @@ it was never used and must be **rotated/revoked before any GitHub push**.
 
 ---
 
+## 0.10. RUN 18 CLOSED — Phase 6 complete (2026-10-10)
+
+| | |
+|---|---|
+| Tasks | 6.1–6.7 all ✅ — hash-pair structured logging on every chain append; public `/status` web page; Dockerfile digest + pip pinned + non-root; `render.yaml` (secrets `sync:false`); `web/vercel.json` (`npm ci`); `SUPABASE_SETUP.md` with 0001→0005 rollout + verification SQL; `KEEP_ALIVE.md` (3 layers, failure matrix) |
+| Defects found | the four Phase-6 runbooks RUNBOOK.md had promised **never existed**; Dockerfile base was unpinned + ran as root; logging lacked hash fields; my own blueprint comment tripped the secret-scan (wording fixed) |
+| Gate added | `tests/test_deploy_configs.py` — cross-config parity (health path, migration order, cron cadence), secret scans, NOT-DEPLOYED status headers |
+| Honest limits | validated **structurally only** — no Render/Vercel/Supabase credentials exist; nothing claimed deployed or applied |
+| Gates | 597 tests / 5412 stmts @ 94% / ruff + format + mypy green / `next build` EXIT=0 |
+| Commits | `bb0b130` (code) → state commit; manifest run 18 appended |
+
+---
+
 ## 1. CURRENTLY IN FLIGHT
 
-**Run 18 — Phase 6: Observability & Deployment** (6.1 → 6.7)
+**Run 19 — Phase 5 closeout: Product Surface** (5.4, 5.5, 5.6)
 
 | # | Task | Status |
 |---|---|---|
-| 6.1 | Structured logging (run_id, hashes) | **in flight** — audit `engine/logging_config.py` against the task; add run_id/hash fields where missing |
-| 6.2 | Public status page | queued — `/status` exists (9.4); build the public page/route on top |
-| 6.3 | Docker + reproducibility | **audit** — `Dockerfile` exists from Phase 0; verify pins/reproducibility, fill gaps |
-| 6.4 | Render deployment config | queued — `render.yaml` |
-| 6.5 | Vercel deployment config | queued — `vercel.json` for `web/` |
-| 6.6 | Supabase setup guide + SQL migration | queued — migration rollout doc for 0001–0005 |
-| 6.7 | Keep-alive documentation | **audit** — workflows + RUNBOOK exist; verify + record |
+| 5.4 | SEO (schema.org/JSON-LD + real metadata) | **in flight** — reopened by session-11 audit: sitemap route exists but stock metadata, no JSON-LD; fix properly |
+| 5.5 | Six SEO landing pages | queued — pages under `web/app/` with unique metadata + internal linking; `next build` gate |
+| 5.6 | Waitlist + double opt-in | queued — honest offline waitlist flow (confirm step, no fake subscribers) |
 
-Honest limit (unchanged): no Render/Vercel/Supabase credentials — configs
-are validated structurally (YAML/JSON parse, schema checks, docs review),
-never claimed as deployed.
+Honest limit: no email provider credentials — the waitlist stores
+confirmed sign-ups through the engine/supabase-shaped layer offline and
+says so; live delivery is a launch-prep step.
 
 Design rules carried from the existing generators (2.7, 3.2, 3.3):
 
@@ -121,7 +130,6 @@ Design rules carried from the existing generators (2.7, 3.2, 3.3):
 
 | Run | Phase | Tasks | Notes |
 |---|---|---|---|
-| 19 | 5 — Product Surface closeout | 5.4, 5.5, 5.6 | **5.4 reopened by audit**; 6 SEO landing pages + waitlist double opt-in; verify `web/` builds |
 | 20 | 13 — Workspace UI + Full Journey | 13.1–13.6 | the user-facing surface |
 | 21 | 7 — Acceptance | 7.1–7.3 | full E2E, failover, paid-model switching |
 

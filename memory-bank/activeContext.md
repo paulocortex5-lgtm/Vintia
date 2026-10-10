@@ -1,19 +1,18 @@
 # Active Context
 
 ## Current Focus
-Session 12 (continuous loop). Run 17 closed **Phase 8 (5/5)**:
-**69/88 tasks complete (78%)**, 583 tests / 94% coverage (5409 stmts) /
+Session 12 (continuous loop). Run 18 closed **Phase 6 (7/7)**:
+**76/88 tasks complete (86%)**, 597 tests / 94% coverage (5412 stmts) /
 ruff+format+mypy green / web `next build` EXIT=0. The loop is now on
-**run 18 — Phase 6 (Observability & Deployment)**: 6.1 structured logging
-audit, 6.2 public status page, 6.3 Docker reproducibility audit, 6.4
-`render.yaml`, 6.5 `vercel.json`, 6.6 Supabase setup + migration rollout
-guide (0001–0005), 6.7 keep-alive docs audit — configs validated
-structurally, never claimed deployed (no Render/Vercel/Supabase
-credentials). Queue afterwards: 5 (5.4–5.6) → 13 → 7, updating state +
-manifest + PLATFORM_STATE + BUILD_BOARD + CHANGELOG + memory-bank each
-run.
+**run 19 — Phase 5 closeout (5.4, 5.5, 5.6)**: 5.4 SEO (reopened —
+schema.org/JSON-LD + real metadata instead of the stock sitemap route),
+5.5 six SEO landing pages under `web/app/`, 5.6 waitlist double opt-in
+(honest offline confirm flow — no email provider credentials exist);
+`web/` build gate on every change. Queue afterwards: 13 → 7, updating
+state + manifest + PLATFORM_STATE + BUILD_BOARD + CHANGELOG + memory-bank
+each run.
 
-## Recent Changes (session 12: runs 14–17)
+## Recent Changes (session 12: runs 14–18)
 - **Run 14 (Phase 10, `1003b3e`)**: reconciled board vs snapshot vs tree —
   the tree was ahead of both docs (all six tasks existed); suite run before
   recording. Recorded audit-verified 10.1/10.3; verified + wired 10.2
@@ -44,6 +43,14 @@ run.
   (validate-before-network, honest codes, `SupabaseClient.delete()`
   added); two-user isolation E2E (refused before zero storage calls);
   state run 17 + manifest appended.
+- **Run 18 (Phase 6, `bb0b130`)**: observability & deployment — hash
+  logging (`log_data` with sha256 pair on every chain append); public
+  status page; Dockerfile digest-pinned + pip pinned + non-root;
+  `render.yaml` (secrets `sync:false`) + `web/vercel.json` (`npm ci`);
+  the four RUNBOOK-promised runbooks **that never existed** created
+  (`RENDER_DEPLOY`, `VERCEL_DEPLOY`, `SUPABASE_SETUP` with 0001→0005
+  rollout parity test, `KEEP_ALIVE`); `tests/test_deploy_configs.py`
+  cross-config gate; state run 18 + manifest appended.
 
 ## Recent Changes (session 11: audit + run 13)
 - **Audit** reconciled every conflicting claim: restored `PLATFORM_STATE.md`
@@ -64,11 +71,10 @@ run.
   compromised and must be rotated before any push.
 
 ## Next Steps
-1. Run 18 — Phase 6: 6.1 structured logging audit, 6.2 status page,
-   6.3 Docker audit, 6.4 render.yaml, 6.5 vercel.json, 6.6 Supabase
-   guide + migration rollout, 6.7 keep-alive docs audit; close 7/7
-   (76/88).
-2. Runs 19–21 per `docs/BUILD_BOARD.md` §2 until ship-ready.
+1. Run 19 — Phase 5 closeout: 5.4 SEO (JSON-LD + real metadata),
+   5.5 six landing pages, 5.6 waitlist double opt-in; close 3/3
+   (79/88); `web/` build gate on every change.
+2. Runs 20–21 per `docs/BUILD_BOARD.md` §2 until ship-ready.
 
 ## Known Issues
 - The 4.5 Supabase mirror schema is written and static-tested, but RLS
