@@ -26,6 +26,7 @@ dependencies = [
   "tenacity>=8.2",
   "dnspython>=2.4",
   "supabase>=2.4",
+  "PyJWT>=2.8",
 ]
 
 [project.optional-dependencies]

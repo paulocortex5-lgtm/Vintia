@@ -128,6 +128,37 @@ class SupabaseClient:
             return []
         return list(resp.json())
 
+    def delete(self, table: str, filters: dict[str, str], *, service: bool = False) -> bool:
+        """DELETE rows matching ``filters`` via ``DELETE /rest/v1/<table>``.
+
+        Same never-raises contract as :meth:`upsert`: ``False`` on any
+        failure (unconfigured, HTTP error) so callers decide whether a
+        missing delete is fatal.
+        """
+        if not self.configured:
+            LOGGER.warning("supabase unconfigured; skipping delete from %s", table)
+            return False
+        params = urllib.parse.urlencode(filters)
+        try:
+            resp = httpx.request(
+                "DELETE",
+                f"{self.url}/rest/v1/{table}?{params}",
+                headers={**self._headers(service), "Prefer": "return=minimal"},
+                timeout=self.timeout,
+            )
+        except httpx.HTTPError as exc:
+            LOGGER.warning("supabase delete %s failed: %s", table, exc)
+            return False
+        if resp.status_code >= 400:
+            LOGGER.warning(
+                "supabase delete %s returned %s: %s",
+                table,
+                resp.status_code,
+                resp.text[:200],
+            )
+            return False
+        return True
+
     # ── Domain helpers ────────────────────────────────────────────
     def sync_state(self, state: dict[str, Any]) -> bool:
         """Write-through mirror of ``state.json`` (§0.1 STEP K)."""

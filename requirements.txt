@@ -16,4 +16,5 @@ pycountry>=23.12
 tenacity>=8.2
 dnspython>=2.4
 supabase>=2.4
+PyJWT>=2.8
 paddle-python-sdk>=1.15.0

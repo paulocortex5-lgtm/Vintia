@@ -182,3 +182,15 @@ class PaddleError(VantiaError):
     """v6.0 §14: Paddle checkout / webhook processing failure."""
 
     code = "paddle_error"
+
+
+class AuthError(VantiaError):
+    """Supabase Auth failure (task 8.1): missing/invalid/expired token."""
+
+    code = "auth_error"
+
+
+class WorkspaceError(VantiaError):
+    """Workspace storage/service failure (tasks 8.2–8.4)."""
+
+    code = "workspace_error"
