@@ -1,16 +1,18 @@
 # Active Context
 
 ## Current Focus
-Session 12 (continuous loop). Run 15 closed **Phase 11 (6/6)**:
-**58/88 tasks complete (66%)**, 516 tests / 93% coverage (5120 stmts) /
-ruff+format+mypy green. The loop is now on **run 16 — Phase 12 (Credit
-Purchasing)**: audit-verify 12.1 (PADDLE_SETUP) + 12.3 (webhook exists +
-tested), then 12.2 checkout endpoint tests, 12.4 top-up idempotency on the
-real ledger, 12.5 purchase UI data, 12.6 offline webhook E2E. Queue
-afterwards: 8 → 6 → 5 (5.4–5.6) → 13 → 7, updating state + manifest +
-PLATFORM_STATE + BUILD_BOARD + CHANGELOG + memory-bank each run.
+Session 12 (continuous loop). Run 16 closed **Phase 12 (6/6)**:
+**64/88 tasks complete (73%)**, 540 tests / 94% coverage (5177 stmts) /
+ruff+format+mypy green / web `next build` EXIT=0. The loop is now on
+**run 17 — Phase 8 (User Workspaces)**: 8.1 Supabase Auth (`engine/auth/`,
+JWT extract/refresh offline-verified), 8.2 profile + workspace tables
+(`0004_workspaces.sql`), 8.3 RLS policies + JWT hook, 8.4 private file
+storage, 8.5 workspace isolation E2E — all against an in-memory fake
+Supabase (credentials stay `REPLACE_ME`). Queue afterwards: 6 → 5
+(5.4–5.6) → 13 → 7, updating state + manifest + PLATFORM_STATE +
+BUILD_BOARD + CHANGELOG + memory-bank each run.
 
-## Recent Changes (session 12: runs 14 + 15)
+## Recent Changes (session 12: runs 14 + 15 + 16)
 - **Run 14 (Phase 10, `1003b3e`)**: reconciled board vs snapshot vs tree —
   the tree was ahead of both docs (all six tasks existed); suite run before
   recording. Recorded audit-verified 10.1/10.3; verified + wired 10.2
@@ -25,6 +27,14 @@ PLATFORM_STATE + BUILD_BOARD + CHANGELOG + memory-bank each run.
   `GET /credits/balance` + `/credits/estimate`, offline credit-journey E2E;
   stale `ledger_pending` webhook stub test replaced with wired behavior;
   state run 15 + manifest appended.
+- **Run 16 (Phase 12, `e9146e9`)**: audited PADDLE_SETUP against code
+  (phantom `/api/*` paths fixed, dashboard return URLs documented);
+  `POST /credits/checkout` (honest 502 without keys) + `POST /paddle/webhook`
+  routes; `0003_paddle.sql` created the long-promised `paddle_events` table;
+  `GET /credits/packs` + purchase page with the **first verified web build**
+  (found + fixed the pre-existing sitemap `dynamic`/`cacheComponents`
+  defect); engine CORS (`VANTIA_ALLOWED_ORIGINS`); env tier vars made real
+  config overlays; offline purchase E2E; state run 16 + manifest appended.
 
 ## Recent Changes (session 11: audit + run 13)
 - **Audit** reconciled every conflicting claim: restored `PLATFORM_STATE.md`
@@ -45,10 +55,11 @@ PLATFORM_STATE + BUILD_BOARD + CHANGELOG + memory-bank each run.
   compromised and must be rotated before any push.
 
 ## Next Steps
-1. Run 16 — Phase 12: audit 12.1/12.3, test + wire the 12.2 checkout
-   endpoint, verify 12.4 top-up idempotency on the run-15 ledger, 12.5
-   purchase UI data, 12.6 offline webhook E2E; close 6/6 (64/88).
-2. Runs 17–21 per `docs/BUILD_BOARD.md` §2 until ship-ready.
+1. Run 17 — Phase 8: 8.1 auth (`engine/auth/` JWT extract/refresh),
+   8.2 `0004_workspaces.sql` profile + workspace tables, 8.3 RLS +
+   JWT hook, 8.4 storage layer, 8.5 isolation E2E (offline fakes);
+   close 5/5 (69/88).
+2. Runs 18–21 per `docs/BUILD_BOARD.md` §2 until ship-ready.
 
 ## Known Issues
 - The 4.5 Supabase mirror schema is written and static-tested, but RLS

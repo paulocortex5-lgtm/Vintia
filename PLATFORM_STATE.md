@@ -1,9 +1,9 @@
 # VANTIA — PLATFORM STATE
 
-**Last updated:** 2026-10-09T23:24:35Z
+**Last updated:** 2026-10-10T11:36:37Z
 **Master prompt:** v6.0
 **Session count:** 12
-**Overall readiness:** 66%
+**Overall readiness:** 73%
 
 ---
 
@@ -11,13 +11,13 @@
 
 | Metric | Value |
 |---|---|
-| Tasks complete | 58/88 |
+| Tasks complete | 64/88 |
 | Tasks in progress | 0 |
 | Tasks blocked | 0 |
-| Tasks pending | 30 |
+| Tasks pending | 24 |
 | Audit failures | 1 (5.4 — reopened in session 11) |
 | Live previews passing | 0 |
-| E2E tests passing | 26 (6 offline suites) |
+| E2E tests passing | 27 (7 offline suites) |
 | Backend deployed | no |
 | Frontend deployed | no |
 | Database migrated | no |
@@ -43,7 +43,7 @@
 | 9 | ATS Scoring Engine | 6/6 | 0 | 0 | 0 | 100% |
 | 10 | CV Improvement + Cover Letter | 6/6 | 0 | 0 | 0 | 100% |
 | 11 | Credit System | 6/6 | 0 | 0 | 0 | 100% |
-| 12 | Credit Purchasing | 0/6 | 0 | 0 | 6 | 0% |
+| 12 | Credit Purchasing | 6/6 | 0 | 0 | 0 | 100% |
 | 13 | Workspace UI + Full Journey | 0/6 | 0 | 0 | 6 | 0% |
 
 ---
@@ -190,12 +190,12 @@
 
 | ID | Name | Status | Commit | Files | Tested | Previewed | Verified |
 |---|---|---|---|---|---|---|---|
-| 12.1 | Paddle account + product setup | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 12.2 | Paddle Checkout endpoint | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 12.3 | Paddle webhook handler | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 12.4 | Credit top-up logic + idempotency | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 12.5 | Credit purchase UI | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
-| 12.6 | Paddle webhook E2E test | ⏳ Pending | — | — | ❌ | ❌ | ❌ |
+| 12.1 | Paddle account + product setup | ✅ Complete | `e9146e9` | docs/PADDLE_SETUP.md (route paths corrected to `POST /credits/checkout` + `POST /paddle/webhook`, dashboard return URLs documented, 0002/0003 migrations + CORS + verify gates), .env.example (full Paddle + NEXT_PUBLIC_ENGINE_URL + VANTIA_ALLOWED_ORIGINS) | ✅ | ❌ | ✅ |
+| 12.2 | Paddle Checkout endpoint | ✅ Complete | `e9146e9` | engine/api.py (`POST /credits/checkout` — stable 422 `user_id_required`/`unknown_pack`, honest 502 `paddle_error`), engine/credits/paddle_client.py (dead success/cancel params removed after verifying the installed SDK), tests/test_paddle_api.py | ✅ | ❌ | ✅ |
+| 12.3 | Paddle webhook handler | ✅ Complete | `e9146e9` | engine/api.py (`POST /paddle/webhook` raw-body route, 400 on bad signature) + engine/credits/paddle_webhook.py (existing, credited since run 15), tests/test_paddle_api.py, tests/test_paddle_webhook.py | ✅ | ❌ | ✅ |
+| 12.4 | Credit top-up logic + idempotency | ✅ Complete | `e9146e9` | exactly-once by layered idempotency (event_id row + ledger ref `paddle:<event>`); supabase/migrations/0003_paddle.sql (paddle_events table the doc promised but never existed), tests/test_paddle_sql.py | ✅ | ❌ | ✅ |
+| 12.5 | Credit purchase UI | ✅ Complete | `e9146e9` | engine/api.py (`GET /credits/packs` UI data), web/app/credits/purchase/page.tsx (packs + honest errors + localStorage user id until Phase 8 auth), engine CORS (`VANTIA_ALLOWED_ORIGINS`, never `*`); **web build gate verified**: `next build` EXIT=0 — found + fixed pre-existing sitemap `dynamic`/`cacheComponents` conflict | ✅ | ✅ | ✅ |
+| 12.6 | Paddle webhook E2E test | ✅ Complete | `e9146e9` | tests/e2e/test_paddle_purchase_flow.py (offline: packs → checkout → webhook credits once → redelivery no-op → payment_failed records only → forged signature 400 → balance/estimate reflect top-up) | ✅ | ❌ | ✅ |
 
 ### Phase 13 — Workspace UI + Full Journey
 
@@ -224,7 +224,7 @@
 | Generate cover letter | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
 | Download improved CV | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Download cover letter | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Buy credits with Paddle | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Buy credits with Paddle | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ |
 | View credit balance + history | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
 | Browse visa-sponsored jobs | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Browse funded scholarships | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -586,12 +586,27 @@ Tasks marked complete in `state.json` but failing verification:
 | Tests | +5 suites (+4 unit, +1 E2E) +54 tests: **516 passing**, 52 files, **93% coverage (5120 stmts)**; ledger 98% / tiers 97% / metering 100% / config 93%; ruff + format + mypy clean |
 | State | run 15 recorded; Phase 11 **6/6 closed**; 58/88 total (66%); manifest run 15 appended; commit `c1591d1` (code) + state commit |
 
+**Run 16 (session 12) — 2026-10-10 — Phase 12 closeout (12.1–12.6): Credit Purchasing**
+
+| Item | Outcome |
+|---|---|
+| Reconciliation first | Board said run 16 "in flight / queued", snapshot + state said Phase 12 0/6 and manifest ended at run 15 — while the working tree already held the full Phase 12 commit `e9146e9`. Gates re-run (540 green, 94% cov, ruff/format/mypy clean) **before** recording |
+| 12.1 setup doc | `docs/PADDLE_SETUP.md` audited against code: fixed phantom `/api/*` route paths → real `POST /credits/checkout` + `POST /paddle/webhook`; documented dashboard-level return URLs (verified the installed SDK's `CreateTransaction` has no per-transaction success/cancel fields); flow diagram now matches the run-15 ledger + both migrations; verify section adds the new pytest gates **and the web build gate**; CORS + `VANTIA_ALLOWED_ORIGINS` documented. `.env.example`: added `NEXT_PUBLIC_ENGINE_URL` + `VANTIA_ALLOWED_ORIGINS` |
+| 12.2 checkout endpoint | `POST /credits/checkout` — stable 422s (`user_id_required`, `unknown_pack` listing known packs) in `as_dict()` shape; Paddle/SDK/config failure → honest **502 `paddle_error`, never a fabricated URL**. `paddle_client`: dead `success_url`/`cancel_url` params removed (SDK-surface verified); `custom_data {user_id, pack_id, credits}` pinned by test through a faked SDK client |
+| 12.3 webhook handler | audit-verified existing handler (signature R49, idempotency R50, ledger crediting since run 15) **plus** the missing route: `POST /paddle/webhook` (raw body, `Paddle-Signature` header, 400 on bad signature, 5 s-window handler unchanged) |
+| 12.4 top-up idempotency | layered exactly-once: `paddle_events.event_id` dedupe + ledger ref `paddle:<event_id>`; **gap closed**: `supabase/migrations/0003_paddle.sql` created the `paddle_events` table the doc had promised since Phase 5 but never existed — static-tested against the handler's exact upsert columns and status vocabularies, plus R56 no-Stripe check |
+| 12.5 purchase UI | `GET /credits/packs` (packs + prices + environment; honest `price_usd: null` if state lacks prices); `web/app/credits/purchase/page.tsx` (packs list, engine-reachable errors verbatim, user id in localStorage **labelled as Phase-8-auth placeholder**); engine CORS (`VANTIA_ALLOWED_ORIGINS`, default localhost:3000, never `*`) with preflight/allow/refuse tests. **Build gate:** `npm install` + `next build` run for the first time — found a **pre-existing 5.3 defect** (`sitemap.xml/route.ts` `export const dynamic` incompatible with `cacheComponents`) and fixed it; build now EXIT=0 |
+| 12.6 purchase E2E | `tests/e2e/test_paddle_purchase_flow.py` — fully offline: packs UI data → checkout URL (SDK faked) → webhook credits 50 000 → redelivery no-op → `payment_failed` records without crediting → forged signature 400 → balance payload `[grant, topup]` + estimate reflects purchased credits |
+| Drift closed | `.env.example` documented `VANTIA_FREE_TIER_TOKENS` etc. but **no code read them** — `load_credits_config` now applies them as env overlays (12-factor), invalid values raise `credits_config_invalid` loudly |
+| Tests | +3 suites +24 tests: **540 passing**, 55 files, **94% coverage (5177 stmts)**; `engine/api.py` 97%, paddle webhook 85%; ruff + format + mypy clean; **web `next build` EXIT=0** |
+| State | run 16 recorded; Phase 12 **6/6 closed**; 64/88 total (73%); manifest run 16 appended; commit `e9146e9` (code) + state commit |
+
 ---
 
 ## 11. NEXT SESSION ACTIONS
 
-1. **Run 16 — Phase 12 (Credit Purchasing), in flight:** audit-verify 12.3 (webhook exists + tested) and 12.1 (PADDLE_SETUP doc), then build 12.2 checkout endpoint tests (client exists, untested), 12.4 top-up idempotency (now backed by the real ledger), 12.5 credit purchase UI data/page, 12.6 webhook E2E
-2. **Queue (continuous loop, see `docs/BUILD_BOARD.md`):** run 17 Phase 8 → run 18 Phase 6 → run 19 Phase 5 closeout (5.4/5.5/5.6) → run 20 Phase 13 → run 21 Phase 7 acceptance
+1. **Run 17 — Phase 8 (User Workspaces), in flight:** 8.1 Supabase Auth integration (`engine/auth/` — JWT extraction/refresh, offline-verifiable), 8.2 profile + workspace tables migration, 8.3 RLS policies + JWT hook, 8.4 private file storage, 8.5 workspace isolation E2E — all statically tested against an in-memory fake Supabase (no real credentials in this environment)
+2. **Queue (continuous loop, see `docs/BUILD_BOARD.md`):** run 18 Phase 6 → run 19 Phase 5 closeout (5.4/5.5/5.6) → run 20 Phase 13 → run 21 Phase 7 acceptance
 3. 4.5 follow-up: the Supabase mirror schema is written and static-checked, but RLS policies and a real `supabase db push` are untested until real credentials exist — do not claim the migration as applied
 4. 2.3 follow-up (carried): fold `FederalEmploymentAgency` into a government-sources registry so `adapters_for()` and the register dispatcher share one per-country source table (`docs/SOURCES.md` checklist step 2)
 5. 2.8 follow-up (carried): `run_job_pipeline` loads by URL for W/G/L portals only — government sources are harvested through their adapters and need a detail loader before they are addressable by direct URL (documented in the `run_job_pipeline` docstring)

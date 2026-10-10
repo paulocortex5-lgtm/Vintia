@@ -3,9 +3,9 @@
   "master_prompt_version": "4.0",
   "schema_version": 4,
   "created_at": "2026-10-03T22:15:00Z",
-  "updated_at": "2026-10-09T23:23:30Z",
-  "run_count": 15,
-  "last_completed_task": "11.6",
+  "updated_at": "2026-10-10T11:47:08Z",
+  "run_count": 16,
+  "last_completed_task": "12.6",
   "in_progress_task": null,
   "consecutive_failures": {},
   "deployment": {
@@ -1440,81 +1440,102 @@
     "12.1": {
       "name": "Paddle account + product setup",
       "phase": 12,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "11.5"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "docs/PADDLE_SETUP.md",
+        ".env.example"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "e9146e9",
+      "started_at": "2026-10-10T11:47:08Z",
+      "completed_at": "2026-10-10T11:47:08Z"
     },
     "12.2": {
       "name": "Paddle Checkout endpoint",
       "phase": 12,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "12.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/api.py",
+        "engine/credits/paddle_client.py",
+        "tests/test_paddle_api.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "e9146e9",
+      "started_at": "2026-10-10T11:47:08Z",
+      "completed_at": "2026-10-10T11:47:08Z"
     },
     "12.3": {
       "name": "Paddle webhook handler",
       "phase": 12,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "12.2"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/api.py",
+        "tests/test_paddle_api.py",
+        "tests/test_paddle_webhook.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "e9146e9",
+      "started_at": "2026-10-10T11:47:08Z",
+      "completed_at": "2026-10-10T11:47:08Z"
     },
     "12.4": {
       "name": "Credit top-up logic + idempotency",
       "phase": 12,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "12.3"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "supabase/migrations/0003_paddle.sql",
+        "engine/credits/ledger.py",
+        "tests/test_paddle_sql.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "e9146e9",
+      "started_at": "2026-10-10T11:47:08Z",
+      "completed_at": "2026-10-10T11:47:08Z"
     },
     "12.5": {
       "name": "Credit purchase UI",
       "phase": 12,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "12.4",
         "5.3"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "web/app/credits/purchase/page.tsx",
+        "engine/api.py",
+        "web/app/sitemap.xml/route.ts"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "e9146e9",
+      "started_at": "2026-10-10T11:47:08Z",
+      "completed_at": "2026-10-10T11:47:08Z"
     },
     "12.6": {
       "name": "Paddle webhook E2E test",
       "phase": 12,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "12.5"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "tests/e2e/test_paddle_purchase_flow.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "e9146e9",
+      "started_at": "2026-10-10T11:47:08Z",
+      "completed_at": "2026-10-10T11:47:08Z"
     },
     "13.1": {
       "name": "Workspace dashboard UI",
@@ -1619,7 +1640,8 @@
       "11": 0.0,
       "13": 0.0,
       "14": 0.0,
-      "15": 0.0
+      "15": 0.0,
+      "16": 0.0
     },
     "by_task": {}
   },
@@ -1851,6 +1873,25 @@
         "out": 0
       },
       "notes": "Phase 11 closed 6/6 - credit ledger + metering + tiers + deduction + /credits API + offline E2E; 516 tests, 93% cov"
+    },
+    {
+      "run": 16,
+      "started_at": "2026-10-10T11:47:08Z",
+      "tasks": [
+        "12.1",
+        "12.2",
+        "12.3",
+        "12.4",
+        "12.5",
+        "12.6"
+      ],
+      "finished_at": "2026-10-10T11:47:08Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Phase 12 closed 6/6 - checkout+webhook routes, packs UI data, purchase page (web build verified), 0003_paddle.sql, CORS; 540 tests, 94% cov"
     }
   ],
   "notes": "Seed v4.0. 98 tasks across 14 phases. Free-tier only. Session 1 closeout: Phase 0 verified and committed. 96/96 unit tests pass, 97% engine coverage. 0.2 vantia-state commit is aa0f228; other Phase 0 tasks commit to main 4c84504."

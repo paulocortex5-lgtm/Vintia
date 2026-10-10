@@ -48,10 +48,17 @@
   cover-letter pipelines; `GET /credits/balance` + `/credits/estimate`;
   offline credit-journey E2E (refusal with zero network calls, webhook
   double-delivery credits exactly once).
-- Suite (run 15, 2026-10-09): 52 test files / **516 passing** /
-  **93% line coverage of `engine/`** (5120 stmts; ledger 98%, tiers 97%,
-  metering 100%); `ruff check`, `ruff format --check` and `mypy` clean
-  repo-wide.
+- Suite (run 16, 2026-10-10): 55 test files / **540 passing** /
+  **94% line coverage of `engine/`** (5177 stmts; api.py 97%);
+  `ruff check`, `ruff format --check` and `mypy` clean repo-wide;
+  **web `next build` EXIT=0** (first build gate — fixed the pre-existing
+  sitemap `dynamic`/`cacheComponents` conflict).
+- **Phase 12 complete (6/6, run 16 `e9146e9`):** credit purchasing —
+  PADDLE_SETUP audited + corrected; `POST /credits/checkout` (stable 422
+  codes, honest 502 without keys) + `POST /paddle/webhook` route;
+  `0003_paddle.sql` `paddle_events` dedupe table; `GET /credits/packs` +
+  `web/app/credits/purchase/page.tsx` + CORS (`VANTIA_ALLOWED_ORIGINS`);
+  offline purchase E2E; env tier vars wired as real config overlays.
 - Payments migrated to Paddle (task 0.0): `paddle_client`
   (checkout transactions) + `paddle_webhook` (HMAC-SHA256 + 5 s
   replay window + `paddle_events` idempotency), `docs/PADDLE_SETUP.md`.
@@ -60,22 +67,23 @@
   indexing, logging frame access, end_run return value, quota RLock
   deadlock) — details in PLATFORM_STATE §10.
 - Version-controlled: commits exist locally on `main` through the
-  run-15 code commit `c1591d1`; pushes still blocked (see Blockers).
+  run-16 code commit `e9146e9`; push authorized by the user with the
+  disclosed token (rotate at 100% per user), inline `oauth2:` URL only —
+  never written to the repo.
 
-## What's Left (30 tasks)
+## What's Left (24 tasks)
 - Phase 5 (3): 5.4 SEO (reopened), 5.5 landing pages, 5.6 waitlist.
 - Phase 6 (7): observability & deployment (status page, render.yaml,
   vercel.json, supabase guide, keep-alive docs).
 - Phase 7 (3): acceptance (full E2E, failover, paid-model switching).
-- Phase 8 (5): workspaces & multi-tenancy (auth, tables, RLS, storage).
-- Phase 12 (6): credit purchasing (webhook 12.3 done + now crediting;
-  12.2 client exists untested; setup doc exists — run 16 audits + fills).
+- Phase 8 (5): workspaces & multi-tenancy (auth, tables, RLS, storage) —
+  run 17, in flight.
 - Phase 13 (6): workspace UI + full journey.
 
 ## Current Milestone
-Run 15 closed Phase 11 (6/6): **58/88 = 66%**, 516 tests / 93% coverage
-(5120 stmts) / gates green. The continuous loop is on **run 16 — Phase 12**,
-then 8 → 6 → 5 → 13 → 7 per `docs/BUILD_BOARD.md`.
+Run 16 closed Phase 12 (6/6): **64/88 = 73%**, 540 tests / 94% coverage
+(5177 stmts) / gates green / web build green. The continuous loop is on
+**run 17 — Phase 8**, then 6 → 5 → 13 → 7 per `docs/BUILD_BOARD.md`.
 
 ## Blockers
 - No Supabase / Render / Vercel / Paddle credentials (`REPLACE_ME`

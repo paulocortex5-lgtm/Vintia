@@ -5,8 +5,8 @@
 > what is in flight and what is queued.
 
 **Session:** 12 — continuous loop to ship-ready
-**After run 15:** 58/88 tasks complete (**66%**), run 15 closed (Phase 11 6/6), code `c1591d1`
-**Baseline suite:** 516 tests passing (52 files), 93% engine coverage (5120 stmts), `ruff` + `ruff format` + `mypy` clean repo-wide
+**After run 16:** 64/88 tasks complete (**73%**), run 16 closed (Phase 12 6/6), code `e9146e9`
+**Baseline suite:** 540 tests passing (55 files), 94% engine coverage (5177 stmts), `ruff` + `ruff format` + `mypy` clean repo-wide, **web `next build` EXIT=0**
 
 ---
 
@@ -61,18 +61,33 @@ it was never used and must be **rotated/revoked before any GitHub push**.
 
 ---
 
+## 0.8. RUN 16 CLOSED — Phase 12 complete (2026-10-10)
+
+| | |
+|---|---|
+| Reconciled first | Board said run 16 queued; snapshot/state said Phase 12 0/6; manifest ended at run 15 — tree already held `e9146e9`. Gates re-run (540 green, 94% cov) **before** recording |
+| Tasks | 12.1–12.6 all ✅ — PADDLE_SETUP audited + corrected (phantom `/api/*` paths → real routes, dashboard return URLs); `POST /credits/checkout` (honest 502 on missing keys); `POST /paddle/webhook` route; `0003_paddle.sql` closes the never-created `paddle_events` gap; `GET /credits/packs` + **purchase page with verified web build**; offline purchase E2E |
+| Defects found & fixed | sitemap `export const dynamic` vs `cacheComponents` (pre-existing 5.3 defect, first-ever web build); dead `success_url`/`cancel_url` client params; documented-but-unread `VANTIA_*_TIER_TOKENS` env vars (now real overlays) |
+| Gates | 540 tests / 5177 stmts @ 94% / ruff + format + mypy green / `next build` EXIT=0 |
+| Commits | `e9146e9` (code) → state commit; manifest run 16 appended |
+
+---
+
 ## 1. CURRENTLY IN FLIGHT
 
-**Run 16 — Phase 12: Credit Purchasing** (audit-verify 12.1 + 12.3, then build)
+**Run 17 — Phase 8: User Workspaces** (8.1 → 8.5)
 
 | # | Task | Status |
 |---|---|---|
-| 12.1 | Paddle account + product setup | **audit** — `docs/PADDLE_SETUP.md` exists; verify it against the state `credit_packs` + env price ids, fill gaps |
-| 12.2 | Paddle Checkout endpoint | queued — `paddle_client.create_checkout_transaction` exists but is **untested**; add FastAPI route + tests |
-| 12.3 | Paddle webhook handler | **audit** — exists + tested (`tests/test_paddle_webhook.py`, now crediting the real ledger) → verify, record ✅ |
-| 12.4 | Credit top-up logic + idempotency | queued — now backed by the run-15 ledger; verify end-to-end idempotency, close the gap |
-| 12.5 | Credit purchase UI | queued — purchase data (packs + prices) served for the frontend |
-| 12.6 | Paddle webhook E2E test | queued — offline webhook → ledger → balance-API journey |
+| 8.1 | Supabase Auth integration | **in flight** — `engine/auth/`: JWT extract/refresh, offline-verifiable against fakes (no real credentials here) |
+| 8.2 | User profile + workspace tables | queued — `0004_workspaces.sql` migration + static tests |
+| 8.3 | Workspace RLS policies + JWT hook | queued — SQL policies, static-tested |
+| 8.4 | Private file storage (Supabase Storage) | queued — `engine/workspace/` storage layer with graceful degradation |
+| 8.5 | Workspace isolation E2E test | queued — cross-user access refusal, offline |
+
+Honest limit (unchanged): Supabase credentials are `REPLACE_ME` — every
+8.x path is verified against an in-memory fake + static SQL checks, never
+claimed as applied to a live database.
 
 Design rules carried from the existing generators (2.7, 3.2, 3.3):
 
@@ -92,7 +107,6 @@ Design rules carried from the existing generators (2.7, 3.2, 3.3):
 
 | Run | Phase | Tasks | Notes |
 |---|---|---|---|
-| 17 | 8 — User Workspaces | 8.1–8.5 | SQL migrations + storage + isolation E2E |
 | 18 | 6 — Observability & Deployment | 6.1–6.7 | render.yaml, vercel, status page, docs |
 | 19 | 5 — Product Surface closeout | 5.4, 5.5, 5.6 | **5.4 reopened by audit**; 6 SEO landing pages + waitlist double opt-in; verify `web/` builds |
 | 20 | 13 — Workspace UI + Full Journey | 13.1–13.6 | the user-facing surface |

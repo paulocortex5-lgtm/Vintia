@@ -319,6 +319,30 @@
       "engine_coverage_pct": 93.0,
       "cost_usd": 0.0,
       "note": "Phase 11 built in session 12; code commit c1591d1; paddle_webhook test updated from ledger_pending stub to wired behavior"
+    },
+    {
+      "run_id": 16,
+      "master_prompt_version": "4.0",
+      "session": 12,
+      "started_at": "2026-10-10T11:47:08Z",
+      "completed_at": "2026-10-10T11:47:08Z",
+      "phase": 12,
+      "tasks_completed": [
+        "12.1",
+        "12.2",
+        "12.3",
+        "12.4",
+        "12.5",
+        "12.6"
+      ],
+      "tests": {
+        "files": 55,
+        "passed": 540,
+        "failed": 0
+      },
+      "engine_coverage_pct": 94.0,
+      "cost_usd": 0.0,
+      "note": "Phase 12 built in session 12; code commit e9146e9; web build gate verified (next build EXIT=0); sitemap dynamic-export defect found + fixed"
     }
   ],
   "files": {

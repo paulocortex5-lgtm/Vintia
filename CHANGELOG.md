@@ -6,6 +6,31 @@ entry in the form `vantia(<task_id>): <name> (run N)`.
 
 ## [Unreleased]
 
+### Run 16 — Phase 12 (12.1–12.6): Credit Purchasing
+- **12.1** `docs/PADDLE_SETUP.md` audited against the code: phantom
+  `/api/*` route paths corrected to the real `POST /credits/checkout` /
+  `POST /paddle/webhook`; dashboard-level return URLs documented (SDK
+  surface verified); verify section gains the new test files + web build
+  gate. `.env.example`: `NEXT_PUBLIC_ENGINE_URL`, `VANTIA_ALLOWED_ORIGINS`.
+- **12.2** `POST /credits/checkout` — stable 422 codes, honest **502**
+  when Paddle keys are unset (never a fake URL); dead `success_url`/
+  `cancel_url` client params removed after verifying the installed SDK;
+  `custom_data` attribution pinned by test.
+- **12.3** `POST /paddle/webhook` route (raw body + signature header,
+  400 on bad signature) over the existing audit-verified handler.
+- **12.4** exactly-once top-ups via layered idempotency +
+  `0003_paddle.sql` — the `paddle_events` table the docs promised but
+  that had never been created (static-tested against the handler).
+- **12.5** `GET /credits/packs` UI data; `web/app/credits/purchase/page.tsx`
+  purchase page; engine CORS (`VANTIA_ALLOWED_ORIGINS`, never `*`).
+  **First web build gate:** found + fixed the pre-existing sitemap
+  `dynamic`/`cacheComponents` conflict; `next build` EXIT=0.
+- **12.6** offline purchase E2E: packs → checkout → webhook credits once →
+  redelivery no-op → payment_failed records only → forged signature 400.
+- Drift closed: `.env.example` `VANTIA_*_TIER_TOKENS` vars are now real
+  env overlays in `load_credits_config` (loud on invalid values).
+- 55 files / 540 tests / 94% (5177 stmts); ruff + format + mypy green.
+
 ### Run 15 — Phase 11 (11.1–11.6): Credit System
 - **11.1** `engine/credits/ledger.py` — local-first append-only credit
   ledger: signed movements with `balance_after` + caller `ref`, idempotent
