@@ -125,5 +125,7 @@ Design rules carried from the existing generators (2.7, 3.2, 3.3):
   path in `.vantia/issues/`.
 * Supabase-backed code is tested against an in-memory fake client, so the
   logic is proven even though no network call succeeds.
-* Push to origin stays local-only until the disclosed classic token is
-  rotated (see §0).
+* Push to origin: **done** (2026-10-10, `6c7ccfd..8ef642e`) using the
+  disclosed classic token under explicit user authorization; the user will
+  rotate it at 100% build. Until rotation, treat the token as compromised:
+  it is used only as an inline `oauth2:` URL and never written to the repo.

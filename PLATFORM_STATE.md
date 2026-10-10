@@ -611,7 +611,9 @@ Tasks marked complete in `state.json` but failing verification:
 4. 2.3 follow-up (carried): fold `FederalEmploymentAgency` into a government-sources registry so `adapters_for()` and the register dispatcher share one per-country source table (`docs/SOURCES.md` checklist step 2)
 5. 2.8 follow-up (carried): `run_job_pipeline` loads by URL for W/G/L portals only — government sources are harvested through their adapters and need a detail loader before they are addressable by direct URL (documented in the `run_job_pipeline` docstring)
 6. Registers: new published country register = **one data row** in `registers._REGISTER_SPECS` (+ status flip in `countries.py`); verify before claiming "live"
-7. Push: **rotate the disclosed token first** (see §12), then retry; 403 since session 3 with the cached credential; all code/state/docs commits exist locally
+7. Push: ✅ **pushed 2026-10-10** (`6c7ccfd..8ef642e`, 13 commits) with the
+   disclosed token under explicit user authorization — user rotates it at
+   100% build; continue using inline `oauth2:` URL only, never in the repo
 8. LLM credentials: add at least one free-tier key to `.env` so 2.7's LLM polish path and the R17/R18/R24/R25/R26/R27/R28 gates can be exercised against a live provider — today they are verified with `MockTransport` / a scripted `_FakeClient` only
 
 > Dependency note for Phase 11: **resolved in run 15** —

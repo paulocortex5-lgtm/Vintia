@@ -74,8 +74,9 @@ BUILD_BOARD + CHANGELOG + memory-bank each run.
 - ~~`engine/credits/ledger.py` does not exist~~ — **built in run 15**:
   Paddle top-ups now credit the balance (`credited`); `ledger_pending`
   remains only when a storage write itself fails.
-- Push to origin blocked: cached credential 403s since session 3, and
-  the token disclosed in chat must be **rotated first**.
+- ~~Push to origin blocked~~ — **pushed 2026-10-10** (`6c7ccfd..8ef642e`)
+  with the disclosed token under explicit user authorization; user rotates
+  it at 100% build (inline `oauth2:` URL only, never written to the repo).
 - `engine/api.py` uses deprecated `@app.on_event("startup")`.
 - Header/master-prompt drift: PLATFORM_STATE says v6.0, seed says 4.0;
   denominator is 88 tasks.

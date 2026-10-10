@@ -88,7 +88,6 @@ Run 16 closed Phase 12 (6/6): **64/88 = 73%**, 540 tests / 94% coverage
 ## Blockers
 - No Supabase / Render / Vercel / Paddle credentials (`REPLACE_ME`
   placeholders) — network-success verification deferred to launch prep.
-- **GitHub token pasted in chat (session 11) is compromised — rotate
-  it before the first push.** Never write tokens into the repository;
-  pushes use an inline `oauth2:<token>@github.com/...` URL per
-  `docs/RUNBOOK.md`.
+- ~~Push blocked (disclosed token)~~ — **pushed 2026-10-10**
+  (`6c7ccfd..8ef642e`) under explicit user authorization; the user rotates
+  the token at 100% build. Inline `oauth2:` URL only; never in the repo.
