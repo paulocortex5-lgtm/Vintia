@@ -5,6 +5,11 @@ All notable changes to Vantia are recorded here. Format loosely follows
 entry in the form `vantia(<task_id>): <name> (run N)`.
 
 ## [Unreleased]
+### Run 19 — Phase 5 (5.4–5.6): SEO, landing pages & waitlist double opt-in
+- **5.4** Layout metadata, JSON-LD, and honest sitemap.
+- **5.5** Six SEO landing pages with metadata and JSON-LD.
+- **5.6** Waitlist double opt-in flow (API routes, Supabase table, outbox sender).
+
 
 ### Run 18 — Phase 6 (6.1–6.7): Observability & Deployment
 - **6.1** `hash_chain.append` now emits structured JSON log lines with

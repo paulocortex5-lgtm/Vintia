@@ -23,11 +23,7 @@
 - **Phase 4 complete (5/5):** domain verification, tamper-evident
   idempotency, cross-run hash-chain audit, incident reporter
   (offline draft fallback), `supabase/migrations/0001_init.sql`.
-- **Phase 5 (3/6, audited session 11):** full CLI surface
-  (`init/apply/status/resume/verify/reset`, commit `9775b07`) with
-  golden-file tests; `web/` Next.js skeleton adopted (`1efcae1`)
-  incl. a static sitemap route. 5.4 (SEO) was claimed but **not**
-  evidenced → reopened; 5.5/5.6 pending.
+- **Phase 5 complete (3/3, run 19 `9e9984e`):** 5.4 SEO, 5.5 landing pages, 5.6 waitlist.
 - **Phase 9 complete (6/6, run 13 `ba616fa`):** `engine/ats/` — resume
   parser (PDF/DOCX/TXT/MD/JSON, honest confidence, loud failures),
   twelve-point deterministic rubric with demand detection, keyword
@@ -83,16 +79,14 @@
   commit `bb0b130` (pushed continuously with the disclosed token under
   user authorization; user rotates it at 100% build).
 
-## What's Left (12 tasks)
-- Phase 5 (3): 5.4 SEO (reopened), 5.5 landing pages, 5.6 waitlist —
-  run 19, in flight.
+## What's Left (9 tasks)
 - Phase 7 (3): acceptance (full E2E, failover, paid-model switching).
 - Phase 13 (6): workspace UI + full journey.
 
 ## Current Milestone
-Run 18 closed Phase 6 (7/7): **76/88 = 86%**, 597 tests / 94% coverage
-(5412 stmts) / gates green / web build green. The continuous loop is on
-**run 19 — Phase 5 closeout**, then 13 → 7 per `docs/BUILD_BOARD.md`.
+Run 19 closed Phase 5 (3/3): **85/88 = 96%**, 617 tests / 94% coverage
+(5510 stmts) / gates green / web build green. The continuous loop is on
+run 20 — Phase 7 start, then 13 per `docs/BUILD_BOARD.md`.
 
 ## Blockers
 - No Supabase / Render / Vercel / Paddle credentials (`REPLACE_ME`

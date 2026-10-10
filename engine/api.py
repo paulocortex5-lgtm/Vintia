@@ -4,8 +4,10 @@ The free-tier Render deployment exposes ``GET /health`` plus the product
 endpoints: ``GET /status`` (build/usage summary for the dashboard
 preview), ``POST /ats/score`` (schema-valid ATS scoring, 9.4), the credit
 routes ``GET /credits/balance`` + ``GET /credits/estimate`` +
-``GET /credits/packs`` + ``POST /credits/checkout`` (11.5 / 12.2 / 12.5)
-and ``POST /paddle/webhook`` (12.3). On startup a daemon thread (Approach
+``GET /credits/packs`` + ``POST /credits/checkout`` (11.5 / 12.2 / 12.5),
+``POST /paddle/webhook`` (12.3) and the waitlist double-opt-in routes
+``POST /waitlist/subscribe`` + ``POST /waitlist/confirm`` +
+``GET /waitlist/stats`` (5.6). On startup a daemon thread (Approach
 3, §22) begins the self-ping so the container never hits the 15-minute
 cold sleep; a GitHub Actions cron (§0.9) provides a second, independent
 keep-alive layer.
@@ -319,6 +321,62 @@ async def paddle_webhook(request: Request) -> dict[str, Any]:
     except PaddleError as exc:
         raise HTTPException(status_code=400, detail=exc.as_dict()) from exc
     return result
+
+
+class WaitlistSubscribeRequest(BaseModel):
+    """Body of ``POST /waitlist/subscribe`` (task 5.6)."""
+
+    email: str = Field("", description="Subscriber email; never auto-confirmed")
+
+
+class WaitlistConfirmRequest(BaseModel):
+    """Body of ``POST /waitlist/confirm`` (task 5.6)."""
+
+    token: str = Field("", description="Token from the confirmation email")
+
+
+def _waitlist_service():
+    """Waitlist backend factory — tests monkeypatch this."""
+    from .waitlist import WaitlistService
+
+    return WaitlistService()
+
+
+def _waitlist_http(exc: VantiaError) -> HTTPException:
+    """503 for a missing backend; 422 for caller mistakes (stable codes)."""
+    status = 503 if exc.code == "waitlist_backend_unconfigured" else 422
+    return HTTPException(status_code=status, detail=exc.as_dict())
+
+
+@app.post("/waitlist/subscribe")
+def waitlist_subscribe(request: WaitlistSubscribeRequest) -> dict[str, Any]:
+    """Start the double opt-in (task 5.6) — status stays ``pending`` until
+    the emailed token is redeemed; the response never contains the token."""
+    try:
+        result = _waitlist_service().subscribe(request.email)
+    except VantiaError as exc:
+        raise _waitlist_http(exc) from exc
+    return {**result, "ts": datetime.now(UTC).isoformat()}
+
+
+@app.post("/waitlist/confirm")
+def waitlist_confirm(request: WaitlistConfirmRequest) -> dict[str, Any]:
+    """Redeem a confirmation token (task 5.6); idempotent, token-hashed."""
+    try:
+        result = _waitlist_service().confirm(request.token)
+    except VantiaError as exc:
+        raise _waitlist_http(exc) from exc
+    return {**result, "ts": datetime.now(UTC).isoformat()}
+
+
+@app.get("/waitlist/stats")
+def waitlist_stats() -> dict[str, Any]:
+    """Confirmed/pending counts for landing-page social proof (task 5.6)."""
+    try:
+        result = _waitlist_service().stats()
+    except VantiaError as exc:
+        raise _waitlist_http(exc) from exc
+    return {**result, "ts": datetime.now(UTC).isoformat()}
 
 
 @app.on_event("startup")

@@ -36,6 +36,7 @@ done
 | `0003_paddle.sql` | paddle_events delivery-dedupe log |
 | `0004_workspaces.sql` | profiles, workspaces, workspace_files |
 | `0005_rls.sql` | RLS on the three workspace tables + `vantia_jwt_hook` |
+| `0006_waitlist.sql` | waitlist double opt-in (pending/confirmed, sha256 token hash) |
 
 Each file is transactional (`begin; … commit;`) and idempotent
 (`if not exists`), so re-running is safe.
