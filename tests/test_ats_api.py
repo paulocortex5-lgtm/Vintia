@@ -73,7 +73,7 @@ def test_status_reports_the_real_state_shape(client):
     body = response.json()
     assert body["initialised"] is True
     assert body["total"] == 88
-    assert 0 < body["complete"] < body["total"]  # progress is real, ship is not done
+    assert 0 < body["complete"] <= body["total"]  # real progress; 88/88 = shipped
     assert body["readiness_pct"] == round(body["complete"] / body["total"] * 100, 1)
     assert body["next_task"] is None or isinstance(body["next_task"], str)
     assert isinstance(body["run_count"], int)

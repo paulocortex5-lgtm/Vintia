@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import AtsScanner from "./AtsScanner";
+
 export const metadata: Metadata = {
   title: "ATS Resume Score Checker",
   description:
@@ -57,9 +59,11 @@ export default function AtsPage() {
             Build status
           </Link>
         </div>
+        <AtsScanner />
         <p className="mt-8 text-xs text-zinc-500">
-          Part of Vantia — launching soon. The engine behind this page is built
-          and fully tested; the hosted experience arrives with launch.
+          Scoring is deterministic and runs against the engine&apos;s twelve-point
+          rubric — the same code path the full pipeline uses. Join the waitlist
+          for workspace uploads and metered runs at launch.
         </p>
       </main>
     </div>

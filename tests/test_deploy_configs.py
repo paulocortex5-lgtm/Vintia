@@ -31,6 +31,45 @@ SECRET_KEYS = {
     "VANTIA_ALLOWED_ORIGINS",
 }
 
+ENV_EXAMPLE = (ROOT / ".env.example").read_text("utf-8")
+
+#: Credential-shaped keys must stay empty/placeholder in the template.
+#: ``VANTIA_AA_API_KEY`` is a *public* jobs-API marker (documented) and
+#: ``NEXT_PUBLIC_*`` / public service URLs are publishable by design —
+#: neither is treated as a secret here.
+_ENV_EXAMPLE_SECRET_SUFFIXES = (
+    "_API_KEY",
+    "_TOKEN",
+    "_SECRET",
+    "_PASSWORD",
+    "_URI",
+    "_HOST",
+)
+_ENV_EXAMPLE_PUBLIC_OK = {"VANTIA_AA_API_KEY"}
+
+
+def test_env_example_carries_no_real_credentials():
+    """Regression guard: secrets live in the gitignored ``.env``, never here.
+
+    Session-21 audit found live NVIDIA/Gemini/Supabase/Paddle values
+    pasted into this file while uncommitted — this test makes that
+    impossible to ship.
+    """
+    for raw in ENV_EXAMPLE.splitlines():
+        line = raw.split("#", 1)[0].strip()
+        if not line or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key, value = key.strip(), value.strip()
+        if key in _ENV_EXAMPLE_PUBLIC_OK or key.startswith("NEXT_PUBLIC_"):
+            continue
+        if key in (SECRET_KEYS - {"VANTIA_ALLOWED_ORIGINS"}) or key.endswith(
+            _ENV_EXAMPLE_SECRET_SUFFIXES
+        ):
+            assert value in ("", "REPLACE_ME"), (
+                f"{key} in .env.example must be a placeholder, found a literal value"
+            )
+
 
 # ── 6.4: render.yaml ───────────────────────────────────────────────────
 

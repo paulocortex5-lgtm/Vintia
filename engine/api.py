@@ -2,25 +2,29 @@
 
 The free-tier Render deployment exposes ``GET /health`` plus the product
 endpoints: ``GET /status`` (build/usage summary for the dashboard
-preview), ``POST /ats/score`` (schema-valid ATS scoring, 9.4), the credit
+preview), ``POST /ats/score`` (schema-valid ATS scoring, 9.4), the
+interactive product routes ``POST /ats/upload`` (multipart file → same
+schema-valid report, 13.2), ``POST /improve/cv`` (13.3) and
+``POST /cover/letter`` (13.4) that back the workspace UI, the credit
 routes ``GET /credits/balance`` + ``GET /credits/estimate`` +
-``GET /credits/packs`` + ``POST /credits/checkout`` (11.5 / 12.2 / 12.5),
-``POST /paddle/webhook`` (12.3) and the waitlist double-opt-in routes
-``POST /waitlist/subscribe`` + ``POST /waitlist/confirm`` +
-``GET /waitlist/stats`` (5.6). On startup a daemon thread (Approach
-3, §22) begins the self-ping so the container never hits the 15-minute
-cold sleep; a GitHub Actions cron (§0.9) provides a second, independent
-keep-alive layer.
+``GET /credits/invoices`` + ``GET /credits/packs`` +
+``POST /credits/checkout`` (11.5 / 12.2 / 12.5), ``POST /paddle/webhook``
+(12.3) and the waitlist double-opt-in routes ``POST /waitlist/subscribe``
++ ``POST /waitlist/confirm`` + ``GET /waitlist/stats`` (5.6). On startup
+a daemon thread (Approach 3, §22) begins the self-ping so the container
+never hits the 15-minute cold sleep; a GitHub Actions cron (§0.9)
+provides a second, independent keep-alive layer.
 """
 
 from __future__ import annotations
 
+import hashlib
 import os
 import time
 from datetime import UTC, datetime
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -39,8 +43,11 @@ from .credits import (
     tier_tokens,
 )
 from .errors import PaddleError, SchemaValidationError, VantiaError
+from .generators.cover import generate_cover_letter
+from .improve.cv import improve_cv
 from .json_utils import load_json, validate
 from .keep_alive import start_self_ping
+from .sources.portals.base import JobListing
 from .state_manager import VantiaState
 
 _STARTED_AT = time.monotonic()
@@ -70,16 +77,41 @@ app.add_middleware(
 
 
 class AtsScoreRequest(BaseModel):
-    """Body of ``POST /ats/score`` (task 9.4)."""
+    """Body of ``POST /ats/score`` (task 9.4).
 
-    resume: dict[str, Any] | str = Field(
-        ..., description="JSON profile document, or a server-side path to an uploaded resume"
+    ``resume`` is a JSON profile document or a server-side path; the
+    interactive UI additionally pastes raw text via ``resume_text`` (13.2).
+    """
+
+    resume: dict[str, Any] | str | None = Field(
+        default=None,
+        description="JSON profile document, or a server-side path to an uploaded resume",
     )
+    resume_text: str = Field(default="", description="Pasted resume text (markdown/plain)")
     job_title: str = ""
     job_description: str = ""
     job_location: str = ""
     resume_id: str = ""
     job_id: str = ""
+
+
+def _parse_resume_input(resume: dict[str, Any] | str | None, resume_text: str) -> Any:
+    """Resolve the two input styles into a ``ParsedResume``.
+
+    Explicit precedence: non-empty ``resume_text`` (pasted content, never a
+    path) wins over ``resume``. Both empty is the stable ``resume_required``
+    422 — no request is ever answered with an empty-parsed resume.
+    """
+    if resume_text.strip():
+        return parse_resume(resume_text.encode("utf-8"), content_type="text/plain")
+    if resume is None or resume == "":
+        raise HTTPException(
+            status_code=422,
+            detail=VantiaError(
+                "resume (profile/path) or resume_text is required", code="resume_required"
+            ).as_dict(),
+        )
+    return parse_resume(resume)
 
 
 @app.get("/health")
@@ -133,11 +165,12 @@ def status() -> dict[str, Any]:
     }
 
 
-def _ats_schema() -> dict[str, Any]:
-    path = os.path.join(os.path.dirname(__file__), "schemas", "ats_score.schema.json")
+def _named_schema(name: str) -> dict[str, Any]:
+    """Load a packaged schema by filename; a missing file is a bug, not a 422."""
+    path = os.path.join(os.path.dirname(__file__), "schemas", name)
     schema = load_json(path)
     if schema is None:  # pragma: no cover — packaged file must exist
-        raise VantiaError("ats_score.schema.json missing", code="schema_missing")
+        raise VantiaError(f"{name} missing", code="schema_missing")
     return schema
 
 
@@ -150,7 +183,7 @@ def ats_score(request: AtsScoreRequest) -> dict[str, Any]:
     a bug and surfaces as **500**, never as a silently degraded report.
     """
     try:
-        parsed = parse_resume(request.resume)
+        parsed = _parse_resume_input(request.resume, request.resume_text)
     except VantiaError as exc:
         raise HTTPException(status_code=422, detail=exc.as_dict()) from exc
     report = score_resume(
@@ -161,10 +194,204 @@ def ats_score(request: AtsScoreRequest) -> dict[str, Any]:
     )
     payload = report.payload(resume_id=request.resume_id, job_id=request.job_id)
     try:
-        validate(payload, _ats_schema())
+        validate(payload, _named_schema("ats_score.schema.json"))
     except SchemaValidationError as exc:
         raise HTTPException(status_code=500, detail=exc.as_dict()) from exc
     return {"report": payload, "schema": "ats_score.schema.json"}
+
+
+def _max_upload_bytes() -> int:
+    """Upload cap from ``VANTIA_MAX_FILE_SIZE_MB`` (read per call for tests)."""
+    try:
+        mb = int(os.environ.get("VANTIA_MAX_FILE_SIZE_MB", "10"))
+    except ValueError:
+        mb = 10
+    return max(1, mb) * 1024 * 1024
+
+
+async def _read_capped(file: UploadFile) -> bytes:
+    """Read the upload in chunks, refusing anything over the cap early.
+
+    Reads at most cap+1 bytes so an oversize file never sits fully in
+    memory; the stable ``upload_too_large`` code is a **413**, the empty
+    upload a **422** — both in the same ``as_dict()`` shape as 9.4.
+    """
+    limit = _max_upload_bytes()
+    chunks: list[bytes] = []
+    total = 0
+    while True:
+        chunk = await file.read(64 * 1024)
+        if not chunk:
+            break
+        total += len(chunk)
+        if total > limit:
+            raise HTTPException(
+                status_code=413,
+                detail=VantiaError(
+                    f"upload exceeds the {limit // (1024 * 1024)} MB limit",
+                    code="upload_too_large",
+                    limit_bytes=limit,
+                ).as_dict(),
+            )
+        chunks.append(chunk)
+    data = b"".join(chunks)
+    if not data:
+        raise HTTPException(
+            status_code=422,
+            detail=VantiaError("uploaded file is empty", code="upload_empty").as_dict(),
+        )
+    return data
+
+
+@app.post("/ats/upload")
+async def ats_upload(
+    file: UploadFile = File(...),  # noqa: B008 — FastAPI's declared form/File idiom
+    job_title: str = Form(""),
+    job_description: str = Form(""),
+    job_location: str = Form(""),
+) -> dict[str, Any]:
+    """Upload → parse → score (task 13.2) — the file twin of ``/ats/score``.
+
+    The browser sends the actual file (pdf/docx/txt/md/json); the parser's
+    honest degradation rules apply unchanged — an unparseable upload is
+    **422** with the parser's stable code, never an empty 0/100 report.
+    Deterministic and unmetered, exactly like ``/ats/score``; metered
+    scans run through ``run_ats_scan`` with a workspace upload.
+    """
+    data = await _read_capped(file)
+    try:
+        parsed = parse_resume(data, content_type=file.content_type or "")
+    except VantiaError as exc:
+        raise HTTPException(status_code=422, detail=exc.as_dict()) from exc
+    report = score_resume(
+        parsed,
+        job_title=job_title,
+        job_description=job_description,
+        job_location=job_location,
+    )
+    payload = report.payload(resume_id=file.filename or "", job_id="")
+    try:
+        validate(payload, _named_schema("ats_score.schema.json"))
+    except SchemaValidationError as exc:
+        raise HTTPException(status_code=500, detail=exc.as_dict()) from exc
+    return {
+        "report": payload,
+        "schema": "ats_score.schema.json",
+        "parser": {**parsed.metadata, "warnings": list(parsed.parse_warnings)},
+    }
+
+
+class ImproveCvRequest(BaseModel):
+    """Body of ``POST /improve/cv`` (task 13.3)."""
+
+    resume: dict[str, Any] | str | None = Field(
+        default=None, description="JSON profile document, or a server-side path"
+    )
+    resume_text: str = Field(default="", description="Pasted resume text (markdown/plain)")
+    job_title: str = ""
+    job_description: str = ""
+    company_name: str = ""
+    country: str = ""
+    language: str = "en"
+    resume_id: str = ""
+
+
+@app.post("/improve/cv")
+def improve_cv_endpoint(request: ImproveCvRequest) -> dict[str, Any]:
+    """Deterministic CV improvement for the workspace UI (task 13.3).
+
+    Same ship layer as ``run_cv_improvement`` without the workspace store
+    or the network: parse → improve → schema-valid payload. The identity
+    fields are re-stamped from the upload (10.2 honesty rules) — the
+    engine never lets the model invent or own them. Unparseable input is
+    **422**; deterministic and unmetered, like ``/ats/score``.
+    """
+    try:
+        parsed = _parse_resume_input(request.resume, request.resume_text)
+    except VantiaError as exc:
+        raise HTTPException(status_code=422, detail=exc.as_dict()) from exc
+    artifact = improve_cv(
+        parsed,
+        original_cv_id=request.resume_id,
+        job_description=request.job_description,
+        job_title=request.job_title,
+        company_name=request.company_name,
+        country=request.country,
+        language=request.language,
+    )
+    return {
+        "improvement": artifact.payload,
+        "provider": artifact.provider,
+        "polished": artifact.polished,
+        "fallback": artifact.fallback,
+        "schema": "cv_improvement.schema.json",
+    }
+
+
+class CoverLetterRequest(BaseModel):
+    """Body of ``POST /cover/letter`` (task 13.4) — pasted posting facts."""
+
+    resume: dict[str, Any] | str | None = Field(
+        default=None, description="JSON profile document, or a server-side path"
+    )
+    resume_text: str = Field(default="", description="Pasted resume text (markdown/plain)")
+    job_title: str = ""
+    company: str = ""
+    job_description: str = ""
+    job_location: str = ""
+    tone: str = "professional"
+    language: str = "en"
+    resume_id: str = ""
+
+
+@app.post("/cover/letter")
+def cover_letter_endpoint(request: CoverLetterRequest) -> dict[str, Any]:
+    """Deterministic cover letter for the workspace UI (task 13.4).
+
+    The posting is caller-pasted, so it is stamped ``portal="manual"`` with
+    a content-derived id — the letter only ever uses the facts that were
+    given. A request with neither title nor description is **422**
+    ``job_required`` — no letter is written against an empty posting.
+    Deterministic and unmetered, like ``/ats/score``.
+    """
+    if not request.job_title.strip() and not request.job_description.strip():
+        raise HTTPException(
+            status_code=422,
+            detail=VantiaError(
+                "job_title or job_description is required to write a cover letter",
+                code="job_required",
+            ).as_dict(),
+        )
+    try:
+        parsed = _parse_resume_input(request.resume, request.resume_text)
+    except VantiaError as exc:
+        raise HTTPException(status_code=422, detail=exc.as_dict()) from exc
+    digest = hashlib.sha256(
+        f"{request.job_title}|{request.company}|{request.job_description}".encode()
+    ).hexdigest()[:16]
+    listing = JobListing(
+        portal="manual",
+        external_id=f"manual-{digest}",
+        title=request.job_title.strip(),
+        company=request.company.strip(),
+        location=request.job_location.strip(),
+        url="",
+        description=request.job_description,
+    )
+    artifact = generate_cover_letter(
+        parsed,
+        listing,
+        resume_id=request.resume_id,
+        tone=request.tone,
+        language=request.language,
+    )
+    return {
+        "cover_letter": artifact.payload,
+        "provider": artifact.provider,
+        "polished": artifact.polished,
+        "fallback": artifact.fallback,
+        "schema": "cover_letter.schema.json",
+    }
 
 
 def _require_user_id(user_id: str) -> str:

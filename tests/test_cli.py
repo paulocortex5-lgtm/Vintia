@@ -40,9 +40,9 @@ def inited(cli: CliRunner) -> CliRunner:
     return cli
 
 
-def _chain_events() -> list[dict]:
+def _chain_events() -> list[str]:
     """All event_type values recorded on the cross-run chain."""
-    return [r.get("event_type") for r in HashChain().records]
+    return [str(r.get("event_type")) for r in HashChain().records]
 
 
 # ── init / status ────────────────────────────────────────────────
@@ -228,7 +228,9 @@ def test_verify_flags_broken_schema(inited: CliRunner, tmp_path: Path) -> None:
     """A deliberately malformed schema must be caught, not silently shipped."""
     import importlib
 
-    engine_dir = Path(importlib.import_module("engine").__file__).parent
+    module = importlib.import_module("engine")
+    assert module.__file__ is not None  # a package always has a file on disk
+    engine_dir = Path(module.__file__).parent
     target = engine_dir / "schemas" / "zz_intentionally_broken.json"
     target.write_text("{ not valid json", encoding="utf-8")
     try:

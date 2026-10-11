@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import CoverLetterGenerator from "./CoverLetterGenerator";
+
 export const metadata: Metadata = {
   title: "Cover Letter Generator built from your CV and the posting",
   description:
@@ -56,8 +58,11 @@ export default function CoverLetterPage() {
             Improve the CV first
           </Link>
         </div>
+        <CoverLetterGenerator />
         <p className="mt-8 text-xs text-zinc-500">
-          Part of Vantia — launching soon.
+          Letters are written deterministically from your facts and the posting
+          you provide — stamped &quot;manual&quot; because you pasted it. Join the
+          waitlist for posting-URL loading at launch.
         </p>
       </main>
     </div>

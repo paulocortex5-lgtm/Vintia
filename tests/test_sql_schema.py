@@ -68,6 +68,25 @@ def test_ddl_is_well_formed():
 
 
 def test_progress_view_exposes_counts():
-    assert "create view if not exists task_progress" in SQL
+    # Postgres rejects `create view if not exists` (SQLSTATE 42601); the
+    # idempotent spelling is `create or replace view`. Comments are stripped
+    # first so the explanatory comment naming the broken form doesn't trip
+    # the negative assertion.
+    body = "\n".join(line for line in SQL.splitlines() if not line.strip().startswith("--"))
+    assert "create or replace view task_progress" in body
+    assert "create view if not exists" not in body
     for column in ("completed", "blocked", "skipped", "total"):
         assert column in SQL
+
+
+def test_artifacts_fk_is_composite_over_the_tasks_primary_key():
+    """A single-column ``references tasks (id, run_id)`` is SQLSTATE 42830.
+
+    ``tasks``' primary key is ``(id, run_id)``; Postgres rejects an FK that
+    lists two referenced columns but one referencing column. Caught on the
+    first real ``supabase db push`` (2026-10-11) — this pins the fix.
+    """
+    assert "constraint artifacts_task_fk" in SQL
+    assert "foreign key (task_id, run_id) references tasks (id, run_id)" in SQL
+    # the broken column-level form must not come back
+    assert "task_id     text     not null references tasks" not in SQL

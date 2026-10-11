@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import CvImprover from "./CvImprover";
+
 export const metadata: Metadata = {
   title: "CV Improvement — targeted rewrites that keep your facts",
   description:
@@ -57,8 +59,11 @@ export default function ImprovePage() {
             See the ATS checker
           </Link>
         </div>
+        <CvImprover />
         <p className="mt-8 text-xs text-zinc-500">
-          Part of Vantia — launching soon.
+          Edits run deterministically through the same improver the pipeline
+          uses — your identity fields are re-stamped from your text and never
+          model-owned. Join the waitlist for saved workspaces at launch.
         </p>
       </main>
     </div>

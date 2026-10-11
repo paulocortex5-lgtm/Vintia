@@ -31,6 +31,12 @@ yarn-error.log*
 # They are intentionally ignored on `main`.
 .vantia/
 
+# ─── Supabase CLI local cache ─────────────────────────────────────────
+supabase/.temp/
+
+# ─── Stray process output ─────────────────────────────────────────────
+nohup.out
+
 # ─── OS / editor ──────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
