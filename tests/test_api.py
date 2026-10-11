@@ -42,6 +42,23 @@ def test_startup_hook_respects_self_ping_switch(monkeypatch):
     assert calls == ["ping"]
 
 
+def test_api_prefix_stripping_behind_vercel(monkeypatch):
+    """/api/* from Vercel Services must route exactly like the bare paths."""
+    monkeypatch.setenv("VANTIA_SELF_PING", "0")
+    from fastapi.testclient import TestClient
+
+    from engine.api import _StripApiPrefix, app
+
+    with TestClient(_StripApiPrefix(app, "/api")) as client:
+        assert client.get("/api/health").json()["status"] == "ok"
+        assert client.get("/api/status").status_code == 200
+        # Unprefixed paths keep working — the stripper never double-strips.
+        assert client.get("/health").json()["status"] == "ok"
+        # The bare prefix maps to the app root; unknown paths stay honest 404s.
+        assert client.get("/api").status_code == 404
+        assert client.get("/api/nope").status_code == 404
+
+
 def test_self_ping_interval_guard(monkeypatch):
     monkeypatch.setattr(keep_alive, "_thread", None)
     monkeypatch.setenv("VANTIA_SELF_PING_INTERVAL_SEC", "0")

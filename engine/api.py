@@ -68,12 +68,39 @@ def _allowed_origins() -> list[str]:
     return origins or ["http://localhost:3000"]
 
 
+class _StripApiPrefix:
+    """ASGI wrapper that strips a path prefix before routing (task 13 deploy).
+
+    Vercel Services routes ``/api/(.*)`` into this app with the prefix
+    intact, so ``/api/health`` must be seen by FastAPI as ``/health``.
+    Pure-ASGI (no BaseHTTPMiddleware) so streaming and the multipart
+    upload route are unaffected. Only installed when
+    ``VANTIA_API_PREFIX`` is set — Render/docker paths never change.
+    """
+
+    def __init__(self, app: Any, prefix: str) -> None:
+        self.app = app
+        self.prefix = prefix.rstrip("/")
+
+    async def __call__(self, scope: dict, receive: Any, send: Any) -> None:
+        if scope.get("type") == "http":
+            path: str = scope.get("path", "")
+            if path == self.prefix:
+                scope["path"] = "/"
+            elif path.startswith(self.prefix + "/"):
+                scope["path"] = path[len(self.prefix) :] or "/"
+        await self.app(scope, receive, send)
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_allowed_origins(),
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type", "Authorization"],
 )
+
+if os.environ.get("VANTIA_API_PREFIX"):  # e.g. "/api" behind Vercel Services
+    app.add_middleware(_StripApiPrefix, prefix=os.environ["VANTIA_API_PREFIX"])
 
 
 class AtsScoreRequest(BaseModel):
