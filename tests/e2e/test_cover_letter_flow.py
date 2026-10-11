@@ -109,7 +109,7 @@ def test_full_cover_letter_journey_offline_pinned_and_persisted(tmp_path):
     }
     payload = result["cover_letter"]
     validate(payload, SCHEMA)
-    assert payload["resume_id"] == "cv.md" and payload["job_id"] == "127817"
+    assert payload["resume_id"] == "ws7/cv.md" and payload["job_id"] == "127817"
     assert result["provider"] == "deterministic"
 
     # posting + resume facts only

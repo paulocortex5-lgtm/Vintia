@@ -15,6 +15,7 @@ from __future__ import annotations
 
 from ..errors import InsufficientCredits, PaddleError
 from .config import load_credits_config
+from .invoices import generate_invoice
 from .ledger import CreditLedger, default_ledger, reset_default_ledger, topup_from_paddle
 from .metering import CreditMeter, default_meter, operation_cost, reset_default_meter
 from .paddle_client import CREDIT_PACKS, create_checkout_transaction
@@ -41,6 +42,7 @@ __all__ = [
     "default_meter",
     "enforce",
     "ensure_allowance",
+    "generate_invoice",
     "handle_webhook",
     "load_credits_config",
     "operation_cost",

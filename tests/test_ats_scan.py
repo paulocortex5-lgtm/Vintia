@@ -97,7 +97,7 @@ def test_scan_from_store_persists_a_schema_valid_report(tmp_path):
     }
     report = result["report"]
     validate(report, SCHEMA)
-    assert report["resume_id"] == "cv.md"
+    assert report["resume_id"] == "ws1/cv.md"
     assert report["job_id"] == "127817"
     assert result["job"]["portal"] == "greenhouse"
     assert result["parser"]["source_format"] == "md"

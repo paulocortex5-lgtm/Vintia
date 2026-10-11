@@ -111,7 +111,7 @@ def test_full_scan_journey_offline_pinned_and_persisted(tmp_path):
     assert 0.0 <= report["keyword_coverage"] <= 1.0
     assert 0.0 <= report["overall_score"] <= 100.0
     assert report["parser_metadata"]["source_format"] == "md"
-    assert report["resume_id"] == "cv.md" and report["job_id"] == "127817"
+    assert report["resume_id"] == "ws42/cv.md" and report["job_id"] == "127817"
 
     # the report persisted next to the upload and round-trips
     persisted = tmp_path / "ws42" / "cv.md.ats.json"

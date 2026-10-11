@@ -370,7 +370,13 @@ def run_ats_scan(
         job_description=listing.description,
         job_location=listing.location,
     )
-    payload = report.payload(resume_id=file_id, job_id=listing.external_id or job_url)
+    # Determine the resume_id for the payload: if we used a stored upload, use the
+    # relative path from the store root; otherwise, use the provided file_id.
+    if store_path is not None:
+        resume_id_for_payload = os.path.join(workspace_id, file_id)
+    else:
+        resume_id_for_payload = file_id
+    payload = report.payload(resume_id=resume_id_for_payload, job_id=listing.external_id or job_url)
     schema = load_json(os.path.join(os.path.dirname(__file__), "schemas", "ats_score.schema.json"))
     if schema is None:  # pragma: no cover — packaged file must exist
         raise VantiaError("ats_score.schema.json missing", code="schema_missing")
@@ -427,9 +433,15 @@ def run_cv_improvement(
     meter, charge_ref = _begin_charge(user_id, "cv_improvement", run_id, workspace_id, file_id)
     source, store_path = _resolve_upload(workspace_id, file_id, resume, store_dir)
     parsed = parse_resume(source)
+    # Determine the original_cv_id for the improve_cv call: if we used a stored upload, use the
+    # relative path from the store root; otherwise, use the provided file_id.
+    if store_path is not None:
+        original_cv_id_for_artifact = os.path.join(workspace_id, file_id)
+    else:
+        original_cv_id_for_artifact = file_id
     artifact = improve_cv(
         parsed,
-        original_cv_id=file_id,
+        original_cv_id=original_cv_id_for_artifact,
         job_description=job_description,
         job_title=job_title,
         client=client,
@@ -510,6 +522,8 @@ def run_cover_letter(
         chain=chain,
         run_id=run_id,
     )
+    # Ensure the resume_id in the payload is the full path (workspace_id/resume_id)
+    artifact.payload["resume_id"] = f"{workspace_id}/{resume_id}"
     report_path = store_path + ".cover.json" if store_path else None
     if report_path is not None:
         atomic_write_json(report_path, artifact.payload)

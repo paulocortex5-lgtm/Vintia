@@ -32,6 +32,7 @@ from .credits import (
     default_ledger,
     default_meter,
     ensure_allowance,
+    generate_invoice,
     handle_webhook,
     load_credits_config,
     tier_of,
@@ -235,6 +236,24 @@ def credits_estimate(user_id: str = "", operation: str = "") -> dict[str, Any]:
     except VantiaError as exc:
         raise HTTPException(status_code=422, detail=exc.as_dict()) from exc
     return {**report, "ts": datetime.now(UTC).isoformat()}
+
+
+@app.get("/credits/invoices")
+def credits_invoices(user_id: str = "", month: str = "") -> dict[str, Any]:
+    """Deterministic monthly credit statement (task 7.3).
+
+    Read-only over the ledger; the unit is **credits, never money** — no FX
+    rate is invented for a credit movement. The ``invoice_generation``
+    feature flag off is 403 ``invoice_generation_disabled``; a malformed
+    ``month`` is 422 — both in the stable ``as_dict()`` shape.
+    """
+    user_id = _require_user_id(user_id)
+    try:
+        invoice = generate_invoice(user_id, month=month or None)
+    except VantiaError as exc:
+        status = 403 if exc.code == "invoice_generation_disabled" else 422
+        raise HTTPException(status_code=status, detail=exc.as_dict()) from exc
+    return {**invoice, "ts": datetime.now(UTC).isoformat()}
 
 
 @app.get("/credits/packs")

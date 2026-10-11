@@ -70,7 +70,7 @@ def test_full_improvement_journey_offline_and_persisted(tmp_path):
     }
     payload = result["improvement"]
     validate(payload, SCHEMA)
-    assert payload["original_cv_id"] == "cv.md"
+    assert payload["original_cv_id"] == "ws7/cv.md"
     assert result["provider"] == "deterministic"
     assert result["polished"] is False
 
