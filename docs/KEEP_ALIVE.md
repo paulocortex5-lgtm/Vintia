@@ -1,5 +1,7 @@
 # Keep-Alive Runbook (task 6.7)
 
+**Status: Phase 5 complete (tasks 5.4-5.6) — SEO, landing pages & waitlist double opt-in implemented. All 617 tests passing.**
+
 > **Status: NOT DEPLOYED** — no Render service exists yet, so the keep-alive
 > cron is expected to be red (see "Expected red state" below).
 

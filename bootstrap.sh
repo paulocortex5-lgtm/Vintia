@@ -33,6 +33,7 @@ DIRS=(
   "engine/verify"
   "engine/generators"
   "web/app/dashboard"
+  "web/app/admin"
   "web/app/workspace/files"
   "web/app/workspace/scans"
   "web/app/ats/[id]"

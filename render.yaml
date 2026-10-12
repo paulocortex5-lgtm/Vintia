@@ -42,3 +42,7 @@ services:
         sync: false
       - key: VANTIA_ALLOWED_ORIGINS
         sync: false
+      # Hidden /admin panel API key — generated secret, paste in the
+      # dashboard (never in git). Fail-closed while unset.
+      - key: VANTIA_ADMIN_TOKEN
+        sync: false

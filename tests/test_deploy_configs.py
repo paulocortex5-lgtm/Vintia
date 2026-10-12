@@ -29,6 +29,7 @@ SECRET_KEYS = {
     "PADDLE_PRICE_PACK_50K",
     "PADDLE_PRICE_PACK_250K",
     "VANTIA_ALLOWED_ORIGINS",
+    "VANTIA_ADMIN_TOKEN",  # hidden /admin panel key (fail-closed when unset)
 }
 
 ENV_EXAMPLE = (ROOT / ".env.example").read_text("utf-8")

@@ -220,6 +220,28 @@ class CreditLedger:
             "last_entry_ts": rows[-1]["ts"] if rows else None,
         }
 
+    def rollup(self) -> dict[str, Any]:
+        """Aggregate totals across every user (admin panel, read-only).
+
+        One load under the lock: user count, total balance, and a
+        per-tier headcount where an unrecorded tier counts as ``free``
+        (matching :meth:`tier_of` — never a guessed upgrade).
+        """
+        with self._lock:
+            data = self._load()
+        users = data.get("users", {})
+        tiers = data.get("tiers", {})
+        by_tier = {t: 0 for t in ("free", "pro", "business")}
+        for user_id in set(users) | set(tiers):
+            tier = str(tiers.get(user_id) or "free")
+            by_tier[tier] = by_tier.get(tier, 0) + 1
+        return {
+            "user_count": len(set(users) | set(tiers)),
+            "total_balance": sum(int(u.get("balance", 0)) for u in users.values()),
+            "by_tier": by_tier,
+            "updated_at": data.get("updated_at"),
+        }
+
     # ── Tier mapping (definitions + enforcement live in tiers.py) ───
     def tier_of(self, user_id: str) -> str:
         """The user's tier; ``"free"`` by default (never a guessed upgrade)."""

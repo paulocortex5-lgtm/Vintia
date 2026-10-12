@@ -5,6 +5,23 @@ All notable changes to Vantia are recorded here. Format loosely follows
 entry in the form `vantia(<task_id>): <name> (run N)`.
 
 ## [Unreleased]
+### Admin panel — hidden `/admin` route (unbundled: no task id, deployment prep)
+- **Engine** `engine/admin.py` + six token-gated routes in `engine/api.py`:
+  `GET /admin/overview`, `PUT /admin/tiers`, `POST /admin/usage-tier`,
+  `GET /admin/credits`, `POST /admin/credits/grant`, `POST /admin/users/tier`.
+  Fail-closed auth (`VANTIA_ADMIN_TOKEN`; 503 `admin_not_configured` when unset,
+  403 on mismatch); state writes take the run lock; env overrides are reported,
+  never hidden; credits move through the append-only ledger (R46 stands).
+- **Web** `web/app/admin/page.tsx` + `AdminConsole.tsx` — type the URL to open it:
+  not linked anywhere, noindexed, absent from sitemap, `robots.txt` disallows it
+  (`web/app/robots.ts`); runtime API-key entry (never a `NEXT_PUBLIC_*` var).
+- **Render readiness** new `Render.com service environment` block in `.env` /
+  `.env.example` with the ready-to-fill `VANTIA_ADMIN_TOKEN=` slot,
+  `VANTIA_ADMIN_TOKEN` added to `render.yaml` (`sync: false`), the deploy-gate
+  `SECRET_KEYS` set, and the `docs/RENDER_DEPLOY.md` env table.
+- Gates: 18 admin API tests (`tests/test_admin_api.py`), 7 panel-surface tests
+  (`tests/test_admin_panel.py`); full suite green; `next build` EXIT=0.
+
 ### Run 19 — Phase 5 (5.4–5.6): SEO, landing pages & waitlist double opt-in
 - **5.4** Layout metadata, JSON-LD, and honest sitemap.
 - **5.5** Six SEO landing pages with metadata and JSON-LD.

@@ -10,7 +10,12 @@ routes ``GET /credits/balance`` + ``GET /credits/estimate`` +
 ``GET /credits/invoices`` + ``GET /credits/packs`` +
 ``POST /credits/checkout`` (11.5 / 12.2 / 12.5), ``POST /paddle/webhook``
 (12.3) and the waitlist double-opt-in routes ``POST /waitlist/subscribe``
-+ ``POST /waitlist/confirm`` + ``GET /waitlist/stats`` (5.6). On startup
++ ``POST /waitlist/confirm`` + ``GET /waitlist/stats`` (5.6), and the
+hidden admin routes ``GET /admin/overview`` + ``PUT /admin/tiers`` +
+``POST /admin/usage-tier`` + ``GET /admin/credits`` +
+``POST /admin/credits/grant`` + ``POST /admin/users/tier`` (token-gated
+via ``VANTIA_ADMIN_TOKEN``, fail-closed — see :mod:`engine.admin`). On
+startup
 a daemon thread (Approach 3, §22) begins the self-ping so the container
 never hits the 15-minute cold sleep; a GitHub Actions cron (§0.9)
 provides a second, independent keep-alive layer.
@@ -95,7 +100,7 @@ class _StripApiPrefix:
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_allowed_origins(),
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "PUT"],
     allow_headers=["Content-Type", "Authorization"],
 )
 
@@ -650,6 +655,159 @@ def waitlist_stats() -> dict[str, Any]:
     except VantiaError as exc:
         raise _waitlist_http(exc) from exc
     return {**result, "ts": datetime.now(UTC).isoformat()}
+
+
+# ── Hidden admin API (VANTIA_ADMIN_TOKEN; never linked from the UI) ────
+
+
+def _admin_http(exc: VantiaError) -> HTTPException:
+    """Stable status mapping for admin codes (503/401/403/409/422)."""
+    status = {
+        "admin_not_configured": 503,
+        "missing_token": 401,
+        "admin_forbidden": 403,
+        "state_lock_busy": 409,
+        "insufficient_credits": 422,
+    }.get(exc.code, 422)
+    return HTTPException(status_code=status, detail=exc.as_dict())
+
+
+def _require_admin(request: Request) -> None:
+    """Fail-closed guard: unconfigured token → 503, bad token → 401/403."""
+    from . import admin as admin_service
+
+    try:
+        admin_service.require_admin(request.headers.get("Authorization"))
+    except VantiaError as exc:
+        raise _admin_http(exc) from exc
+
+
+@app.get("/admin/overview")
+def admin_overview(request: Request) -> dict[str, Any]:
+    """Full settings snapshot for the /admin panel (token-gated).
+
+    Read-only: feature flags, per-tier allowances (with any env var that
+    masks them), the paid-usage switch, and the ledger rollup. Nothing
+    here is invented — an unconfigured/unreachable store surfaces as its
+    documented fallback, never as fabricated numbers.
+    """
+    _require_admin(request)
+    from . import admin as admin_service
+
+    try:
+        return admin_service.admin_overview()
+    except VantiaError as exc:
+        raise _admin_http(exc) from exc
+
+
+class AdminTiersRequest(BaseModel):
+    """Body of ``PUT /admin/tiers`` — partial update of tier allowances."""
+
+    free_tier_tokens: int | None = Field(
+        default=None, description="Monthly tokens for the free tier"
+    )
+    pro_tier_tokens: int | None = Field(default=None, description="Monthly tokens for the pro tier")
+    business_tier_tokens: int | None = Field(
+        default=None, description="Monthly tokens for the business tier"
+    )
+
+
+@app.put("/admin/tiers")
+def admin_set_tiers(request: Request, body: AdminTiersRequest) -> dict[str, Any]:
+    """Persist tier allowance changes to state (token-gated, locked write).
+
+    Env overlays still win at read time; the response reports any env
+    var masking the value just written so the panel can warn honestly.
+    """
+    _require_admin(request)
+    from . import admin as admin_service
+
+    updates = {k: v for k, v in body.model_dump().items() if v is not None}
+    try:
+        return admin_service.set_tier_allowances(updates)
+    except VantiaError as exc:
+        raise _admin_http(exc) from exc
+
+
+class AdminUsageTierRequest(BaseModel):
+    """Body of ``POST /admin/usage-tier`` — free ↔ paid usage switch."""
+
+    enabled: bool = Field(description="true = paid usage tier allowed, false = free only")
+
+
+@app.post("/admin/usage-tier")
+def admin_usage_tier(request: Request, body: AdminUsageTierRequest) -> dict[str, Any]:
+    """Switch the paid usage tier on/off in state (token-gated, locked write).
+
+    The response echoes the stored value *and* the effective feature
+    flag plus any env override — a switch shadowed by the environment
+    is reported, not silently swallowed.
+    """
+    _require_admin(request)
+    from . import admin as admin_service
+
+    try:
+        return admin_service.set_paid_usage(body.enabled)
+    except VantiaError as exc:
+        raise _admin_http(exc) from exc
+
+
+@app.get("/admin/credits")
+def admin_credits(request: Request, user_id: str = "") -> dict[str, Any]:
+    """Read-only credit summary for one user (token-gated)."""
+    _require_admin(request)
+    from . import admin as admin_service
+
+    try:
+        return admin_service.user_credits(_require_user_id(user_id))
+    except VantiaError as exc:
+        raise _admin_http(exc) from exc
+
+
+class AdminGrantRequest(BaseModel):
+    """Body of ``POST /admin/credits/grant`` — signed credit movement."""
+
+    user_id: str = Field("", description="Target user")
+    amount: int = Field(description="Signed credits: positive = grant, negative = adjustment")
+    note: str = Field("", description="Audit note stored in the entry meta")
+    ref: str = Field("", description="Idempotency ref; auto-generated when empty")
+
+
+@app.post("/admin/credits/grant")
+def admin_grant_credits(request: Request, body: AdminGrantRequest) -> dict[str, Any]:
+    """Grant/adjust credits for a user through the ledger (token-gated).
+
+    Idempotent by ``ref``; R46 still refuses an adjustment that would
+    drive the balance below zero (422 ``insufficient_credits``).
+    """
+    _require_admin(request)
+    from . import admin as admin_service
+
+    try:
+        return admin_service.grant_credits(
+            _require_user_id(body.user_id), body.amount, note=body.note, ref=body.ref
+        )
+    except VantiaError as exc:
+        raise _admin_http(exc) from exc
+
+
+class AdminUserTierRequest(BaseModel):
+    """Body of ``POST /admin/users/tier`` — recorded, never inferred."""
+
+    user_id: str = Field("", description="Target user")
+    tier: str = Field("", description="free | pro | business")
+
+
+@app.post("/admin/users/tier")
+def admin_set_user_tier(request: Request, body: AdminUserTierRequest) -> dict[str, Any]:
+    """Record a user's usage tier (token-gated; ``unknown_tier`` refused)."""
+    _require_admin(request)
+    from . import admin as admin_service
+
+    try:
+        return admin_service.set_user_tier(_require_user_id(body.user_id), body.tier)
+    except VantiaError as exc:
+        raise _admin_http(exc) from exc
 
 
 @app.on_event("startup")

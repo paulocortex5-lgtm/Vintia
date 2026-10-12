@@ -30,6 +30,7 @@ Blueprint (Docker runtime, free plan):
    | `PADDLE_API_KEY`, `PADDLE_WEBHOOK_SECRET` | Paddle → Settings (see `PADDLE_SETUP.md`) |
    | `PADDLE_PRICE_PACK_10K/50K/250K` | Paddle price ids (per pack) |
    | `VANTIA_ALLOWED_ORIGINS` | your Vercel domain, e.g. `https://vantia.vercel.app` |
+   | `VANTIA_ADMIN_TOKEN` | generated admin key (`openssl rand -hex 32`) — unlocks the hidden `/admin` panel; while unset the admin API answers 503 |
 
 4. Apply Blueprint → wait for the Docker build → `GET /health` must
    return 200.

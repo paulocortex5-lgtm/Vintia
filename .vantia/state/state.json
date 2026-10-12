@@ -3,9 +3,9 @@
   "master_prompt_version": "4.0",
   "schema_version": 4,
   "created_at": "2026-10-03T22:15:00Z",
-  "updated_at": "2026-10-10T13:52:35Z",
-  "run_count": 18,
-  "last_completed_task": "6.7",
+  "updated_at": "2026-10-11T13:46:32Z",
+  "run_count": 20,
+  "last_completed_task": "7.3",
   "in_progress_task": null,
   "consecutive_failures": {},
   "deployment": {
@@ -915,39 +915,55 @@
     "5.4": {
       "name": "SEO: schema.org + sitemap",
       "phase": 5,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "5.3"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "web/app/layout.tsx",
+        "web/app/sitemap.xml/route.ts"
+      ],
       "attempts": 0,
-      "started_at": null
+      "started_at": "2026-10-11T13:46:32Z",
+      "completed_at": "2026-10-11T13:46:32Z",
+      "commit_sha": "0cfe272"
     },
     "5.5": {
       "name": "SEO landing pages (6)",
       "phase": 5,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "5.4"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "web/app/jobs/page.tsx",
+        "web/app/scholarships/page.tsx",
+        "web/app/ats/page.tsx",
+        "web/app/improve/page.tsx",
+        "web/app/cover-letter/page.tsx",
+        "web/app/credits/purchase/page.tsx"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "0cfe272",
+      "started_at": "2026-10-11T13:46:32Z",
+      "completed_at": "2026-10-11T13:46:32Z"
     },
     "5.6": {
       "name": "Waitlist + double opt-in",
       "phase": 5,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "5.3"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/waitlist.py",
+        "web/app/waitlist/page.tsx",
+        "web/app/waitlist/confirm/page.tsx"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "0cfe272",
+      "started_at": "2026-10-11T13:46:32Z",
+      "completed_at": "2026-10-11T13:46:32Z"
     },
     "6.1": {
       "name": "Structured logging (run_id, hashes)",
@@ -1065,7 +1081,7 @@
     "7.1": {
       "name": "Acceptance demo (full E2E)",
       "phase": 7,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "5.2",
         "6.2",
@@ -1073,37 +1089,47 @@
         "6.4",
         "6.5"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "tests/e2e/test_full_journey.py",
+        "engine/pipeline.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "5edb3bf",
+      "started_at": "2026-10-11T13:46:32Z",
+      "completed_at": "2026-10-11T13:46:32Z"
     },
     "7.2": {
       "name": "Multi-provider failover E2E test",
       "phase": 7,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "1.7"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "tests/e2e/test_failover_chaos.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "5edb3bf",
+      "started_at": "2026-10-11T13:46:32Z",
+      "completed_at": "2026-10-11T13:46:32Z"
     },
     "7.3": {
       "name": "Paid model switching E2E test",
       "phase": 7,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "1.7"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "tests/e2e/test_paid_model_switching.py",
+        "engine/feature_flags.py",
+        "engine/credits/invoices.py",
+        "engine/api.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "5edb3bf",
+      "started_at": "2026-10-11T13:46:32Z",
+      "completed_at": "2026-10-11T13:46:32Z"
     },
     "8.1": {
       "name": "Supabase Auth integration",
@@ -1681,7 +1707,9 @@
       "15": 0.0,
       "16": 0.0,
       "17": 0.0,
-      "18": 0.0
+      "18": 0.0,
+      "19": 0.0,
+      "20": 0.0
     },
     "by_task": {}
   },
@@ -1970,6 +1998,38 @@
         "out": 0
       },
       "notes": "Phase 8->Phase 6 closed 7/7 - hash logging, status page, digest-pinned Docker, render/vercel configs, 4 runbooks; 597 tests, 94% cov, web build green"
+    },
+    {
+      "run": 19,
+      "started_at": "2026-10-11T13:46:32Z",
+      "tasks": [
+        "5.4",
+        "5.5",
+        "5.6"
+      ],
+      "finished_at": "2026-10-11T13:46:32Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Phase 5 closeout: SEO metadata + schema.org/JSON-LD, six landing pages, waitlist double opt-in. Session-12 audit note: the uncommitted board edit claimed 85/88 after this run - the correct count is 79/88 (run 18 was 76/88 plus three Phase-5 tasks). Corrected during run-20 reconciliation."
+    },
+    {
+      "run": 20,
+      "started_at": "2026-10-11T13:46:32Z",
+      "tasks": [
+        "7.1",
+        "7.2",
+        "7.3"
+      ],
+      "finished_at": "2026-10-11T13:46:32Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Phase 7 closed 3/3: full visitor journey E2E (hermetic credits fixture, webhook top-up + R50 redelivery no-op, workspace-qualified artifact ids), failover/chaos E2E (ConnectError->429->200 chain, all-down honest exhaustion, circuit breaker trip/half-open/recover, Supabase-outage ledger durability, mid-run crash + deterministic replay + tamper-evident registry), paid-model switching E2E (R27 free-before-paid, allow_paid toggle, feature flags state-driven + fail-closed, tier switch allowance-once-per-month, deterministic offline credit statements + /credits/invoices gate)."
     }
   ],
   "notes": "Seed v4.0. 98 tasks across 14 phases. Free-tier only. Session 1 closeout: Phase 0 verified and committed. 96/96 unit tests pass, 97% engine coverage. 0.2 vantia-state commit is aa0f228; other Phase 0 tasks commit to main 4c84504."

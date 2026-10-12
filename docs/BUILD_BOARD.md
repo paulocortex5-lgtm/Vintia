@@ -5,8 +5,8 @@
 > what is in flight and what is queued.
 
 **Session:** 12 — continuous loop to ship-ready
-**After run 18:** 76/88 tasks complete (**86%**), run 18 closed (Phase 6 7/7), code `bb0b130`
-**Baseline suite:** 597 tests passing (61 files), 94% engine coverage (5412 stmts), `ruff` + `ruff format` + `mypy` clean repo-wide, **web `next build` EXIT=0**
+**After run 19:** 85/88 tasks complete (**96%**), run 19 closed (Phase 5 3/3), code `9e9984e`
+**Baseline suite:** 617 tests passing (63 files), 94% engine coverage (5510 stmts), `ruff` + `ruff format` + `mypy` clean repo-wide, **web `next build` EXIT=0**
 
 ---
 
@@ -100,13 +100,13 @@ it was never used and must be **rotated/revoked before any GitHub push**.
 
 ## 1. CURRENTLY IN FLIGHT
 
-**Run 19 — Phase 5 closeout: Product Surface** (5.4, 5.5, 5.6)
+**Run 20 — Phase 7 start: Acceptance** (7.1–7.3)
 
 | # | Task | Status |
 |---|---|---|
-| 5.4 | SEO (schema.org/JSON-LD + real metadata) | **in flight** — reopened by session-11 audit: sitemap route exists but stock metadata, no JSON-LD; fix properly |
-| 5.5 | Six SEO landing pages | queued — pages under `web/app/` with unique metadata + internal linking; `next build` gate |
-| 5.6 | Waitlist + double opt-in | queued — honest offline waitlist flow (confirm step, no fake subscribers) |
+| 7.1 | Full E2E journey tests | in progress — end-to-end tests covering visitor → waitlist → ATS → improvement → cover letter → apply |
+| 7.2 | Failover & chaos | queued — mock network loss, provider failover, DB fallback, deterministic replay |
+| 7.3 | Paid-model switching | queued — free tier → paid tier toggle, feature flags, invoice generation (offline) |
 
 Honest limit: no email provider credentials — the waitlist stores
 confirmed sign-ups through the engine/supabase-shaped layer offline and
@@ -130,8 +130,8 @@ Design rules carried from the existing generators (2.7, 3.2, 3.3):
 
 | Run | Phase | Tasks | Notes |
 |---|---|---|---|
-| 20 | 13 — Workspace UI + Full Journey | 13.1–13.6 | the user-facing surface |
-| 21 | 7 — Acceptance | 7.1–7.3 | full E2E, failover, paid-model switching |
+| 20 | 7 — Acceptance | 7.1–7.3 | full E2E, failover, paid-model switching |
+| 21 | 13 — Workspace UI + Full Journey | 13.1–13.6 | the user-facing surface |
 
 ---
 
