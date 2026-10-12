@@ -1,0 +1,68 @@
+{
+  "services": [
+    {
+      "type": "web",
+      "name": "vantia-engine",
+      "runtime": "docker",
+      "plan": "free",
+      "dockerfilePath": "./Dockerfile",
+      "dockerContext": ".",
+      "healthCheckPath": "/health",
+      "autoDeploy": false,
+      "envVars": [
+        {
+          "key": "VANTIA_SELF_PING",
+          "value": "1"
+        },
+        {
+          "key": "PADDLE_ENVIRONMENT",
+          "value": "sandbox"
+        },
+        {
+          "key": "SUPABASE_URL",
+          "sync": false
+        },
+        {
+          "key": "SUPABASE_ANON_KEY",
+          "sync": false
+        },
+        {
+          "key": "SUPABASE_SERVICE_ROLE_KEY",
+          "sync": false
+        },
+        {
+          "key": "SUPABASE_JWT_SECRET",
+          "sync": false
+        },
+        {
+          "key": "PADDLE_API_KEY",
+          "sync": false
+        },
+        {
+          "key": "PADDLE_WEBHOOK_SECRET",
+          "sync": false
+        },
+        {
+          "key": "PADDLE_PRICE_PACK_10K",
+          "sync": false
+        },
+        {
+          "key": "PADDLE_PRICE_PACK_50K",
+          "sync": false
+        },
+        {
+          "key": "PADDLE_PRICE_PACK_250K",
+          "sync": false
+        },
+        {
+          "key": "VANTIA_ALLOWED_ORIGINS",
+          "sync": false
+        },
+        {
+          "key": "VANTIA_ADMIN_TOKEN",
+          "sync": false
+        }
+      ]
+    }
+  ]
+}
