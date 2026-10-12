@@ -2,8 +2,9 @@
 
 **Status: Phase 5 complete (tasks 5.4-5.6) — SEO, landing pages & waitlist double opt-in implemented. All 617 tests passing.**
 
-> **Status: NOT DEPLOYED** — no Render service exists yet, so the keep-alive
-> cron is expected to be red (see "Expected red state" below).
+> **Status: DEPLOYED (2026-10-12).** The Render service exists
+> (`https://vantia-engine.onrender.com`), so a red keep-alive run is
+> **actionable** (see "Post-deploy red state" below).
 
 Render's free tier sleeps a container after ~15 minutes of inactivity and
 Supabase pauses a free database after 7 days. Vantia defends with **three
@@ -38,11 +39,11 @@ curl -fsS localhost:8000/health
 # (see below).
 ```
 
-## Expected red state before deployment
+## Post-deploy red state
 
-During the pre-deploy phase there is no URL to ping, so the keep-alive
-cron fails by design and is **not** treated as an incident signal. After
-`RENDER_DEPLOY.md` step 2 completes, a red keep-alive run *is* actionable:
+Before 2026-10-12 there was no URL to ping, so the keep-alive cron failed by
+design and was **not** treated as an incident signal. Now that
+`RENDER_DEPLOY.md` step 2 is complete, a red keep-alive run *is* actionable:
 check the service sleeps (layer 2 should have prevented it), then inspect
 Render logs for JSON lines with the failing `run_id`.
 

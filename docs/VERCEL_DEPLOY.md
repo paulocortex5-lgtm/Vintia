@@ -1,9 +1,10 @@
 # Vercel Deployment Runbook (task 6.5)
 
-> **Status: NOT DEPLOYED.** No Vercel account/credentials exist in this
-> environment — [`web/vercel.json`](../web/vercel.json) is validated
-> structurally by `tests/test_deploy_configs.py` and the app compiles via
-> the `npm run build` gate; nothing here is claimed as live.
+> **Status: DEPLOYED (2026-10-12).** Project `vantia` is live at
+> <https://vantia-rho.vercel.app> (Hobby plan, `paulocortex5-lgtm`). All six
+> `NEXT_PUBLIC_*` vars are set as production env vars; `NEXT_PUBLIC_BASE_URL`
+> is `https://vantia-rho.vercel.app`. Note: `vantia.vercel.app` is **another
+> team's site** — do not point anything at it.
 
 ## 1. What gets deployed
 

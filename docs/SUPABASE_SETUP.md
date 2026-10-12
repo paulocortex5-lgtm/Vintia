@@ -1,10 +1,12 @@
 # Supabase Setup Runbook (task 6.6)
 
-> **Status: NOT APPLIED.** This environment has no Supabase project —
-> the five migrations ship in-repo, are static-tested
-> (`tests/test_sql_schema.py`, `test_credits_sql.py`,
-> `test_paddle_sql.py`, `test_workspaces_sql.py`), and are **never
-> claimed as executed**. This runbook is the rollout procedure.
+> **Status: APPLIED (2026-10-12).** Project `zpzzrlxkmnmposdnxpeg` exists;
+> migrations 0001→0006 are applied (all 17 tables answer via PostgREST),
+> RLS verified live (anon INSERT into `profiles` → `42501` refusal),
+> `vantia_jwt_hook` executes, bucket `user-workspaces` (private) created.
+> **Remaining dashboard-only steps:** §4.1 (register the hook in Auth →
+> Hooks) and §4.2 (storage policies mirroring the RLS migration) — neither is
+> scriptable without a DB password or dashboard access.
 
 ## 1. Create the project
 

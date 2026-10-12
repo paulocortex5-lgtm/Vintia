@@ -157,9 +157,10 @@ def test_supabase_runbook_lists_every_migration_in_order():
     assert positions == sorted(positions)
 
 
-def test_supabase_runbook_is_honest_about_not_being_applied():
+def test_supabase_runbook_states_applied_status_with_evidence():
     setup = (ROOT / "docs" / "SUPABASE_SETUP.md").read_text("utf-8")
-    assert "NOT APPLIED" in setup
+    assert "Status: APPLIED" in setup  # claim flipped only with live evidence
+    assert "42501" in setup  # RLS refusal evidence recorded
     assert "relrowsecurity" in setup  # verification queries ship with it
     assert "vantia_jwt_hook" in setup  # dashboard step documented
     assert "user-workspaces" in setup  # storage bucket step documented
@@ -185,4 +186,10 @@ def test_promised_phase6_runbooks_all_exist():
     for name in ("RENDER_DEPLOY.md", "VERCEL_DEPLOY.md", "SUPABASE_SETUP.md", "KEEP_ALIVE.md"):
         assert (ROOT / "docs" / name).exists(), name
         text = (ROOT / "docs" / name).read_text("utf-8")
-        assert "NOT DEPLOYED" in text or "NOT APPLIED" in text, f"{name} must state its status"
+        assert "Status: DEPLOYED" in text or "Status: APPLIED" in text, (
+            f"{name} must state its status"
+        )
+        # live URLs recorded so the status is checkable, not just asserted
+        assert "onrender.com" in text or "vercel.app" in text or "supabase.co" in text, (
+            f"{name} must record its live URL"
+        )

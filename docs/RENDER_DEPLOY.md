@@ -1,9 +1,12 @@
 # Render Deployment Runbook (task 6.4)
 
-> **Status: NOT DEPLOYED.** This environment has no Render account or
-> credentials — the Blueprint below is validated structurally (YAML parse,
-> Dockerfile existence, health-path match) by `tests/test_deploy_configs.py`,
-> never claimed as live. Follow these steps at launch prep.
+> **Status: DEPLOYED (2026-10-12).** Service `vantia-engine`
+> (`srv-db6icn59fdbs73aqhfqg`, workspace `tea-db5433vavr4c73fcvop0`) is live
+> at <https://vantia-engine.onrender.com> — Docker build from `main`
+> (`bf9dabf`), free plan, Oregon, `GET /health` returns 200. Created via the
+> Render API (`POST /v1/services`) with every env var from `.env`;
+> `autoDeployTrigger: off` keeps deploys deliberate (step 4 of §2 below is
+> done; §2 step 5 — Paddle webhook URL — remains a dashboard action).
 
 ## 1. What gets deployed
 
