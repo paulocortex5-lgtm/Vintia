@@ -3,9 +3,9 @@
   "master_prompt_version": "4.0",
   "schema_version": 4,
   "created_at": "2026-10-03T22:15:00Z",
-  "updated_at": "2026-10-05T01:57:48Z",
-  "run_count": 8,
-  "last_completed_task": "2.7",
+  "updated_at": "2026-10-11T13:46:32Z",
+  "run_count": 20,
+  "last_completed_task": "7.3",
   "in_progress_task": null,
   "consecutive_failures": {},
   "deployment": {
@@ -558,15 +558,19 @@
     "2.4": {
       "name": "Credential equivalence lookup",
       "phase": 2,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "2.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/credentials/__init__.py",
+        "engine/credentials/equivalence.py",
+        "tests/test_credentials.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "bb8d7e3",
+      "started_at": "2026-10-06T21:08:29Z",
+      "completed_at": "2026-10-06T21:08:29Z"
     },
     "2.5": {
       "name": "Fraud filter (domain/fee/middleman)",
@@ -624,371 +628,460 @@
     "2.8": {
       "name": "pipeline.py: run_job_pipeline",
       "phase": 2,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "2.3",
         "2.5",
         "2.7"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/pipeline.py",
+        "engine/generators/profile.py",
+        "engine/generators/__init__.py",
+        "tests/test_pipeline.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "bb8d7e3",
+      "started_at": "2026-10-06T21:08:29Z",
+      "completed_at": "2026-10-06T21:08:29Z"
     },
     "2.9": {
       "name": "E2E job pipeline test",
       "phase": 2,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "2.8"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "tests/e2e/test_job_pipeline.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "bb8d7e3",
+      "started_at": "2026-10-06T21:08:29Z",
+      "completed_at": "2026-10-06T21:08:29Z"
     },
     "3.1": {
       "name": "Scholarship database (5 programs)",
       "phase": 3,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "0.6"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/scholarships/__init__.py",
+        "engine/scholarships/database.py",
+        "tests/test_scholarships.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "f299b00",
+      "started_at": "2026-10-06T21:57:34Z",
+      "completed_at": "2026-10-06T21:57:34Z"
     },
     "3.2": {
       "name": "SOP generator",
       "phase": 3,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "1.7",
         "3.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/generators/sop.py",
+        "tests/test_sop.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "3821a8e",
+      "started_at": "2026-10-06T22:51:31Z",
+      "completed_at": "2026-10-06T22:51:31Z"
     },
     "3.3": {
       "name": "Research proposal generator",
       "phase": 3,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "1.7",
         "3.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/generators/proposal.py",
+        "tests/test_proposal.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "3821a8e",
+      "started_at": "2026-10-06T22:51:31Z",
+      "completed_at": "2026-10-06T22:51:32Z"
     },
     "3.4": {
       "name": "Academic credential mapper",
       "phase": 3,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "2.4"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/scholarships/mapper.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "f299b00",
+      "started_at": "2026-10-06T21:57:34Z",
+      "completed_at": "2026-10-06T21:57:34Z"
     },
     "3.5": {
       "name": "Application window tracker",
       "phase": 3,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "3.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/scholarships/windows.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "f299b00",
+      "started_at": "2026-10-06T21:57:34Z",
+      "completed_at": "2026-10-06T21:57:34Z"
     },
     "3.6": {
       "name": "pipeline.py: run_scholarship_pipeline",
       "phase": 3,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "3.2",
         "3.3",
         "3.4",
         "3.5"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/pipeline.py",
+        "engine/generators/__init__.py",
+        "tests/test_pipeline.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "3821a8e",
+      "started_at": "2026-10-06T22:51:32Z",
+      "completed_at": "2026-10-06T22:51:32Z"
     },
     "3.7": {
       "name": "E2E scholarship pipeline test",
       "phase": 3,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "3.6"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "tests/e2e/test_scholarship_pipeline.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "3821a8e",
+      "started_at": "2026-10-06T22:51:32Z",
+      "completed_at": "2026-10-06T22:51:32Z"
     },
     "4.1": {
       "name": "Domain verification (DNS + CNAME)",
       "phase": 4,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "2.5"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/verification/domain.py",
+        "tests/test_domain_verification.py",
+        "pyproject.toml",
+        "requirements.txt"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "b6a5cad",
+      "started_at": "2026-10-07T00:18:32Z",
+      "completed_at": "2026-10-07T00:18:32Z"
     },
     "4.2": {
       "name": "Idempotency registry persistence",
       "phase": 4,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "0.5",
         "0.7"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/idempotency.py",
+        "tests/test_idempotency.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "b6a5cad",
+      "started_at": "2026-10-07T00:18:32Z",
+      "completed_at": "2026-10-07T00:18:32Z"
     },
     "4.3": {
       "name": "Cross-run SHA-256 hash chain",
       "phase": 4,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "0.5",
         "0.7"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/hash_chain.py",
+        "tests/test_hash_chain.py",
+        "engine/cli.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "b6a5cad",
+      "started_at": "2026-10-07T00:18:32Z",
+      "completed_at": "2026-10-07T00:18:32Z"
     },
     "4.4": {
       "name": "Circuit breaker + GitHub issue",
       "phase": 4,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "0.6",
         "0.7"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/incidents.py",
+        "engine/execute_step.py",
+        "tests/test_incidents.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "b6a5cad",
+      "started_at": "2026-10-07T00:18:32Z",
+      "completed_at": "2026-10-07T00:18:32Z"
     },
     "4.5": {
       "name": "Supabase schema migration + RLS",
       "phase": 4,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "0.7"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "supabase/migrations/0001_init.sql",
+        "tests/test_sql_schema.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "b6a5cad",
+      "started_at": "2026-10-07T00:18:32Z",
+      "completed_at": "2026-10-07T00:18:32Z"
     },
     "5.1": {
       "name": "CLI: apply/status/resume/verify/reset",
       "phase": 5,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "2.9",
         "3.7"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/cli.py",
+        "tests/test_cli.py",
+        "tests/cli_runners.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
+      "commit_sha": "9775b07",
       "started_at": null,
       "completed_at": null
     },
     "5.2": {
       "name": "Golden-file CLI tests",
       "phase": 5,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "5.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "tests/test_cli.py",
+        "tests/cli_runners.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
+      "commit_sha": "9775b07",
       "started_at": null,
       "completed_at": null
     },
     "5.3": {
       "name": "Web UI skeleton (Next.js)",
       "phase": 5,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "5.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "web/ (Next.js skeleton + static sitemap route)"
+      ],
       "attempts": 0,
-      "commit_sha": null,
+      "commit_sha": "1efcae1",
       "started_at": null,
       "completed_at": null
     },
     "5.4": {
       "name": "SEO: schema.org + sitemap",
       "phase": 5,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "5.3"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "web/app/layout.tsx",
+        "web/app/sitemap.xml/route.ts"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "started_at": "2026-10-11T13:46:32Z",
+      "completed_at": "2026-10-11T13:46:32Z",
+      "commit_sha": "0cfe272"
     },
     "5.5": {
       "name": "SEO landing pages (6)",
       "phase": 5,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "5.4"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "web/app/jobs/page.tsx",
+        "web/app/scholarships/page.tsx",
+        "web/app/ats/page.tsx",
+        "web/app/improve/page.tsx",
+        "web/app/cover-letter/page.tsx",
+        "web/app/credits/purchase/page.tsx"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "0cfe272",
+      "started_at": "2026-10-11T13:46:32Z",
+      "completed_at": "2026-10-11T13:46:32Z"
     },
     "5.6": {
       "name": "Waitlist + double opt-in",
       "phase": 5,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "5.3"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/waitlist.py",
+        "web/app/waitlist/page.tsx",
+        "web/app/waitlist/confirm/page.tsx"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "0cfe272",
+      "started_at": "2026-10-11T13:46:32Z",
+      "completed_at": "2026-10-11T13:46:32Z"
     },
     "6.1": {
       "name": "Structured logging (run_id, hashes)",
       "phase": 6,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "0.6"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/hash_chain.py",
+        "engine/logging_config.py",
+        "tests/test_hash_chain.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "bb0b130",
+      "started_at": "2026-10-10T13:52:34Z",
+      "completed_at": "2026-10-10T13:52:34Z"
     },
     "6.2": {
       "name": "Public status page",
       "phase": 6,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "5.3",
         "6.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "web/app/status/page.tsx",
+        "engine/api.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "bb0b130",
+      "started_at": "2026-10-10T13:52:34Z",
+      "completed_at": "2026-10-10T13:52:34Z"
     },
     "6.3": {
       "name": "Docker + reproducibility",
       "phase": 6,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "0.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "Dockerfile"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "bb0b130",
+      "started_at": "2026-10-10T13:52:34Z",
+      "completed_at": "2026-10-10T13:52:35Z"
     },
     "6.4": {
       "name": "Render deployment config (render.yaml)",
       "phase": 6,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "0.8"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "render.yaml",
+        "docs/RENDER_DEPLOY.md"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "bb0b130",
+      "started_at": "2026-10-10T13:52:35Z",
+      "completed_at": "2026-10-10T13:52:35Z"
     },
     "6.5": {
       "name": "Vercel deployment config",
       "phase": 6,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "5.3"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "web/vercel.json",
+        "docs/VERCEL_DEPLOY.md"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "bb0b130",
+      "started_at": "2026-10-10T13:52:35Z",
+      "completed_at": "2026-10-10T13:52:35Z"
     },
     "6.6": {
       "name": "Supabase setup guide + SQL migration",
       "phase": 6,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "4.5"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "docs/SUPABASE_SETUP.md"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "bb0b130",
+      "started_at": "2026-10-10T13:52:35Z",
+      "completed_at": "2026-10-10T13:52:35Z"
     },
     "6.7": {
       "name": "Keep-alive documentation",
       "phase": 6,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "0.9",
         "0.8"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "docs/KEEP_ALIVE.md",
+        ".github/workflows/keep-alive.yml"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "bb0b130",
+      "started_at": "2026-10-10T13:52:35Z",
+      "completed_at": "2026-10-10T13:52:35Z"
     },
     "7.1": {
       "name": "Acceptance demo (full E2E)",
       "phase": 7,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "5.2",
         "6.2",
@@ -996,421 +1089,517 @@
         "6.4",
         "6.5"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "tests/e2e/test_full_journey.py",
+        "engine/pipeline.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "5edb3bf",
+      "started_at": "2026-10-11T13:46:32Z",
+      "completed_at": "2026-10-11T13:46:32Z"
     },
     "7.2": {
       "name": "Multi-provider failover E2E test",
       "phase": 7,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "1.7"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "tests/e2e/test_failover_chaos.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "5edb3bf",
+      "started_at": "2026-10-11T13:46:32Z",
+      "completed_at": "2026-10-11T13:46:32Z"
     },
     "7.3": {
       "name": "Paid model switching E2E test",
       "phase": 7,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "1.7"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "tests/e2e/test_paid_model_switching.py",
+        "engine/feature_flags.py",
+        "engine/credits/invoices.py",
+        "engine/api.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "5edb3bf",
+      "started_at": "2026-10-11T13:46:32Z",
+      "completed_at": "2026-10-11T13:46:32Z"
     },
     "8.1": {
       "name": "Supabase Auth integration",
       "phase": 8,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "0.7"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/auth/jwt_auth.py",
+        "engine/errors.py",
+        "tests/test_auth.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "2b40f3c",
+      "started_at": "2026-10-10T12:55:42Z",
+      "completed_at": "2026-10-10T12:55:42Z"
     },
     "8.2": {
       "name": "User profile + workspace tables",
       "phase": 8,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "8.1",
         "4.5"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "supabase/migrations/0004_workspaces.sql",
+        "engine/workspace/service.py",
+        "tests/test_workspace_service.py",
+        "tests/test_workspaces_sql.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "2b40f3c",
+      "started_at": "2026-10-10T12:55:42Z",
+      "completed_at": "2026-10-10T12:55:42Z"
     },
     "8.3": {
       "name": "Workspace RLS policies + JWT hook",
       "phase": 8,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "8.2"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "supabase/migrations/0005_rls.sql",
+        "tests/test_workspaces_sql.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "2b40f3c",
+      "started_at": "2026-10-10T12:55:42Z",
+      "completed_at": "2026-10-10T12:55:42Z"
     },
     "8.4": {
       "name": "Private file storage (Supabase Storage)",
       "phase": 8,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "8.3"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/workspace/storage.py",
+        "engine/persistence/supabase_client.py",
+        "tests/test_workspace_storage.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "2b40f3c",
+      "started_at": "2026-10-10T12:55:42Z",
+      "completed_at": "2026-10-10T12:55:42Z"
     },
     "8.5": {
       "name": "Workspace isolation E2E test",
       "phase": 8,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "8.4"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "tests/e2e/test_workspace_isolation.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "2b40f3c",
+      "started_at": "2026-10-10T12:55:42Z",
+      "completed_at": "2026-10-10T12:55:42Z"
     },
     "9.1": {
       "name": "Resume parser (PDF/DOCX extraction)",
       "phase": 9,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "8.4"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/ats/parser.py",
+        "tests/test_ats_parser.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "ba616fa",
+      "started_at": "2026-10-09T11:37:25Z",
+      "completed_at": "2026-10-09T11:37:25Z"
     },
     "9.2": {
       "name": "ATS scoring engine (12-point)",
       "phase": 9,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "9.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/ats/scoring.py",
+        "tests/test_ats_scoring.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "ba616fa",
+      "started_at": "2026-10-09T11:37:25Z",
+      "completed_at": "2026-10-09T11:37:25Z"
     },
     "9.3": {
       "name": "Keyword matcher + gap analysis",
       "phase": 9,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "9.2"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/ats/keywords.py",
+        "tests/test_ats_keywords.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "ba616fa",
+      "started_at": "2026-10-09T11:37:25Z",
+      "completed_at": "2026-10-09T11:37:25Z"
     },
     "9.4": {
       "name": "ATS score schema + API",
       "phase": 9,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "9.3"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/api.py (POST /ats/score, GET /status)",
+        "tests/test_ats_api.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "ba616fa",
+      "started_at": "2026-10-09T11:37:25Z",
+      "completed_at": "2026-10-09T11:37:25Z"
     },
     "9.5": {
       "name": "ATS scan pipeline integration",
       "phase": 9,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "9.4",
         "8.5"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/pipeline.py (run_ats_scan)",
+        "tests/test_ats_scan.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "ba616fa",
+      "started_at": "2026-10-09T11:37:25Z",
+      "completed_at": "2026-10-09T11:37:25Z"
     },
     "9.6": {
       "name": "ATS scan E2E test",
       "phase": 9,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "9.5"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "tests/e2e/test_ats_journey.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "ba616fa",
+      "started_at": "2026-10-09T11:37:25Z",
+      "completed_at": "2026-10-09T11:37:25Z"
     },
     "10.1": {
       "name": "CV improvement prompt + schema",
       "phase": 10,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "1.7",
         "9.4"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/prompts/v1_cv_improve.md",
+        "engine/schemas/cv_improvement.schema.json"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "1003b3e",
+      "started_at": "2026-10-09T22:13:46Z",
+      "completed_at": "2026-10-09T22:13:46Z"
     },
     "10.2": {
       "name": "CV improver engine",
       "phase": 10,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "10.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/improve/cv.py",
+        "engine/pipeline.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "1003b3e",
+      "started_at": "2026-10-09T22:13:46Z",
+      "completed_at": "2026-10-09T22:13:46Z"
     },
     "10.3": {
       "name": "Cover letter prompt + schema",
       "phase": 10,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "1.7",
         "9.4"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/prompts/v1_cover_letter.md",
+        "engine/schemas/cover_letter.schema.json"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "1003b3e",
+      "started_at": "2026-10-09T22:13:46Z",
+      "completed_at": "2026-10-09T22:13:46Z"
     },
     "10.4": {
       "name": "Cover letter generator",
       "phase": 10,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "10.3"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/generators/cover.py",
+        "engine/pipeline.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "1003b3e",
+      "started_at": "2026-10-09T22:13:46Z",
+      "completed_at": "2026-10-09T22:13:46Z"
     },
     "10.5": {
       "name": "CV improvement E2E test",
       "phase": 10,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "10.2"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "tests/e2e/test_cv_improvement_flow.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "1003b3e",
+      "started_at": "2026-10-09T22:13:46Z",
+      "completed_at": "2026-10-09T22:13:46Z"
     },
     "10.6": {
       "name": "Cover letter E2E test",
       "phase": 10,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "10.4"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "tests/e2e/test_cover_letter_flow.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "1003b3e",
+      "started_at": "2026-10-09T22:13:46Z",
+      "completed_at": "2026-10-09T22:13:46Z"
     },
     "11.1": {
       "name": "Credit ledger + balance tables",
       "phase": 11,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "8.2"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/credits/ledger.py",
+        "engine/credits/config.py",
+        "supabase/migrations/0002_credits.sql"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "c1591d1",
+      "started_at": "2026-10-09T23:23:30Z",
+      "completed_at": "2026-10-09T23:23:30Z"
     },
     "11.2": {
       "name": "Token metering middleware",
       "phase": 11,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "11.1",
         "1.7"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/credits/metering.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "c1591d1",
+      "started_at": "2026-10-09T23:23:30Z",
+      "completed_at": "2026-10-09T23:23:30Z"
     },
     "11.3": {
       "name": "Tier definitions + enforcement",
       "phase": 11,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "11.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/credits/tiers.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "c1591d1",
+      "started_at": "2026-10-09T23:23:30Z",
+      "completed_at": "2026-10-09T23:23:30Z"
     },
     "11.4": {
       "name": "Credit deduction on task completion",
       "phase": 11,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "11.2",
         "11.3"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/pipeline.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "c1591d1",
+      "started_at": "2026-10-09T23:23:30Z",
+      "completed_at": "2026-10-09T23:23:30Z"
     },
     "11.5": {
       "name": "Credit balance API + UI data",
       "phase": 11,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "11.4"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/api.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "c1591d1",
+      "started_at": "2026-10-09T23:23:30Z",
+      "completed_at": "2026-10-09T23:23:30Z"
     },
     "11.6": {
       "name": "Credit system E2E test",
       "phase": 11,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "11.5"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "tests/e2e/test_credit_journey.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "c1591d1",
+      "started_at": "2026-10-09T23:23:30Z",
+      "completed_at": "2026-10-09T23:23:30Z"
     },
     "12.1": {
       "name": "Paddle account + product setup",
       "phase": 12,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "11.5"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "docs/PADDLE_SETUP.md",
+        ".env.example"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "e9146e9",
+      "started_at": "2026-10-10T11:47:08Z",
+      "completed_at": "2026-10-10T11:47:08Z"
     },
     "12.2": {
       "name": "Paddle Checkout endpoint",
       "phase": 12,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "12.1"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/api.py",
+        "engine/credits/paddle_client.py",
+        "tests/test_paddle_api.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "e9146e9",
+      "started_at": "2026-10-10T11:47:08Z",
+      "completed_at": "2026-10-10T11:47:08Z"
     },
     "12.3": {
       "name": "Paddle webhook handler",
       "phase": 12,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "12.2"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "engine/api.py",
+        "tests/test_paddle_api.py",
+        "tests/test_paddle_webhook.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "e9146e9",
+      "started_at": "2026-10-10T11:47:08Z",
+      "completed_at": "2026-10-10T11:47:08Z"
     },
     "12.4": {
       "name": "Credit top-up logic + idempotency",
       "phase": 12,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "12.3"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "supabase/migrations/0003_paddle.sql",
+        "engine/credits/ledger.py",
+        "tests/test_paddle_sql.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "e9146e9",
+      "started_at": "2026-10-10T11:47:08Z",
+      "completed_at": "2026-10-10T11:47:08Z"
     },
     "12.5": {
       "name": "Credit purchase UI",
       "phase": 12,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "12.4",
         "5.3"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "web/app/credits/purchase/page.tsx",
+        "engine/api.py",
+        "web/app/sitemap.xml/route.ts"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "e9146e9",
+      "started_at": "2026-10-10T11:47:08Z",
+      "completed_at": "2026-10-10T11:47:08Z"
     },
     "12.6": {
       "name": "Paddle webhook E2E test",
       "phase": 12,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "12.5"
       ],
-      "artifacts": [],
+      "artifacts": [
+        "tests/e2e/test_paddle_purchase_flow.py"
+      ],
       "attempts": 0,
-      "commit_sha": null,
-      "started_at": null,
-      "completed_at": null
+      "commit_sha": "e9146e9",
+      "started_at": "2026-10-10T11:47:08Z",
+      "completed_at": "2026-10-10T11:47:08Z"
     },
     "13.1": {
       "name": "Workspace dashboard UI",
@@ -1509,7 +1698,18 @@
       "5": 0.0,
       "6": 0.0,
       "7": 0.0,
-      "8": 0.0
+      "8": 0.0,
+      "9": 0.0,
+      "10": 0.0,
+      "11": 0.0,
+      "13": 0.0,
+      "14": 0.0,
+      "15": 0.0,
+      "16": 0.0,
+      "17": 0.0,
+      "18": 0.0,
+      "19": 0.0,
+      "20": 0.0
     },
     "by_task": {}
   },
@@ -1617,6 +1817,219 @@
         "out": 0
       },
       "notes": "Run 8: tasks 2.5/2.6/2.7 complete - security guardrails (fraud filter, prompt-injection guard, PII redactor) and the ATS resume generator (deterministic-first, optional LLM polish with PII redaction of untrusted postings, injection + fraud guards, graceful fallback, R24 envelope). 262 tests passing (was 235); ruff check / ruff format / mypy clean on 68 source files. PLATFORM_STATE.md updated (22/88 tasks complete). No LLM API keys in this environment, so no live provider calls were made. Push still 403."
+    },
+    {
+      "run": 9,
+      "started_at": "2026-10-06T21:07:30Z",
+      "tasks": [
+        "2.4",
+        "2.8",
+        "2.9"
+      ],
+      "finished_at": "2026-10-06T21:08:29Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Run 9: tasks 2.4/2.8/2.9 complete - credential equivalence (28-row sourced registry, honest EQF gaps, GPA->ECTS bands, owner-configured remote lookup), run_job_pipeline wired end to end (load_listing -> fraud screen -> register badge -> load_profile -> generate_resume), offline E2E on MockTransport with touched-host pin. Phase 2 closed 9/9. 290 tests passing (was 262), 93% engine coverage, ruff + mypy clean. No LLM spend (no keys). Push still 403."
+    },
+    {
+      "run": 10,
+      "started_at": "2026-10-06T21:57:34Z",
+      "tasks": [
+        "3.1",
+        "3.4",
+        "3.5"
+      ],
+      "finished_at": "2026-10-06T21:57:34Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Run 10: Phase 3 data layer - scholarship database (5 sourced programs with verified official URLs + dated provenance), credential mapper (three-valued meets/falls-short/unverified verdicts against min_eqf_level), window tracker (month/day precision, year-wrapping cycles, closing-day inclusive, unknown when no window is embedded). 305 tests passing (was 290), 93% engine coverage, ruff + mypy clean. No LLM spend. Push still 403."
+    },
+    {
+      "run": 11,
+      "started_at": "2026-10-06T22:51:31Z",
+      "tasks": [
+        "3.2",
+        "3.3",
+        "3.6",
+        "3.7"
+      ],
+      "finished_at": "2026-10-06T22:51:32Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Run 11: Phase 3 closes 7/7 - SOP generator and research proposal generator (deterministic-first, schema-valid on every path, honest placeholders, refuses fake keywords, LLM polish accepts only schema-valid JSON and keeps identity fields ours), run_scholarship_pipeline wired (db -> profile -> credential map -> window -> both artifacts), offline E2E with network calls pinned dead. 326 tests passing (was 305), 93% engine coverage, ruff + mypy clean (84 files). No LLM spend. Push still 403."
+    },
+    {
+      "run": 12,
+      "started_at": "2026-10-07T00:18:32Z",
+      "tasks": [
+        "4.1",
+        "4.2",
+        "4.3",
+        "4.4",
+        "4.5"
+      ],
+      "finished_at": "2026-10-07T00:18:32Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Run 12: Phase 4 closes 5/5 - DNS domain verification with provider expectation table and injectable resolver; tamper-evident idempotency entries (entry_hash + verify); cross-run HashChain.audit()/record_run(); incident reporter that falls back to offline drafts when gh/403 refuses; Supabase/Postgres mirror schema (CHECK-constrained statuses, JSONB, task_progress view) with static DDL tests; vantia status surfaces all of it. 37/88 total. No LLM spend."
+    },
+    {
+      "run": 13,
+      "started_at": "2026-10-09T11:37:25Z",
+      "tasks": [
+        "9.1",
+        "9.2",
+        "9.3",
+        "9.4",
+        "9.5",
+        "9.6"
+      ],
+      "finished_at": "2026-10-09T11:37:25Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Phase 9 closed 6/6 - ATS parser/scoring/keywords + /ats/score API + run_ats_scan + offline E2E; 436 tests, 93% coverage, ruff+mypy clean"
+    },
+    {
+      "run": 14,
+      "started_at": "2026-10-09T22:13:46Z",
+      "tasks": [
+        "10.1",
+        "10.2",
+        "10.3",
+        "10.4",
+        "10.5",
+        "10.6"
+      ],
+      "finished_at": "2026-10-09T22:13:46Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Phase 10 closed 6/6 - CV improvement + cover letter deterministic-first; 462 tests, 93% cov"
+    },
+    {
+      "run": 15,
+      "started_at": "2026-10-09T23:23:30Z",
+      "tasks": [
+        "11.1",
+        "11.2",
+        "11.3",
+        "11.4",
+        "11.5",
+        "11.6"
+      ],
+      "finished_at": "2026-10-09T23:23:30Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Phase 11 closed 6/6 - credit ledger + metering + tiers + deduction + /credits API + offline E2E; 516 tests, 93% cov"
+    },
+    {
+      "run": 16,
+      "started_at": "2026-10-10T11:47:08Z",
+      "tasks": [
+        "12.1",
+        "12.2",
+        "12.3",
+        "12.4",
+        "12.5",
+        "12.6"
+      ],
+      "finished_at": "2026-10-10T11:47:08Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Phase 12 closed 6/6 - checkout+webhook routes, packs UI data, purchase page (web build verified), 0003_paddle.sql, CORS; 540 tests, 94% cov"
+    },
+    {
+      "run": 17,
+      "started_at": "2026-10-10T12:55:42Z",
+      "tasks": [
+        "8.1",
+        "8.2",
+        "8.3",
+        "8.4",
+        "8.5"
+      ],
+      "finished_at": "2026-10-10T12:55:42Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Phase 8 closed 5/5 - auth JWT offline verify, 0004/0005 migrations + RLS + jwt hook, storage layer, isolation E2E; 583 tests, 94% cov"
+    },
+    {
+      "run": 18,
+      "started_at": "2026-10-10T13:52:34Z",
+      "tasks": [
+        "6.1",
+        "6.2",
+        "6.3",
+        "6.4",
+        "6.5",
+        "6.6",
+        "6.7"
+      ],
+      "finished_at": "2026-10-10T13:52:35Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Phase 8->Phase 6 closed 7/7 - hash logging, status page, digest-pinned Docker, render/vercel configs, 4 runbooks; 597 tests, 94% cov, web build green"
+    },
+    {
+      "run": 19,
+      "started_at": "2026-10-11T13:46:32Z",
+      "tasks": [
+        "5.4",
+        "5.5",
+        "5.6"
+      ],
+      "finished_at": "2026-10-11T13:46:32Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Phase 5 closeout: SEO metadata + schema.org/JSON-LD, six landing pages, waitlist double opt-in. Session-12 audit note: the uncommitted board edit claimed 85/88 after this run - the correct count is 79/88 (run 18 was 76/88 plus three Phase-5 tasks). Corrected during run-20 reconciliation."
+    },
+    {
+      "run": 20,
+      "started_at": "2026-10-11T13:46:32Z",
+      "tasks": [
+        "7.1",
+        "7.2",
+        "7.3"
+      ],
+      "finished_at": "2026-10-11T13:46:32Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Phase 7 closed 3/3: full visitor journey E2E (hermetic credits fixture, webhook top-up + R50 redelivery no-op, workspace-qualified artifact ids), failover/chaos E2E (ConnectError->429->200 chain, all-down honest exhaustion, circuit breaker trip/half-open/recover, Supabase-outage ledger durability, mid-run crash + deterministic replay + tamper-evident registry), paid-model switching E2E (R27 free-before-paid, allow_paid toggle, feature flags state-driven + fail-closed, tier switch allowance-once-per-month, deterministic offline credit statements + /credits/invoices gate)."
     }
   ],
   "notes": "Seed v4.0. 98 tasks across 14 phases. Free-tier only. Session 1 closeout: Phase 0 verified and committed. 96/96 unit tests pass, 97% engine coverage. 0.2 vantia-state commit is aa0f228; other Phase 0 tasks commit to main 4c84504."

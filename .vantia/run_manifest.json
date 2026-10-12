@@ -3,7 +3,7 @@
   "branch": "vantia-state",
   "purpose": "Authoritative Vantia build state, artifacts and audit trail. This branch is an orphan: it shares no history with `main` and must never be merged into it.",
   "created_at": "2026-10-03T23:58:00Z",
-  "updated_at": "2026-10-05T01:00:23Z",
+  "updated_at": "2026-10-09T11:37:25Z",
   "runs": [
     {
       "run_id": 1,
@@ -129,12 +129,14 @@
     },
     {
       "run_id": 7,
-      "master_prompt_version": "4.0",
+      "master_prompt_version": "6.0",
       "session": 7,
       "started_at": "2026-10-05T01:00:23Z",
       "completed_at": "2026-10-05T01:00:23Z",
       "phase": 2,
-      "tasks_completed": [],
+      "tasks_completed": [
+        "2.3"
+      ],
       "tests": {
         "files": 23,
         "passed": 235,
@@ -142,6 +144,253 @@
       },
       "engine_coverage_pct": 92.0,
       "cost_usd": 0.0
+    },
+    {
+      "run_id": 8,
+      "master_prompt_version": "6.0",
+      "session": 8,
+      "started_at": "2026-10-05T01:57:48Z",
+      "completed_at": "2026-10-05T01:57:48Z",
+      "phase": 2,
+      "tasks_completed": [
+        "2.5",
+        "2.6",
+        "2.7"
+      ],
+      "tests": {
+        "files": 25,
+        "passed": 262,
+        "failed": 0
+      },
+      "engine_coverage_pct": 92.0,
+      "cost_usd": 0.0
+    },
+    {
+      "run_id": 9,
+      "master_prompt_version": "6.0",
+      "session": 9,
+      "started_at": "2026-10-06T21:07:30Z",
+      "completed_at": "2026-10-06T21:08:29Z",
+      "phase": 2,
+      "tasks_completed": [
+        "2.4",
+        "2.8",
+        "2.9"
+      ],
+      "tests": {
+        "files": 28,
+        "passed": 290,
+        "failed": 0
+      },
+      "engine_coverage_pct": 93.0,
+      "cost_usd": 0.0
+    },
+    {
+      "run_id": 10,
+      "master_prompt_version": "6.0",
+      "session": 9,
+      "started_at": "2026-10-06T21:57:34Z",
+      "completed_at": "2026-10-06T21:57:34Z",
+      "phase": 3,
+      "tasks_completed": [
+        "3.1",
+        "3.4",
+        "3.5"
+      ],
+      "tests": {
+        "files": 29,
+        "passed": 305,
+        "failed": 0
+      },
+      "engine_coverage_pct": 93.0,
+      "cost_usd": 0.0
+    },
+    {
+      "run_id": 11,
+      "master_prompt_version": "6.0",
+      "session": 9,
+      "started_at": "2026-10-06T22:51:31Z",
+      "completed_at": "2026-10-06T22:51:32Z",
+      "phase": 3,
+      "tasks_completed": [
+        "3.2",
+        "3.3",
+        "3.6",
+        "3.7"
+      ],
+      "tests": {
+        "files": 32,
+        "passed": 326,
+        "failed": 0
+      },
+      "engine_coverage_pct": 93.0,
+      "cost_usd": 0.0
+    },
+    {
+      "run_id": 12,
+      "master_prompt_version": "6.0",
+      "session": 10,
+      "started_at": "2026-10-07T00:18:32Z",
+      "completed_at": "2026-10-07T00:18:32Z",
+      "phase": 4,
+      "tasks_completed": [
+        "4.1",
+        "4.2",
+        "4.3",
+        "4.4",
+        "4.5"
+      ],
+      "tests": {
+        "files": 35,
+        "passed": 358,
+        "failed": 0
+      },
+      "engine_coverage_pct": 93.0,
+      "cost_usd": 0.0,
+      "note": "backfilled in session 11 audit - was recorded in state/docs but never appended here"
+    },
+    {
+      "run_id": 13,
+      "master_prompt_version": "6.0",
+      "session": 11,
+      "started_at": "2026-10-09T11:37:25Z",
+      "completed_at": "2026-10-09T11:37:25Z",
+      "phase": 9,
+      "tasks_completed": [
+        "9.1",
+        "9.2",
+        "9.3",
+        "9.4",
+        "9.5",
+        "9.6"
+      ],
+      "tests": {
+        "files": 42,
+        "passed": 436,
+        "failed": 0
+      },
+      "engine_coverage_pct": 93.0,
+      "cost_usd": 0.0
+    },
+    {
+      "run_id": 14,
+      "master_prompt_version": "4.0",
+      "session": 12,
+      "started_at": "2026-10-09T22:13:46Z",
+      "completed_at": "2026-10-09T22:13:46Z",
+      "phase": 10,
+      "tasks_completed": [
+        "10.1",
+        "10.2",
+        "10.3",
+        "10.4",
+        "10.5",
+        "10.6"
+      ],
+      "tests": {
+        "files": 47,
+        "passed": 462,
+        "failed": 0
+      },
+      "engine_coverage_pct": 93.0,
+      "cost_usd": 0.0,
+      "note": "run-14 code written + verified in session 12 resumption; code commit 1003b3e"
+    },
+    {
+      "run_id": 15,
+      "master_prompt_version": "4.0",
+      "session": 12,
+      "started_at": "2026-10-09T23:23:30Z",
+      "completed_at": "2026-10-09T23:23:30Z",
+      "phase": 11,
+      "tasks_completed": [
+        "11.1",
+        "11.2",
+        "11.3",
+        "11.4",
+        "11.5",
+        "11.6"
+      ],
+      "tests": {
+        "files": 52,
+        "passed": 516,
+        "failed": 0
+      },
+      "engine_coverage_pct": 93.0,
+      "cost_usd": 0.0,
+      "note": "Phase 11 built in session 12; code commit c1591d1; paddle_webhook test updated from ledger_pending stub to wired behavior"
+    },
+    {
+      "run_id": 16,
+      "master_prompt_version": "4.0",
+      "session": 12,
+      "started_at": "2026-10-10T11:47:08Z",
+      "completed_at": "2026-10-10T11:47:08Z",
+      "phase": 12,
+      "tasks_completed": [
+        "12.1",
+        "12.2",
+        "12.3",
+        "12.4",
+        "12.5",
+        "12.6"
+      ],
+      "tests": {
+        "files": 55,
+        "passed": 540,
+        "failed": 0
+      },
+      "engine_coverage_pct": 94.0,
+      "cost_usd": 0.0,
+      "note": "Phase 12 built in session 12; code commit e9146e9; web build gate verified (next build EXIT=0); sitemap dynamic-export defect found + fixed"
+    },
+    {
+      "run_id": 17,
+      "master_prompt_version": "4.0",
+      "session": 12,
+      "started_at": "2026-10-10T12:55:42Z",
+      "completed_at": "2026-10-10T12:55:42Z",
+      "phase": 8,
+      "tasks_completed": [
+        "8.1",
+        "8.2",
+        "8.3",
+        "8.4",
+        "8.5"
+      ],
+      "tests": {
+        "files": 60,
+        "passed": 583,
+        "failed": 0
+      },
+      "engine_coverage_pct": 94.0,
+      "cost_usd": 0.0,
+      "note": "Phase 8 built in session 12; code commit 2b40f3c; migrations written + static-tested, NOT applied (no live Postgres)"
+    },
+    {
+      "run_id": 18,
+      "master_prompt_version": "4.0",
+      "session": 12,
+      "started_at": "2026-10-10T13:52:34Z",
+      "completed_at": "2026-10-10T13:52:35Z",
+      "phase": 6,
+      "tasks_completed": [
+        "6.1",
+        "6.2",
+        "6.3",
+        "6.4",
+        "6.5",
+        "6.6",
+        "6.7"
+      ],
+      "tests": {
+        "files": 61,
+        "passed": 597,
+        "failed": 0
+      },
+      "engine_coverage_pct": 94.0,
+      "cost_usd": 0.0,
+      "note": "Phase 6 built in session 12; code commit bb0b130; configs/runbooks validated statically, NOT deployed (no credentials)"
     }
   ],
   "files": {
