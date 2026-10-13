@@ -1807,7 +1807,7 @@
     "15.8": {
       "name": "application tracker",
       "phase": 15,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [],
       "artifacts": [],
       "attempts": 0,
@@ -1818,7 +1818,7 @@
     "15.9": {
       "name": "job alert subscriptions",
       "phase": 15,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [],
       "artifacts": [],
       "attempts": 0,
