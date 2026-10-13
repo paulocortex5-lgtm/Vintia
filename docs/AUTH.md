@@ -53,20 +53,29 @@ each displayed honestly. See `docs/ADMIN.md` for the second factor.
 
 ## 3. One-time setup (dashboard steps — cannot be scripted)
 
-> **Live status, verified 2026-10-13 with `curl`:**
-> - Google provider — **NOT enabled**. The live project answers
->   `GET /auth/v1/authorize?provider=google` with HTTP 400
->   `{"error_code":"validation_failed","msg":"Unsupported provider: provider is not enabled"}`
->   — this is why "Continue with Google" dead-ends on a JSON error page
->   (and the browser's favicon request to `*.supabase.co` 404s, which is
->   the harmless console error seen next to it). No Supabase management
->   PAT exists in this environment, so it must be enabled in the
->   dashboard (step 2 below) — nothing in the repo can do it.
+> **Live status, verified 2026-10-13 (after Management-API fix):**
+> - Google provider — **ENABLED** (via `PATCH /v1/projects/{ref}/config/auth`).
+>   The project config had a **malformed client id** (a JSON fragment pasted
+>   into the field) and `site_url` pointed at `http://localhost:3000`; both
+>   are fixed — client id cleaned, `site_url` = `https://vantia-rho.vercel.app`,
+>   `external_google_enabled: true`. The authorize endpoint now answers
+>   **302 → `accounts.google.com`** with
+>   `redirect_uri=https://{ref}.supabase.co/auth/v1/callback`
+>   (`response_type=code`), and the site preflight
+>   (`curl -sI …/api/auth/google`) forwards it.
 > - Email/password — **enabled and working** (the password grant answers
 >   `invalid_credentials` for bad creds, i.e. the provider is live).
 > - Migration 0007 — **applied** (anon is refused on `profiles`:
 >   `permission denied for table profiles`).
 > - Engine CORS — **allows** `https://vantia-rho.vercel.app`.
+> - **Google-side check that remains** (visible only on the first real
+>   login): the OAuth client `591789822697-…apps.googleusercontent.com`
+>   (Google Cloud project `gen-lang-client-0144362647`) must be a *Web
+>   application* client whose **Authorised redirect URIs** contain
+>   `https://zpzzrlxkmnmposdnxpeg.supabase.co/auth/v1/callback`, and the
+>   stored client **secret** must belong to it. A `redirect_uri_mismatch`
+>   or a failure right after consent means one of the two needs
+>   re-copying from Google Cloud Console → Credentials.
 
 1. **Google Cloud Console** → APIs & Services → Credentials → OAuth
    client ID (Web application):
