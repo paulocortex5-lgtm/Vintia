@@ -5,7 +5,7 @@
   "created_at": "2026-10-03T22:15:00Z",
   "updated_at": "2026-10-13T12:00:00+00:00",
   "run_count": 21,
-  "last_completed_task": "15.3",
+  "last_completed_task": "15.1",
   "in_progress_task": null,
   "consecutive_failures": {},
   "deployment": {
@@ -1690,13 +1690,19 @@
     "15.1": {
       "name": "job recommendations from CV",
       "phase": 15,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [],
-      "artifacts": [],
-      "attempts": 0,
-      "commit_sha": "",
-      "started_at": null,
-      "completed_at": null
+      "artifacts": [
+        "engine/ats/recommender.py",
+        "engine/api.py",
+        "supabase/migrations/0009_job_recommendations.sql",
+        "tests/test_recommender.py",
+        "web/app/jobs/recommended/"
+      ],
+      "attempts": 1,
+      "commit_sha": "d5a3b8a",
+      "started_at": "2026-10-13T12:00:00Z",
+      "completed_at": "2026-10-13T12:30:00Z"
     },
     "15.2": {
       "name": "direct application link verification",
