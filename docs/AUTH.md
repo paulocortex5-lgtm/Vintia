@@ -9,8 +9,12 @@ publishable by design).
 ## 1. How the flow works
 
 1. **Start** — `signInWithGoogle()` (`web/lib/engine.ts`) redirects the
-   browser to `{SUPABASE_URL}/auth/v1/authorize?provider=google` with
-   `redirect_to={origin}/auth/callback`.
+   browser to the server preflight route `/api/auth/google`, which asks
+   GoTrue for the authorize redirect (server-side, `redirect: "manual"`):
+   a 302 is forwarded straight to the Google consent page; any refusal
+   (provider disabled, redirect URL not allowlisted, …) lands on
+   `/auth/callback` with the *verbatim* Supabase error — never a raw
+   JSON page on `*.supabase.co`.
 2. **Callback** — `web/app/auth/callback/` (noindexed utility route)
    handles both Auth flow shapes, so the dashboard's flow-type setting
    doesn't matter:
@@ -89,9 +93,15 @@ each displayed honestly. See `docs/ADMIN.md` for the second factor.
    `web/.env.local` (Next reads env from `web/`, not the repo root — a
    root `.env` alone leaves the buttons disabled).
 
-Verifying the provider without clicking through (run from the repo root):
+Verifying the provider without clicking through:
 
 ```sh
+# easiest — the site's own preflight route (run from anywhere):
+curl -sI https://vantia-rho.vercel.app/api/auth/google | grep -i '^location'
+# 302 → accounts.google.com   = flow starts (Google consent next)
+# 302 → /auth/callback?error= = still refused; the query carries the verbatim reason
+
+# or straight against Supabase (run from the repo root):
 SUPA=$(grep '^NEXT_PUBLIC_SUPABASE_URL=' .env | cut -d= -f2)
 curl -s -o /dev/null -w '%{http_code}\n' \
   "$SUPA/auth/v1/authorize?provider=google&redirect_to=https://vantia-rho.vercel.app/auth/callback"

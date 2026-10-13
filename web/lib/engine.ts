@@ -66,19 +66,16 @@ export function signOut() {
 
 /**
  * Start the Supabase OAuth flow (Google) — a full-page redirect through
- * `/auth/v1/authorize`; the session lands back on `/auth/callback`.
- * Returns false when the Supabase pair isn't configured (the caller
- * shows the honest reason — nothing here fakes a redirect).
+ * the server preflight route `/api/auth/google`, which either forwards
+ * the browser to the Google consent URL or lands it on `/auth/callback`
+ * with the verbatim refusal reason (never a raw JSON error page on
+ * `*.supabase.co`). Returns false when the client env pair isn't
+ * configured (the caller shows the honest reason — nothing here fakes a
+ * redirect).
  */
-export function signInWithGoogle(redirectPath = "/auth/callback"): boolean {
+export function signInWithGoogle(): boolean {
   if (!SUPABASE_URL) return false;
-  const redirect =
-    typeof window === "undefined"
-      ? redirectPath
-      : `${window.location.origin}${redirectPath}`;
-  window.location.assign(
-    `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirect)}`
-  );
+  window.location.assign("/api/auth/google");
   return true;
 }
 

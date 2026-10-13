@@ -16,6 +16,7 @@ WEB = ROOT / "web"
 MIGRATION = ROOT / "supabase" / "migrations" / "0007_admin_role.sql"
 
 ENGINE_LIB = (WEB / "lib" / "engine.ts").read_text("utf-8")
+OAUTH_ROUTE = (WEB / "app" / "api" / "auth" / "google" / "route.ts").read_text("utf-8")
 DASHBOARD = (WEB / "app" / "dashboard" / "Dashboard.tsx").read_text("utf-8")
 CALLBACK_PAGE = (WEB / "app" / "auth" / "callback" / "page.tsx").read_text("utf-8")
 CALLBACK = (WEB / "app" / "auth" / "callback" / "AuthCallback.tsx").read_text("utf-8")
@@ -26,9 +27,25 @@ HOME = (WEB / "app" / "page.tsx").read_text("utf-8")
 
 
 def test_engine_lib_starts_the_google_oauth_flow():
-    assert "/auth/v1/authorize?provider=google" in ENGINE_LIB
+    # the browser starts the flow at the server preflight route, never at
+    # Supabase directly (the route forwards the consent redirect or refuses
+    # honestly — a disabled provider must not show a raw JSON page)
+    assert '"/api/auth/google"' in ENGINE_LIB
+    assert "/auth/v1/authorize" not in ENGINE_LIB  # the Supabase URL stays server-side
     # the round trip lands on the callback route, never a third party
-    assert '"/auth/callback"' in ENGINE_LIB
+    assert '"/auth/callback"' in OAUTH_ROUTE
+
+
+def test_oauth_route_preflights_and_forwards_or_refuses_verbatim():
+    assert "/auth/v1/authorize?provider=google" in OAUTH_ROUTE
+    assert "redirect_to=" in OAUTH_ROUTE
+    # redirect: "manual" so the Location is readable instead of followed
+    assert '"manual"' in OAUTH_ROUTE
+    # success: the browser is forwarded to the Google consent redirect…
+    assert "NextResponse.redirect(location" in OAUTH_ROUTE
+    # …and every refusal lands on /auth/callback with the verbatim reason
+    assert '"/auth/callback"' in OAUTH_ROUTE
+    assert "error_description" in OAUTH_ROUTE
 
 
 def test_callback_handles_both_flow_shapes():

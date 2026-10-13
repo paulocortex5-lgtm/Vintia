@@ -87,12 +87,15 @@ each run.
 - Gates green: pytest web suites, `next build` EXIT=0.
 
 ## Known Issues
-- **Google provider not enabled on the live Supabase project** (verified
+- **Google provider not enabled on the live Supabase project** (re-verified
   2026-10-13: `/auth/v1/authorize?provider=google` → 400 `Unsupported
-  provider`) — "Continue with Google" dead-ends on that JSON page and the
-  favicon 404 comes from `*.supabase.co`, not the app. Dashboard action
-  required (docs/AUTH.md §3, step 2); no management PAT exists here to
-  script it. Email/password, migration 0007 and engine CORS verified OK.
+  provider`) — Google sign-in cannot start until it is flipped in the
+  Supabase dashboard (Authentication → Providers → Google; allowlist
+  `…/auth/callback` under URL Configuration; docs/AUTH.md §3). No
+  management PAT exists here to script it. The new `/api/auth/google`
+  preflight now surfaces this refusal verbatim in-product instead of the
+  raw JSON page (which also caused the favicon-404 console noise).
+  Email/password, migration 0007 and engine CORS verified OK.
 - Local dev: `web/.env.local` (git-ignored) carries the publishable
   NEXT_PUBLIC trio — Next reads env from `web/`, not the repo root;
   port 3000 on the dev machine is squatted by an unrelated server, so

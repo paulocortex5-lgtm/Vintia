@@ -5,6 +5,29 @@ All notable changes to Vantia are recorded here. Format loosely follows
 entry in the form `vantia(<task_id>): <name> (run N)`.
 
 ## [Unreleased]
+### Google sign-in preflight — honest in-product failures (`/api/auth/google`)
+- **Server preflight route** new `web/app/api/auth/google/route.ts`:
+  the browser now starts Google sign-in at our own route, which asks
+  GoTrue for the authorize redirect server-side (`redirect: "manual"`).
+  A 302 is forwarded straight to the Google consent page; any refusal —
+  provider disabled, redirect URL not allowlisted, missing env pair,
+  Supabase unreachable — lands on `/auth/callback` with the *verbatim*
+  reason plus the exact fix. A disabled provider can no longer dump a
+  raw JSON 400 on `*.supabase.co` (favicon 404 included).
+- `signInWithGoogle()` (`web/lib/engine.ts`) redirects to the preflight
+  route; the Supabase authorize URL is now built server-side only.
+- **Docs** `docs/AUTH.md` §1/§3 describe the preflight; the easiest
+  verification is now `curl -sI …/api/auth/google` (302 to Google =
+  flow starts; 302 to `/auth/callback?error=` = verbatim refusal).
+- Gates: `tests/test_google_auth.py` updated (route preflight +
+  refusal-pinning assertions); full suite + `next build` green.
+- **Still blocked on the Supabase dashboard** (unchanged, config-only):
+  the Google provider remains **disabled** on the live project
+  (`authorize` → 400 `Unsupported provider: provider is not enabled`,
+  re-verified 2026-10-13). Enable it under Authentication → Providers →
+  Google and allow `…/auth/callback` under URL Configuration
+  (`docs/AUTH.md` §3) — nothing in the repo can flip that toggle.
+
 ### Tools behind sign-in + two-track application pipeline (web)
 - **Session gate** new `web/components/RequireSession.tsx` — the ATS
   scanner, CV improver, cover letter, credits dashboard and packs pages
