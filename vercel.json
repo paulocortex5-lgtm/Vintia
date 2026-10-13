@@ -1,20 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "services": {
-    "app": {
-      "root": ".",
-      "framework": "fastapi",
-      "entrypoint": "engine.api:app",
-      "installCommand": "pip install -r requirements.txt",
-      "routes": [
-        {
-          "source": "/api/(.*)",
-          "transforms": [
-            { "type": "request.path", "op": "set", "args": "/$1" }
-          ]
-        }
-      ]
-    },
     "web": {
       "root": "web",
       "framework": "nextjs",
@@ -24,10 +10,6 @@
     }
   },
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": { "service": "app" }
-    },
     {
       "source": "/(.*)",
       "destination": { "service": "web" }

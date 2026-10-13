@@ -25,6 +25,11 @@ entry in the form `vantia(<task_id>): <name> (run N)`.
   (double opt-in intact), just unlinked (static-enforced).
 - **Docs** new `docs/AUTH.md`; `docs/ADMIN.md` §1 rewritten for the
   two-factor unlock.
+- **Deploy fix** root `vercel.json` drops the FastAPI `app` service —
+  its function bundle (303 MB) exceeds Vercel's 225 MB limit, which
+  fails the whole root deploy; it also never served production traffic
+  (`/api/*` answered 404; the engine runs on Render via
+  `NEXT_PUBLIC_ENGINE_URL`). The web service is the only Vercel service.
 - Gates: `tests/test_google_auth.py` (9), admin-gate test in
   `tests/test_admin_panel.py`, waitlist-retirement + CTA assertions in
   `tests/test_web_seo.py`; `next build` green.
