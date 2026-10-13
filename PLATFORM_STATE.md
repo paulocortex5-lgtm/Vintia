@@ -1,8 +1,8 @@
 # VANTIA — PLATFORM STATE
 
-**Last updated:** 2026-10-12T15:55:00.000000+00:00
+**Last updated:** 2026-10-13T12:00:00.000000+00:00
 **Master prompt:** v4.0
-**Run count:** 20
+**Run count:** 21
 **Overall readiness:** 100%
 
 ---
@@ -11,7 +11,7 @@
 
 | Metric | Value |
 |---|---|
-| Tasks complete | 88/88 |
+| Tasks complete | 90/104 (phase 15 in progress) |
 | Tasks in progress | 0 |
 | Tasks blocked | 0 |
 | Tasks pending | 0 |
@@ -45,10 +45,22 @@
 | 11 | Credit System | 6/6 | 0 | 0 | 0 | 100% |
 | 12 | Credit Purchasing | 6/6 | 0 | 0 | 0 | 100% |
 | 13 | Workspace UI + Full Journey | 6/6 | 0 | 0 | 0 | 100% |
+| 15 | Extension run 21 | 2/16 | 0 | 0 | 14 | 12% |
 
 ---
 
 ## 3. TASK-BY-TASK STATUS
+
+### Phase 15 — Extension (run 21)
+
+| ID | Name | Status | Commit | Files | Tested | Previewed | Verified |
+|---|---|---|---|---|---|---|---|
+| 15.1 | Job recommendations from CV | ⏳ Pending | | | | | |
+| 15.2 | Direct application link verification | ✅ Complete | `ec6a464` | engine/sources/ingest_store.py, engine/sources/verify_links.py, supabase/migrations/0008_ingest_jobs.sql, .github/workflows/verify-links.yml, tests/test_link_verification.py | ✅ | ❌ | ✅ |
+| 15.3 | Anti-predatory enforcement | ✅ Complete | `ec6a464` | engine/security/predatory.py, engine/security/data/scam_aggregators.txt, tests/test_predatory.py | ✅ | ❌ | ✅ |
+| 15.4–15.16 | remaining extension tasks | ⏳ Pending | | | | | |
+
+---
 
 ### Phase 0 — Scaffold
 
