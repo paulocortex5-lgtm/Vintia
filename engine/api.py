@@ -968,8 +968,23 @@ def _feature_http(exc: VantiaError) -> HTTPException:
     status = 403 if exc.code == "feature_not_available" else 402
     if exc.code == "turn_limit_exceeded":
         status = 403
-    if exc.code in ("message_required", "improvement_id_required", "user_id_required"):
+    if exc.code in (
+        "message_required",
+        "improvement_id_required",
+        "user_id_required",
+        "invalid_status",
+        "invalid_api_key",
+    ):
         status = 422
+    if exc.code in (
+        "application_not_found",
+        "alert_not_found",
+        "referral_not_found",
+        "api_key_not_found",
+    ):
+        status = 404
+    if exc.code == "rate_limited":
+        status = 429
     return HTTPException(status_code=status, detail=exc.as_dict())
 
 
@@ -1021,6 +1036,136 @@ def improve_chat(body: ChatRefineRequest) -> dict[str, Any]:
         )
     except VantiaError as exc:
         raise _feature_http(exc) from exc
+
+
+# ── Task 15.9 — job alert subscriptions ─────────────────────────────────
+
+
+class CreateAlertRequest(BaseModel):
+    """Body of ``POST /alerts`` (task 15.9 §13.2)."""
+
+    user_id: str
+    filters: dict[str, Any] = Field(default_factory=dict)
+    frequency: str = "daily"
+    email: str = ""
+
+
+@app.post("/alerts")
+def alerts_create(body: CreateAlertRequest) -> dict[str, Any]:
+    """Save a search alert (task 15.9 §13.2)."""
+    from .alerts.manager import create_alert
+
+    try:
+        row = create_alert(
+            _require_user_id(body.user_id),
+            body.filters,
+            frequency=body.frequency,
+        )
+    except VantiaError as exc:
+        raise _feature_http(exc) from exc
+    if body.email:
+        row["email"] = body.email
+    return {"alert": row, "created": True}
+
+
+@app.get("/alerts")
+def alerts_list(user_id: str = "") -> dict[str, Any]:
+    """List the user's saved alerts (task 15.9 §13.2)."""
+    from .alerts.manager import list_alerts
+
+    owner = _require_user_id(user_id)
+    alerts = list_alerts(owner)
+    return {"alerts": alerts, "total": len(alerts)}
+
+
+@app.delete("/alerts/{alert_id}")
+def alerts_delete(alert_id: str, user_id: str = "") -> dict[str, Any]:
+    """Delete a saved alert the user owns (task 15.9 §13.2)."""
+    from .alerts.manager import delete_alert
+
+    try:
+        delete_alert(_require_user_id(user_id), alert_id)
+    except VantiaError as exc:
+        raise _feature_http(exc) from exc
+    return {"deleted": True, "id": alert_id}
+
+
+# ── Task 15.8 — application tracker (kanban) ─────────────────────────────
+
+
+class TrackApplicationRequest(BaseModel):
+    """Body of ``POST /applications`` (task 15.8 §12.2)."""
+
+    user_id: str
+    job_id: str
+    job: dict[str, Any] = Field(default_factory=dict, description="Listing snapshot")
+    notes: str = ""
+    status: str = "applied"
+
+
+class UpdateApplicationRequest(BaseModel):
+    """Body of ``PATCH /applications/{id}`` (task 15.8 §12.2)."""
+
+    user_id: str
+    status: str | None = None
+    notes: str | None = None
+
+
+@app.post("/applications")
+def applications_create(body: TrackApplicationRequest) -> dict[str, Any]:
+    """Track a job (snapshots it); idempotent per (user, job)."""
+    from .applications.tracker import create_application
+
+    try:
+        row = create_application(
+            _require_user_id(body.user_id),
+            body.job_id,
+            job=body.job or {"id": body.job_id, "job_id": body.job_id},
+            notes=body.notes,
+            status=body.status,
+        )
+    except VantiaError as exc:
+        raise _feature_http(exc) from exc
+    return {"application": row, "created": True}
+
+
+@app.get("/applications")
+def applications_list(user_id: str = "", status: str = "") -> dict[str, Any]:
+    """The user's kanban: all cards + live per-column counts (task 15.8 §12.2)."""
+    from .applications.tracker import counts_for, list_applications
+
+    owner = _require_user_id(user_id)
+    apps = list_applications(owner, status=status or None)
+    return {"applications": apps, "counts": counts_for(owner), "total": len(apps)}
+
+
+@app.patch("/applications/{app_id}")
+def applications_update(app_id: str, body: UpdateApplicationRequest) -> dict[str, Any]:
+    """Move a card between columns / edit notes (task 15.8 §12.2)."""
+    from .applications.tracker import counts_for, update_application
+
+    try:
+        row = update_application(
+            _require_user_id(body.user_id),
+            app_id,
+            status=body.status,
+            notes=body.notes,
+        )
+    except VantiaError as exc:
+        raise _feature_http(exc) from exc
+    return {"application": row, "counts": counts_for(row["owner_id"])}
+
+
+@app.delete("/applications/{app_id}")
+def applications_delete(app_id: str, user_id: str = "") -> dict[str, Any]:
+    """Remove a card the user owns (task 15.8 §12.2)."""
+    from .applications.tracker import delete_application
+
+    try:
+        delete_application(_require_user_id(user_id), app_id)
+    except VantiaError as exc:
+        raise _feature_http(exc) from exc
+    return {"deleted": True, "id": app_id}
 
 
 @app.on_event("startup")

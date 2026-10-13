@@ -1,0 +1,29 @@
+name: Job Alert Digests
+
+on:
+  schedule:
+    - cron: '0 8 * * *'   # 08:00 UTC daily (task 15.9 §13.3)
+  workflow_dispatch:
+
+jobs:
+  digests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Dispatch due job-alert digests
+        run: python -m engine.alerts.send_digests
+        env:
+          VANTIA_INGEST_DIR: .vantia/ingest
+          VANTIA_ALERTS_DIR: .vantia/alerts
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM: ${{ secrets.RESEND_FROM }}
+      - name: Persist advanced digest windows
+        if: always()
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'vantia(alerts): digest windows advanced'
+          file_pattern: '.vantia/alerts/**'
