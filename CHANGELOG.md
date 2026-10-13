@@ -5,6 +5,30 @@ All notable changes to Vantia are recorded here. Format loosely follows
 entry in the form `vantia(<task_id>): <name> (run N)`.
 
 ## [Unreleased]
+### Google sign-in + role-gated `/admin`; waitlist CTA retired
+- **Web auth** `signInWithGoogle()` + `/auth/callback` (noindex; handles
+  implicit-hash and PKCE-`?code=` flows, saves the session, redirects to
+  `/dashboard`); "Continue with Google" on the dashboard with
+  email/password kept as fallback; identity still the verified JWT `sub`.
+- **Admin bootstrap** `supabase/migrations/0007_admin_role.sql` —
+  `profiles.role`; security-definer trigger promotes the **first
+  Google** sign-in to `admin` (advisory-locked, google-provider only,
+  backfilled for pre-migration logins); user-writable RLS policies
+  refuse `role <> 'user'` so nobody self-promotes; anon revoked.
+- **Admin gate** `web/app/admin/AdminGate.tsx` — `/admin` renders the
+  console only for the signed-in `role=admin` account (role read with
+  the user's own JWT under RLS); engine `VANTIA_ADMIN_TOKEN` stays the
+  second factor; every failure state shown verbatim.
+- **Waitlist CTA retired** — "Join the waitlist" removed from the
+  homepage and all six landing pages, replaced by a "Sign in" →
+  `/dashboard` CTA; `/waitlist` + confirm stay live for old links
+  (double opt-in intact), just unlinked (static-enforced).
+- **Docs** new `docs/AUTH.md`; `docs/ADMIN.md` §1 rewritten for the
+  two-factor unlock.
+- Gates: `tests/test_google_auth.py` (9), admin-gate test in
+  `tests/test_admin_panel.py`, waitlist-retirement + CTA assertions in
+  `tests/test_web_seo.py`; `next build` green.
+
 ### Admin panel — hidden `/admin` route (unbundled: no task id, deployment prep)
 - **Engine** `engine/admin.py` + six token-gated routes in `engine/api.py`:
   `GET /admin/overview`, `PUT /admin/tiers`, `POST /admin/usage-tier`,

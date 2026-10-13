@@ -47,9 +47,9 @@ export default function CoverLetterPage() {
         <div className="mt-8 flex flex-wrap gap-4">
           <Link
             className="rounded-full bg-black px-5 py-2 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-white dark:text-black dark:hover:bg-zinc-300"
-            href="/waitlist"
+            href="/dashboard"
           >
-            Join the waitlist
+            Sign in
           </Link>
           <Link
             className="rounded-full border border-black/10 px-5 py-2 text-sm font-medium text-black hover:border-black/40 dark:border-white/20 dark:text-zinc-100"
@@ -61,8 +61,8 @@ export default function CoverLetterPage() {
         <CoverLetterGenerator />
         <p className="mt-8 text-xs text-zinc-500">
           Letters are written deterministically from your facts and the posting
-          you provide — stamped &quot;manual&quot; because you pasted it. Join the
-          waitlist for posting-URL loading at launch.
+          you provide — stamped &quot;manual&quot; because you pasted it. Sign in
+          for posting-URL loading at launch.
         </p>
       </main>
     </div>

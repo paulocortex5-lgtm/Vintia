@@ -65,11 +65,27 @@ def test_each_landing_page_has_metadata_json_ld_and_real_content():
         assert "description:" in text, slug
         assert 'type="application/ld+json"' in text, slug
         assert "@type" in text, slug  # schema.org block exists
-        assert "<h1" in text and "waitlist" in text, slug  # real content + CTA
+        # real content + the sign-in CTA that retired the waitlist button
+        assert "<h1" in text and 'href="/dashboard"' in text, slug
         title = re.search(r'title: "([^"]+)"', text)
         assert title, slug
         titles.append(title.group(1))
     assert len(set(titles)) == 6, "landing page titles must be unique for SEO"
+
+
+def test_marketing_pages_retired_the_waitlist_cta():
+    """With accounts live, no marketing page may push the waitlist anymore.
+
+    The /waitlist route itself stays functional (double opt-in, old
+    links) — it is simply no longer linked from anywhere public.
+    """
+    offenders = []
+    for source in sorted((WEB / "app").rglob("*.tsx")):
+        if "app/waitlist" in source.as_posix():
+            continue  # the waitlist pages themselves
+        if 'href="/waitlist"' in source.read_text("utf-8"):
+            offenders.append(str(source.relative_to(ROOT)))
+    assert offenders == [], f"pages still linking /waitlist (retired CTA): {offenders}"
 
 
 def test_waitlist_pages_exist_for_the_opt_in_flow():

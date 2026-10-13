@@ -39,6 +39,7 @@ done
 | `0004_workspaces.sql` | profiles, workspaces, workspace_files |
 | `0005_rls.sql` | RLS on the three workspace tables + `vantia_jwt_hook` |
 | `0006_waitlist.sql` | waitlist double opt-in (pending/confirmed, sha256 token hash) |
+| `0007_admin_role.sql` | `profiles.role` + first-Google-sign-in admin bootstrap (advisory-locked trigger) |
 
 Each file is transactional (`begin; … commit;`) and idempotent
 (`if not exists`), so re-running is safe.

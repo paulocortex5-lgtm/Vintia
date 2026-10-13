@@ -75,3 +75,18 @@ def test_console_calls_admin_routes_with_bearer_auth():
     # only its env-var *name* is shown as setup help — the value is typed in.
     assert "NEXT_PUBLIC_ADMIN_TOKEN" not in text
     assert "process.env" not in text
+
+
+def test_admin_page_is_wrapped_in_the_google_role_gate():
+    """`/admin` renders only for the signed-in role=admin account (0007)."""
+    page = ADMIN_PAGE.read_text("utf-8")
+    assert "AdminGate" in page
+    gate = WEB / "app" / "admin" / "AdminGate.tsx"
+    assert gate.exists(), "web/app/admin/AdminGate.tsx is missing"
+    text = gate.read_text("utf-8")
+    assert '"use client"' in text
+    assert "fetchMyRole" in text and "signInWithGoogle" in text  # Google, role via RLS
+    assert "admin" in text  # role=admin is the key, not obscurity
+    # like the console, the gate never carries env access or a key slot
+    assert "process.env" not in text
+    assert "NEXT_PUBLIC_ADMIN_TOKEN" not in text

@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 
 import AdminConsole from "./AdminConsole";
+import AdminGate from "./AdminGate";
 
 // Hidden admin panel: reachable only by typing /admin — never linked from
 // the UI, noindexed, and absent from the sitemap (tests enforce all three).
+// On top of that, AdminGate renders the console only for the signed-in
+// account holding role=admin in Supabase (first Google sign-in, migration
+// 0007); the engine token inside the console stays the second factor.
 export const metadata: Metadata = {
   title: "Admin",
   description: "Vantia administration panel (not public).",
@@ -17,7 +21,9 @@ export default function AdminPage() {
         <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-zinc-50">
           Admin
         </h1>
-        <AdminConsole />
+        <AdminGate>
+          <AdminConsole />
+        </AdminGate>
       </main>
     </div>
   );

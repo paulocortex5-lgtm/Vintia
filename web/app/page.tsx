@@ -34,9 +34,9 @@ export default function Home() {
           </Link>
           <Link
             className="rounded-full border border-black/10 px-5 py-2 text-sm font-medium text-black hover:border-black/40 dark:border-white/20 dark:text-zinc-100"
-            href="/waitlist"
+            href="/dashboard"
           >
-            Join the waitlist
+            Sign in
           </Link>
         </div>
 

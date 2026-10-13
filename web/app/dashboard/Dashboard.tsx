@@ -1,11 +1,12 @@
 "use client";
 
 /**
- * Workspace dashboard (task 13.1) — engine status, Supabase sign-in and
- * the credit balance in one place. Identity is the Supabase Auth session
- * (email/password via REST); the verified `sub` becomes the `user_id`
- * every credit route is keyed by. Nothing here invents state: an
- * unreachable engine or a missing Supabase pair is shown, not hidden.
+ * Workspace dashboard (task 13.1) — engine status, sign-in and the credit
+ * balance in one place. Identity is the Supabase Auth session — Google
+ * OAuth (via `/auth/v1/authorize` + the /auth/callback page) with
+ * email/password as the honest fallback; the verified `sub` becomes the
+ * `user_id` every credit route is keyed by. Nothing here invents state:
+ * an unreachable engine or a missing Supabase pair is shown, not hidden.
  */
 
 import Link from "next/link";
@@ -17,6 +18,7 @@ import {
   engineError,
   loadSession,
   signIn,
+  signInWithGoogle,
   signOut,
   signUp,
   type Session,
@@ -115,6 +117,12 @@ export default function Dashboard() {
     }
   }
 
+  function google() {
+    if (!signInWithGoogle()) {
+      setAuthMessage("Sign-in is not configured (NEXT_PUBLIC_SUPABASE_URL missing).");
+    }
+  }
+
   function logout() {
     signOut();
     setSession(null);
@@ -164,33 +172,44 @@ export default function Dashboard() {
             </button>
           </div>
         ) : (
-          <form onSubmit={authenticate} className="mt-3 flex flex-col gap-3">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <label className={label}>
-                Email
-                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={input} placeholder="you@example.com" />
-              </label>
-              <label className={label}>
-                Password
-                <input type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} className={input} />
-              </label>
-            </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <button type="submit" disabled={busy} className={button}>
-                {busy ? "Working…" : mode === "signin" ? "Sign in" : "Create account"}
-              </button>
-              <button
-                type="button"
-                onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-                className="text-sm text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
-              >
-                {mode === "signin" ? "New here? Create an account" : "Have an account? Sign in"}
-              </button>
-            </div>
+          <div className="mt-3 flex flex-col gap-3">
+            <button
+              type="button"
+              onClick={google}
+              disabled={!SUPABASE_URL}
+              className={button}
+            >
+              Continue with Google
+            </button>
+            <p className="text-xs text-zinc-500">or use email —</p>
+            <form onSubmit={authenticate} className="flex flex-col gap-3">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className={label}>
+                  Email
+                  <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={input} placeholder="you@example.com" />
+                </label>
+                <label className={label}>
+                  Password
+                  <input type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} className={input} />
+                </label>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <button type="submit" disabled={busy} className={button}>
+                  {busy ? "Working…" : mode === "signin" ? "Sign in" : "Create account"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+                  className="text-sm text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                >
+                  {mode === "signin" ? "New here? Create an account" : "Have an account? Sign in"}
+                </button>
+              </div>
+            </form>
             {authMessage ? (
               <p role="status" className="text-sm text-zinc-600 dark:text-zinc-400">{authMessage}</p>
             ) : null}
-          </form>
+          </div>
         )}
       </section>
 
@@ -209,9 +228,10 @@ export default function Dashboard() {
       </section>
 
       <p className="text-xs text-zinc-500">
-        Sign-in runs through Supabase Auth — the engine only ever sees a verified
-        token, and the service-role key never leaves the server. Without a session
-        the tools still work; you just are not saving anything yet.
+        Sign-in runs through Supabase Auth — Google OAuth or email/password —
+        the engine only ever sees a verified token, and the service-role key
+        never leaves the server. Without a session the tools still work; you
+        just are not saving anything yet.
       </p>
     </div>
   );

@@ -311,10 +311,11 @@ export default function AdminConsole() {
     return (
       <section className={`${card} mt-8`}>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          This panel is not listed anywhere — direct access only. Enter the admin
-          API key (<code className="font-mono">VANTIA_ADMIN_TOKEN</code>, set in
-          the Render dashboard). While that key is unset on the engine, every
-          admin request fails closed with <code className="font-mono">503</code>.
+          Signed in as the admin account — one more factor to go. This panel
+          is not listed anywhere; the engine&apos;s admin API additionally
+          requires its own key (<code className="font-mono">VANTIA_ADMIN_TOKEN</code>,
+          set in the Render dashboard). While that key is unset on the engine,
+          every admin request fails closed with <code className="font-mono">503</code>.
         </p>
         <form onSubmit={unlock} className="mt-4 flex flex-col gap-3 sm:flex-row">
           <input

@@ -48,9 +48,9 @@ export default function ImprovePage() {
         <div className="mt-8 flex flex-wrap gap-4">
           <Link
             className="rounded-full bg-black px-5 py-2 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-white dark:text-black dark:hover:bg-zinc-300"
-            href="/waitlist"
+            href="/dashboard"
           >
-            Join the waitlist
+            Sign in
           </Link>
           <Link
             className="rounded-full border border-black/10 px-5 py-2 text-sm font-medium text-black hover:border-black/40 dark:border-white/20 dark:text-zinc-100"
@@ -63,7 +63,7 @@ export default function ImprovePage() {
         <p className="mt-8 text-xs text-zinc-500">
           Edits run deterministically through the same improver the pipeline
           uses — your identity fields are re-stamped from your text and never
-          model-owned. Join the waitlist for saved workspaces at launch.
+          model-owned. Sign in for saved workspaces at launch.
         </p>
       </main>
     </div>

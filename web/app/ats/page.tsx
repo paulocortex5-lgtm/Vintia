@@ -48,9 +48,9 @@ export default function AtsPage() {
         <div className="mt-8 flex flex-wrap gap-4">
           <Link
             className="rounded-full bg-black px-5 py-2 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-white dark:text-black dark:hover:bg-zinc-300"
-            href="/waitlist"
+            href="/dashboard"
           >
-            Join the waitlist
+            Sign in
           </Link>
           <Link
             className="rounded-full border border-black/10 px-5 py-2 text-sm font-medium text-black hover:border-black/40 dark:border-white/20 dark:text-zinc-100"
@@ -62,8 +62,8 @@ export default function AtsPage() {
         <AtsScanner />
         <p className="mt-8 text-xs text-zinc-500">
           Scoring is deterministic and runs against the engine&apos;s twelve-point
-          rubric — the same code path the full pipeline uses. Join the waitlist
-          for workspace uploads and metered runs at launch.
+          rubric — the same code path the full pipeline uses. Sign in for
+          workspace uploads and metered runs at launch.
         </p>
       </main>
     </div>

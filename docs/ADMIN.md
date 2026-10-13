@@ -11,13 +11,26 @@ engine's token-gated `/admin/*` routes (`task: admin panel`, `engine/admin.py`).
 
 ## 1. How to unlock it
 
-1. Generate the API key the panel expects (operator secret, never `NEXT_PUBLIC_*`):
+Access needs **two factors**, in this order:
+
+**Factor one — the admin Google account (role gate).** Open `/admin`
+and sign in with Google. The first Google account ever signed in was
+granted `profiles.role = 'admin'` automatically
+(`supabase/migrations/0007_admin_role.sql`, `AdminGate.tsx`); every
+other account is refused with the reason shown verbatim. See
+`docs/AUTH.md` for the flow and the bootstrap rule.
+
+**Factor two — the engine API key.** The engine's admin routes stay
+fail-closed behind their own secret (operator secret, never
+`NEXT_PUBLIC_*`):
+
+1. Generate the API key the panel expects:
    `openssl rand -hex 32`
 2. Put the same value in **two** places:
    - your local gitignored `.env` as `VANTIA_ADMIN_TOKEN=` (Render section);
    - the Render dashboard → Environment as `VANTIA_ADMIN_TOKEN`
      (`render.yaml` marks it `sync: false`, `.env.example` keeps the placeholder).
-3. Open `/admin` in the browser, paste the key when prompted.
+3. Paste the key when the console prompts (after the Google gate).
 
 The panel stores the key only in `localStorage` for the session; the
 engine compares it in constant time. While the key is unset on the
