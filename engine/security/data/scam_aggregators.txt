@@ -1,0 +1,48 @@
+# Scam / fake job aggregator domains — maintained list (task 15.3, §7.2).
+#
+# Entries are exact domains or parent suffixes (match = host equal or
+# subdomain). Seeded from published threat research; every entry below is
+# documented as a fake job / fake contract-bid aggregator in DomainTools
+# Investigations, "Fake Job Boards" (2024-11-15), except where noted.
+# Policy: add an entry only with a public source; never guess.
+#
+# ── Fake US government job / contract-bid aggregators (DomainTools 2024) ──
+govcb.com
+govcb-bids-alert.us
+govcb-bids-bulletin.us
+govcb-bids-notice.us
+govcb-contracts-alert.us
+govcb-contracts-news.us
+govcb-contracts-notice.us
+govcbinc.com
+governmentbiddersinfo.us
+governmentbiddinginfo.us
+governmentcontracts-bids.us
+governmentcontracts-opps.us
+governmentcontractsalert.us
+govnt-contracts-bulletin.us
+govnt-contracts-news.us
+govnt-contracts-notice.us
+govtcontracts-bids-news.us
+govtcontracts-bids-notice.us
+topicfocus.com
+usagovnmt-bids-alert.us
+usagovnmt-contracts-alert.us
+usabidopportunities.us
+usabizopportunities.us
+usagovernmentbids.us
+usagovernmentcontracts.us
+usaopportunities.us
+openb2bdirectory.com
+openb2bsearch.com
+openbizsearch.com
+slbidgov.com
+statelocalbids.com
+gvtender.com
+# ── Fake Taiwan government job portals (taiwanjobs.gov.tw phishing) ──
+taiwanjobs-govi.store
+job-taiwanjobs-gov.shop
+taiwanjobs-gov.shop
+taiwanjobs-govl.shop
+taiwanjobs.tv-login.shop
+taiwanjobs.login-hk.shop
