@@ -55,10 +55,22 @@
 
 | ID | Name | Status | Commit | Files | Tested | Previewed | Verified |
 |---|---|---|---|---|---|---|---|
-| 15.1 | Job recommendations from CV | ⏳ Pending | | | | | |
+| 15.1 | Job recommendations from CV | ✅ Complete | `d5a3b8a` | engine/ats/recommender.py, supabase/migrations/0009_job_recommendations.sql, tests/test_recommender.py, web/app/jobs/recommended/ | ✅ | ❌ | ✅ |
 | 15.2 | Direct application link verification | ✅ Complete | `ec6a464` | engine/sources/ingest_store.py, engine/sources/verify_links.py, supabase/migrations/0008_ingest_jobs.sql, .github/workflows/verify-links.yml, tests/test_link_verification.py | ✅ | ❌ | ✅ |
 | 15.3 | Anti-predatory enforcement | ✅ Complete | `ec6a464` | engine/security/predatory.py, engine/security/data/scam_aggregators.txt, tests/test_predatory.py | ✅ | ❌ | ✅ |
-| 15.4–15.16 | remaining extension tasks | ⏳ Pending | | | | | |
+| 15.4 | Sponsor reliability scoring | ✅ Complete | `5a8d276` | engine/sources/sponsor_reliability.py, supabase/migrations/0010_sponsor_reliability.sql, .github/workflows/sponsor-reliability.yml, tests/test_sponsor_reliability.py | ✅ | ❌ | ✅ |
+| 15.5 | CV-to-job spec mapping (Pro) | ✅ Complete | `a2fd18e` | engine/generators/cv_job_mapping.py, engine/prompts/v1_cv_job_mapping.md, engine/schemas/cv_job_mapping.schema.json, supabase/migrations/0011_pro_features.sql, tests/test_pro_features.py | ✅ | ❌ | ✅ |
+| 15.6 | CV refinement chatbot | ✅ Complete | `a2fd18e` | engine/improve/chat_refine.py, engine/prompts/v1_chat_refine.md, engine/schemas/cv_refinement.schema.json, supabase/migrations/0011_pro_features.sql, tests/test_pro_features.py | ✅ | ❌ | ✅ |
+| 15.7 | Mock interview generator (Pro) | ✅ Complete | `a2fd18e` | engine/generators/mock_interview.py, engine/prompts/v1_mock_interview.md, engine/schemas/mock_interview.schema.json, supabase/migrations/0011_pro_features.sql, tests/test_pro_features.py | ✅ | ❌ | ✅ |
+| 15.8 | Application tracker | ⏳ Pending | | | | | |
+| 15.9 | Job alert subscriptions | ⏳ Pending | | | | | |
+| 15.10 | Scholarship calendar export | ✅ Complete | `fc2dd7d` | engine/scholarships/calendar.py, engine/api.py, tests/test_scholarship_calendar.py | ✅ | ❌ | ✅ |
+| 15.11 | Referral program | ⏳ Pending | | | | | |
+| 15.12 | Public API for universities | ⏳ Pending | | | | | |
+| 15.13 | CA/AU/NZ sources | ⏳ Pending | | | | | |
+| 15.14 | Real /status page | ⏳ Pending | | | | | |
+| 15.15 | Eliminate all stubs | ⏳ Pending | | | | | |
+| 15.16 | Country tabs on search pages | ⏳ Pending | | | | | |
 
 ---
 
