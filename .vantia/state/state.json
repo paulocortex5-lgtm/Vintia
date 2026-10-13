@@ -5,7 +5,7 @@
   "created_at": "2026-10-03T22:15:00Z",
   "updated_at": "2026-10-13T12:00:00+00:00",
   "run_count": 21,
-  "last_completed_task": "15.1",
+  "last_completed_task": "15.4",
   "in_progress_task": null,
   "consecutive_failures": {},
   "deployment": {
@@ -1740,13 +1740,18 @@
     "15.4": {
       "name": "sponsor reliability scoring",
       "phase": 15,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [],
-      "artifacts": [],
-      "attempts": 0,
-      "commit_sha": "",
-      "started_at": null,
-      "completed_at": null
+      "artifacts": [
+        "engine/sources/sponsor_reliability.py",
+        "supabase/migrations/0010_sponsor_reliability.sql",
+        ".github/workflows/sponsor-reliability.yml",
+        "tests/test_sponsor_reliability.py"
+      ],
+      "attempts": 1,
+      "commit_sha": "5a8d276",
+      "started_at": "2026-10-13T13:00:00Z",
+      "completed_at": "2026-10-13T13:00:00Z"
     },
     "15.5": {
       "name": "CV-to-job spec mapping (Pro)",
