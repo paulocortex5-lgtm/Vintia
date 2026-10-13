@@ -891,6 +891,49 @@ def sponsors_reliability_all(country: str = "") -> dict[str, Any]:
     return {"count": len(scores), "scores": scores}
 
 
+
+
+# ── Task 15.10 — scholarship calendar export (.ics, RFC 5545) ──────────────
+
+
+@app.get("/scholarships/calendar.ics")
+def scholarships_calendar() -> Any:
+    """Every programme with a published deadline as one .ics calendar."""
+    from fastapi.responses import Response
+
+    from .scholarships.calendar import build_calendar
+
+    body, _report = build_calendar()
+    return Response(
+        content=body,
+        media_type="text/calendar; charset=utf-8",
+        headers={"Content-Disposition": 'attachment; filename="vantia-scholarships.ics"'},
+    )
+
+
+@app.get("/scholarships/{scholarship_id}/ics")
+def scholarship_ics(scholarship_id: str) -> Any:
+    """One programme as a single-event .ics; 404 for unknown ids."""
+    from fastapi.responses import Response
+
+    from .scholarships.calendar import calendar_for
+
+    built = calendar_for(scholarship_id)
+    if built is None:
+        raise HTTPException(
+            status_code=404,
+            detail=VantiaError(
+                f"unknown scholarship {scholarship_id!r}", code="scholarship_not_found"
+            ).as_dict(),
+        )
+    body, _report = built
+    return Response(
+        content=body,
+        media_type="text/calendar; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{scholarship_id}.ics"'},
+    )
+
+
 @app.on_event("startup")
 def _startup() -> None:
     if os.environ.get("VANTIA_SELF_PING", "1") != "0":

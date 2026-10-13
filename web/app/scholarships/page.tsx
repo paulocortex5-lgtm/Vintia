@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+const ENGINE =
+  process.env.NEXT_PUBLIC_ENGINE_URL || "https://vantia-engine.onrender.com";
+
 export const metadata: Metadata = {
   title: "Funded Scholarships with Verified Deadlines",
   description:
@@ -61,9 +64,17 @@ export default function ScholarshipsPage() {
           >
             Browse the jobs side
           </Link>
+          <a
+            className="rounded-full border border-black/10 px-5 py-2 text-sm font-medium text-black hover:border-black/40 dark:border-white/20 dark:text-zinc-100"
+            href={`${ENGINE}/scholarships/calendar.ics`}
+            download
+          >
+            Export all deadlines to calendar (.ics)
+          </a>
         </div>
         <p className="mt-8 text-xs text-zinc-500">
-          Part of Vantia — launching soon.
+          Part of Vantia — every programme above links its official source; the
+          calendar export marks month-precision deadlines as such.
         </p>
       </main>
     </div>
