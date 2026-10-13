@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vantia.ai/schemas/cv_job_mapping.schema.json",
+  "title": "CV Job Mapping Payload",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["status"],
+  "properties": {
+    "status": {"enum": ["complete", "incomplete"]},
+    "missing": {"type": "array", "items": {"type": "string"}},
+    "mappings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["requirement", "cv_evidence", "match_level"],
+        "properties": {
+          "requirement": {"type": "string"},
+          "cv_evidence": {"type": "string"},
+          "match_level": {"enum": ["match", "partial", "gap"]},
+          "bridge_suggestion": {"type": "string"}
+        }
+      }
+    },
+    "match_count": {"type": "integer", "minimum": 0},
+    "partial_count": {"type": "integer", "minimum": 0},
+    "gap_count": {"type": "integer", "minimum": 0},
+    "priority_gaps": {"type": "array", "items": {"type": "string"}}
+  },
+  "allOf": [
+    {"if": {"properties": {"status": {"const": "complete"}}},
+     "then": {"required": ["mappings", "match_count", "partial_count", "gap_count"]}},
+    {"if": {"properties": {"status": {"const": "incomplete"}}},
+     "then": {"required": ["missing"]}}
+  ]
+}

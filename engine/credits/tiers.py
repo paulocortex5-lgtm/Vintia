@@ -27,7 +27,9 @@ from .config import load_credits_config
 from .ledger import CreditLedger, default_ledger
 
 __all__ = [
+    "FEATURES",
     "TIERS",
+    "check_feature_access",
     "enforce",
     "ensure_allowance",
     "projected_balance",
@@ -35,6 +37,32 @@ __all__ = [
     "tier_of",
     "tier_tokens",
 ]
+
+#: Tier gates for named features (task 15.5 §9.6). A feature listed here
+#: is refused unless the user's recorded tier is in its allowed tuple.
+#: Free-tier features are simply absent from this map.
+FEATURES: dict[str, tuple[str, ...]] = {
+    "cv_job_mapping": ("pro", "business"),  # 15.5 — 6,000 credits
+    "mock_interview": ("pro", "business"),  # 15.7 — 4,000 credits
+}
+
+
+def check_feature_access(
+    ledger: CreditLedger | None = None,
+    user_id: str = "",
+    feature: str = "",
+) -> bool:
+    """True when ``user_id``'s tier may use ``feature`` (R16 gate).
+
+    Unknown features are allowed (nothing is gated by accident); a
+    feature in :data:`FEATURES` is refused for tiers outside its tuple.
+    """
+    allowed = FEATURES.get(feature)
+    if allowed is None:
+        return True
+    active = ledger if ledger is not None else default_ledger()
+    return tier_of(active, user_id) in allowed
+
 
 #: The three tiers (state key suffixes: ``<tier>_tier_tokens``).
 TIERS = ("free", "pro", "business")

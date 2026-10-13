@@ -178,6 +178,34 @@ class InsufficientCredits(VantiaError):
         )
 
 
+class FeatureNotAvailable(VantiaError):
+    """Task 15.5/15.7 (R16): the feature requires a higher tier."""
+
+    code = "feature_not_available"
+
+    def __init__(self, feature: str, *, required_tier: str, user_tier: str = "free") -> None:
+        super().__init__(
+            f"feature {feature!r} requires the {required_tier} tier (current tier: {user_tier})",
+            feature=feature,
+            required_tier=required_tier,
+            user_tier=user_tier,
+        )
+
+
+class TurnLimitExceeded(VantiaError):
+    """Task 15.6 (R25): conversational-refinement turn cap reached for the tier."""
+
+    code = "turn_limit_exceeded"
+
+    def __init__(self, tier: str, limit: int) -> None:
+        super().__init__(
+            f"turn limit reached for the {tier} tier ({limit} turns); "
+            "upgrade for more refinement turns",
+            tier=tier,
+            limit=limit,
+        )
+
+
 class PaddleError(VantiaError):
     """v6.0 §14: Paddle checkout / webhook processing failure."""
 

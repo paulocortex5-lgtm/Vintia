@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vantia.ai/schemas/mock_interview.schema.json",
+  "title": "Mock Interview Payload",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["status"],
+  "properties": {
+    "status": {"enum": ["complete", "incomplete"]},
+    "missing": {"type": "array", "items": {"type": "string"}},
+    "questions": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["question", "model_answer", "competency_tag"],
+        "properties": {
+          "question": {"type": "string"},
+          "model_answer": {"type": "string"},
+          "competency_tag": {"enum": ["technical", "behavioural", "leadership", "problem_solving", "culture_fit"]}
+        }
+      }
+    }
+  },
+  "allOf": [
+    {"if": {"properties": {"status": {"const": "complete"}}},
+     "then": {"required": ["questions"]}},
+    {"if": {"properties": {"status": {"const": "incomplete"}}},
+     "then": {"required": ["missing"]}}
+  ]
+}

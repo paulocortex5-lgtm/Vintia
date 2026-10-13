@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vantia.ai/schemas/cv_refinement.schema.json",
+  "title": "CV Refinement Turn Payload",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["status"],
+  "properties": {
+    "status": {"enum": ["complete", "incomplete"]},
+    "missing": {"type": "array", "items": {"type": "string"}},
+    "revised_cv": {"type": "string", "maxLength": 8000},
+    "change_summary": {"type": "string", "maxLength": 300},
+    "follow_up_question": {"type": "string", "maxLength": 200}
+  },
+  "allOf": [
+    {"if": {"properties": {"status": {"const": "complete"}}},
+     "then": {"required": ["revised_cv", "change_summary"]}},
+    {"if": {"properties": {"status": {"const": "incomplete"}}},
+     "then": {"required": ["missing"]}}
+  ]
+}

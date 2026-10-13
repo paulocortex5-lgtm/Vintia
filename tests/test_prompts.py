@@ -11,8 +11,11 @@ def test_all_expected_prompts_shipped():
     names = {path.name for path in PROMPTS.glob("v1_*.md")}
     assert names == {
         "v1_ats_score.md",
+        "v1_chat_refine.md",
         "v1_cover_letter.md",
         "v1_cv_improve.md",
+        "v1_cv_job_mapping.md",
+        "v1_mock_interview.md",
         "v1_research_proposal.md",
         "v1_sop.md",
     }

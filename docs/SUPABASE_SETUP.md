@@ -45,6 +45,7 @@ done
 | `0008_ingest_jobs.sql` | `ingest.jobs` (link-verification columns) + `ingest.rejected_jobs` anti-predatory audit (tasks 15.2/15.3) |
 | `0009_job_recommendations.sql` | `job_recommendations` 24h cache for CV-matched job lists (task 15.1) |
 | `0010_sponsor_reliability.sql` | `sponsor_reliability` 0-100 employer trust scores (task 15.4) |
+| `0011_pro_features.sql` | `cv_job_mappings`, `cv_refinement_turns`, `mock_interviews` for the Pro/gated LLM features (tasks 15.5/15.6/15.7) |
 
 Each file is transactional (`begin; … commit;`) and idempotent
 (`if not exists`), so re-running is safe.

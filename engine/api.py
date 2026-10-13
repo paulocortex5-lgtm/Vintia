@@ -891,8 +891,6 @@ def sponsors_reliability_all(country: str = "") -> dict[str, Any]:
     return {"count": len(scores), "scores": scores}
 
 
-
-
 # ── Task 15.10 — scholarship calendar export (.ics, RFC 5545) ──────────────
 
 
@@ -932,6 +930,97 @@ def scholarship_ics(scholarship_id: str) -> Any:
         media_type="text/calendar; charset=utf-8",
         headers={"Content-Disposition": f'attachment; filename="{scholarship_id}.ics"'},
     )
+
+
+# ── Tasks 15.5 / 15.6 / 15.7 — Pro & gated LLM features ───────────────────
+
+
+class CvJobMappingRequest(BaseModel):
+    """Body of ``POST /cv-job-mapping`` (task 15.5)."""
+
+    resume_text: str
+    job_description: str
+    scan_id: str = ""
+    user_id: str = ""
+
+
+class MockInterviewRequest(BaseModel):
+    """Body of ``POST /mock-interview`` (task 15.7)."""
+
+    cv_text: str
+    job_description: str
+    scan_id: str = ""
+    company_name: str = ""
+    user_id: str = ""
+
+
+class ChatRefineRequest(BaseModel):
+    """Body of ``POST /improve/chat`` (task 15.6)."""
+
+    cv_improvement_id: str
+    user_message: str
+    original_resume: str = ""
+    improved_text: str = ""
+    user_id: str = ""
+
+
+def _feature_http(exc: VantiaError) -> HTTPException:
+    status = 403 if exc.code == "feature_not_available" else 402
+    if exc.code == "turn_limit_exceeded":
+        status = 403
+    if exc.code in ("message_required", "improvement_id_required", "user_id_required"):
+        status = 422
+    return HTTPException(status_code=status, detail=exc.as_dict())
+
+
+@app.post("/cv-job-mapping")
+def cv_job_mapping(body: CvJobMappingRequest) -> dict[str, Any]:
+    """Pro-gated field-by-field gap mapping (task 15.5, 6,000 credits)."""
+    from .generators.cv_job_mapping import generate_mapping
+
+    try:
+        return generate_mapping(
+            body.resume_text,
+            body.job_description,
+            user_id=_require_user_id(body.user_id),
+            scan_id=body.scan_id,
+        )
+    except VantiaError as exc:
+        raise _feature_http(exc) from exc
+
+
+@app.post("/mock-interview")
+def mock_interview(body: MockInterviewRequest) -> dict[str, Any]:
+    """Pro-gated 10-question interview prep (task 15.7, 4,000 credits)."""
+    from .generators.mock_interview import generate_interview
+
+    try:
+        return generate_interview(
+            body.cv_text,
+            body.job_description,
+            user_id=_require_user_id(body.user_id),
+            scan_id=body.scan_id,
+            company_name=body.company_name,
+        )
+    except VantiaError as exc:
+        raise _feature_http(exc) from exc
+
+
+@app.post("/improve/chat")
+def improve_chat(body: ChatRefineRequest) -> dict[str, Any]:
+    """One conversational refinement turn (task 15.6, 2,000 credits)."""
+    from .improve.chat_refine import refine
+
+    try:
+        return refine(
+            body.cv_improvement_id,
+            body.user_message,
+            _require_user_id(body.user_id),
+            original_resume=body.original_resume,
+            improved_text=body.improved_text,
+        )
+    except VantiaError as exc:
+        raise _feature_http(exc) from exc
 
 
 @app.on_event("startup")
