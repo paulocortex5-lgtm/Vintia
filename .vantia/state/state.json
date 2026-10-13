@@ -3,9 +3,9 @@
   "master_prompt_version": "4.0",
   "schema_version": 4,
   "created_at": "2026-10-03T22:15:00Z",
-  "updated_at": "2026-10-13T12:00:00+00:00",
+  "updated_at": "2026-10-13T13:30:00+00:00",
   "run_count": 21,
-  "last_completed_task": "15.3",
+  "last_completed_task": "15.7",
   "in_progress_task": null,
   "consecutive_failures": {},
   "deployment": {
@@ -1690,13 +1690,19 @@
     "15.1": {
       "name": "job recommendations from CV",
       "phase": 15,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [],
-      "artifacts": [],
-      "attempts": 0,
-      "commit_sha": "",
-      "started_at": null,
-      "completed_at": null
+      "artifacts": [
+        "engine/ats/recommender.py",
+        "engine/api.py",
+        "supabase/migrations/0009_job_recommendations.sql",
+        "tests/test_recommender.py",
+        "web/app/jobs/recommended/"
+      ],
+      "attempts": 1,
+      "commit_sha": "d5a3b8a",
+      "started_at": "2026-10-13T12:00:00Z",
+      "completed_at": "2026-10-13T12:30:00Z"
     },
     "15.2": {
       "name": "direct application link verification",
@@ -1734,46 +1740,69 @@
     "15.4": {
       "name": "sponsor reliability scoring",
       "phase": 15,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [],
-      "artifacts": [],
-      "attempts": 0,
-      "commit_sha": "",
-      "started_at": null,
-      "completed_at": null
+      "artifacts": [
+        "engine/sources/sponsor_reliability.py",
+        "supabase/migrations/0010_sponsor_reliability.sql",
+        ".github/workflows/sponsor-reliability.yml",
+        "tests/test_sponsor_reliability.py"
+      ],
+      "attempts": 1,
+      "commit_sha": "5a8d276",
+      "started_at": "2026-10-13T13:00:00Z",
+      "completed_at": "2026-10-13T13:00:00Z"
     },
     "15.5": {
       "name": "CV-to-job spec mapping (Pro)",
       "phase": 15,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [],
-      "artifacts": [],
-      "attempts": 0,
-      "commit_sha": "",
-      "started_at": null,
-      "completed_at": null
+      "artifacts": [
+        "engine/generators/cv_job_mapping.py",
+        "engine/prompts/v1_cv_job_mapping.md",
+        "engine/schemas/cv_job_mapping.schema.json",
+        "supabase/migrations/0011_pro_features.sql",
+        "tests/test_pro_features.py"
+      ],
+      "attempts": 1,
+      "commit_sha": "a2fd18e",
+      "started_at": "2026-10-13T13:00:00Z",
+      "completed_at": "2026-10-13T13:30:00Z"
     },
     "15.6": {
       "name": "CV refinement chatbot",
       "phase": 15,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [],
-      "artifacts": [],
-      "attempts": 0,
-      "commit_sha": "",
-      "started_at": null,
-      "completed_at": null
+      "artifacts": [
+        "engine/improve/chat_refine.py",
+        "engine/prompts/v1_chat_refine.md",
+        "engine/schemas/cv_refinement.schema.json",
+        "supabase/migrations/0011_pro_features.sql",
+        "tests/test_pro_features.py"
+      ],
+      "attempts": 1,
+      "commit_sha": "a2fd18e",
+      "started_at": "2026-10-13T13:00:00Z",
+      "completed_at": "2026-10-13T13:30:00Z"
     },
     "15.7": {
       "name": "mock interview generator (Pro)",
       "phase": 15,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [],
-      "artifacts": [],
-      "attempts": 0,
-      "commit_sha": "",
-      "started_at": null,
-      "completed_at": null
+      "artifacts": [
+        "engine/generators/mock_interview.py",
+        "engine/prompts/v1_mock_interview.md",
+        "engine/schemas/mock_interview.schema.json",
+        "supabase/migrations/0011_pro_features.sql",
+        "tests/test_pro_features.py"
+      ],
+      "attempts": 1,
+      "commit_sha": "a2fd18e",
+      "started_at": "2026-10-13T13:00:00Z",
+      "completed_at": "2026-10-13T13:30:00Z"
     },
     "15.8": {
       "name": "application tracker",
@@ -1800,13 +1829,18 @@
     "15.10": {
       "name": "scholarship calendar export",
       "phase": 15,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [],
-      "artifacts": [],
-      "attempts": 0,
-      "commit_sha": "",
-      "started_at": null,
-      "completed_at": null
+      "artifacts": [
+        "engine/scholarships/calendar.py",
+        "engine/api.py",
+        "tests/test_scholarship_calendar.py",
+        "web/app/scholarships/page.tsx"
+      ],
+      "attempts": 1,
+      "commit_sha": "fc2dd7d",
+      "started_at": "2026-10-13T13:30:00Z",
+      "completed_at": "2026-10-13T13:30:00Z"
     },
     "15.11": {
       "name": "referral program",
