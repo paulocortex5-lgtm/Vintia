@@ -810,6 +810,53 @@ def admin_set_user_tier(request: Request, body: AdminUserTierRequest) -> dict[st
         raise _admin_http(exc) from exc
 
 
+
+# ── Task 15.1 — job recommendations from CV ──────────────────────────────
+
+
+class RecommendationsRequest(BaseModel):
+    """Body of ``POST /jobs/recommendations`` (task 15.1 §5.4)."""
+
+    resume_text: str = Field(default="", description="Pasted CV text; empty → generic list")
+    filters: dict[str, Any] = Field(
+        default_factory=dict, description="Optional {countries: [ISO2], role: str}"
+    )
+
+
+@app.post("/jobs/recommendations")
+def jobs_recommendations(body: RecommendationsRequest) -> dict[str, Any]:
+    """Top-20 jobs ranked against the CV. Free tier, no credits (§5.6).
+
+    ``resume_text`` empty (or unparseable) → generic recency-ranked list
+    with an honest ``note``; never an error page.
+    """
+    from .ats.parser import parse_resume
+    from .ats.recommender import recommend
+
+    resume = None
+    if body.resume_text.strip():
+        try:
+            resume = parse_resume(body.resume_text.encode("utf-8"), content_type="text/plain")
+        except Exception:  # noqa: BLE001 — unparseable CV is the documented fallback
+            resume = None
+    return recommend(resume, filters=body.filters)
+
+
+@app.get("/jobs/recommendations")
+def jobs_recommendations_cached(role: str = "", country: str = "") -> dict[str, Any]:
+    """Cached recommendation set (24h TTL) for the given filters, if any."""
+    from .ats.recommender import recommend
+
+    filters: dict[str, Any] = {}
+    if role:
+        filters["role"] = role
+    if country:
+        filters["countries"] = [country]
+    return recommend(None, filters=filters)
+
+
+@app.on_event("startup")
+
 @app.on_event("startup")
 def _startup() -> None:
     if os.environ.get("VANTIA_SELF_PING", "1") != "0":

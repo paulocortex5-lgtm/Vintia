@@ -158,9 +158,17 @@ def test_full_user_journey_offline(journey):
     client, waitlist = journey
 
     # 1. Visitor lands and reads honest build state.
+    import json as _json
+    from pathlib import Path as _Path
+
+    _state = _json.loads(
+        (_Path(__file__).resolve().parents[2] / ".vantia" / "state" / "state.json").read_text(
+            "utf-8"
+        )
+    )
     assert client.get("/health").json()["status"] == "ok"
     status = client.get("/status").json()
-    assert status["initialised"] is True and status["total"] == 88
+    assert status["initialised"] is True and status["total"] == len(_state["tasks"])
 
     # 2. Waitlist double opt-in — pending until the emailed token is redeemed.
     subscribed = client.post("/waitlist/subscribe", json={"email": "ada@example.com"}).json()

@@ -1,7 +1,9 @@
 # Supabase Setup Runbook (task 6.6)
 
 > **Status: APPLIED (2026-10-12).** Project `zpzzrlxkmnmposdnxpeg` exists;
-> migrations 0001→0006 are applied (all 17 tables answer via PostgREST),
+> migrations 0001→0007 are applied (all 17 tables answer via PostgREST),
+> migrations 0008→0009 (ingest jobs, job recommendations) ship with run 21
+> and are applied via the Management API in the deploy step,
 > RLS verified live (anon INSERT into `profiles` → `42501` refusal),
 > `vantia_jwt_hook` executes, bucket `user-workspaces` (private) created.
 > **Remaining dashboard-only steps:** §4.1 (register the hook in Auth →
@@ -40,6 +42,8 @@ done
 | `0005_rls.sql` | RLS on the three workspace tables + `vantia_jwt_hook` |
 | `0006_waitlist.sql` | waitlist double opt-in (pending/confirmed, sha256 token hash) |
 | `0007_admin_role.sql` | `profiles.role` + first-Google-sign-in admin bootstrap (advisory-locked trigger) |
+| `0008_ingest_jobs.sql` | `ingest.jobs` (link-verification columns) + `ingest.rejected_jobs` anti-predatory audit (tasks 15.2/15.3) |
+| `0009_job_recommendations.sql` | `job_recommendations` 24h cache for CV-matched job lists (task 15.1) |
 
 Each file is transactional (`begin; … commit;`) and idempotent
 (`if not exists`), so re-running is safe.

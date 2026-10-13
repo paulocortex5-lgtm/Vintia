@@ -68,12 +68,20 @@ def test_ats_score_rejects_malformed_bodies(client):
 
 
 def test_status_reports_the_real_state_shape(client):
+    import json
+    from pathlib import Path
+
+    state = json.loads(
+        (Path(__file__).resolve().parents[1] / ".vantia" / "state" / "state.json").read_text(
+            "utf-8"
+        )
+    )
     response = client.get("/status")
     assert response.status_code == 200
     body = response.json()
     assert body["initialised"] is True
-    assert body["total"] == 88
-    assert 0 < body["complete"] <= body["total"]  # real progress; 88/88 = shipped
+    assert body["total"] == len(state["tasks"])  # tracks state.json, never hardcoded
+    assert 0 < body["complete"] <= body["total"]  # real progress
     assert body["readiness_pct"] == round(body["complete"] / body["total"] * 100, 1)
     assert body["next_task"] is None or isinstance(body["next_task"], str)
     assert isinstance(body["run_count"], int)
