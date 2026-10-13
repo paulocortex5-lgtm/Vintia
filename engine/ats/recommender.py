@@ -247,6 +247,9 @@ def recommend(
         return {"jobs": cached_entry["jobs"], "cached": True, "note": cached_entry.get("note", "")}
 
     def _brief(job: dict[str, Any]) -> dict[str, Any]:
+        from ..sources.sponsor_reliability import reliability_badge, score_for
+
+        record = score_for(job.get("company", ""), (job.get("country") or "").upper())
         return {
             "job_id": f"{job.get('portal')}:{job.get('external_id')}",
             "title": job.get("title", ""),
@@ -257,6 +260,7 @@ def recommend(
             "apply_url": job.get("apply_url", ""),
             "link_status": job.get("link_status", ""),
             "visa_sponsorship": job.get("visa_sponsorship"),
+            "reliability": reliability_badge(record["score"] if record else None),
         }
 
     note = ""

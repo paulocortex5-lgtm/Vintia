@@ -205,3 +205,21 @@ def test_recommendations_never_include_unverified_jobs(tmp_path, monkeypatch):
     result = recommend(resume, filters={})
     assert all(j["link_status"] == "verified" for j in result["jobs"])
     assert "greenhouse:9" not in {j["job_id"] for j in result["jobs"]}
+
+
+def test_every_recommended_job_carries_a_reliability_badge(tmp_path, monkeypatch):
+    store_dir = _with_store(tmp_path, monkeypatch)
+    # score one company so the badge is a real number, not just "unknown"
+    from engine.sources.sponsor_reliability import rebuild, record_snapshot
+
+    record_snapshot("GB", ["Acme"], snapshot_date="2024-10-10", store_dir=store_dir)
+    record_snapshot("GB", ["Acme"], snapshot_date="2026-10-10", store_dir=store_dir)
+    rebuild(store_dir)
+    resume = parse_resume(CV.encode("utf-8"), content_type="text/plain")
+    result = recommend(resume, filters={"countries": ["GB"]})
+    assert result["jobs"], "seeded GB jobs must rank"
+    for job in result["jobs"]:
+        assert "reliability" in job
+        assert job["reliability"]["label"].startswith("Reliability:")
+    acme_job = next(j for j in result["jobs"] if j["company"] == "Acme")
+    assert "/100" in acme_job["reliability"]["label"]  # scored, not unknown

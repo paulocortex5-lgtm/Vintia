@@ -810,7 +810,6 @@ def admin_set_user_tier(request: Request, body: AdminUserTierRequest) -> dict[st
         raise _admin_http(exc) from exc
 
 
-
 # ── Task 15.1 — job recommendations from CV ──────────────────────────────
 
 
@@ -855,7 +854,42 @@ def jobs_recommendations_cached(role: str = "", country: str = "") -> dict[str, 
     return recommend(None, filters=filters)
 
 
-@app.on_event("startup")
+# ── Task 15.4 — sponsor reliability scoring ──────────────────────────────
+
+
+@app.get("/sponsors/reliability")
+def sponsors_reliability(company: str = "", country: str = "") -> dict[str, Any]:
+    """One company's reliability score (§8.4); ``null`` score when never scored."""
+    from .sources.sponsor_reliability import reliability_badge, score_for
+
+    if not company or not country:
+        raise HTTPException(
+            status_code=422,
+            detail=VantiaError(
+                "company and country are required", code="company_country_required"
+            ).as_dict(),
+        )
+    record = score_for(company, country.upper())
+    if record is None:
+        return {
+            "company": company,
+            "country": country.upper(),
+            "score": None,
+            "badge": reliability_badge(None),
+        }
+    return {**record, "badge": reliability_badge(record["score"])}
+
+
+@app.get("/sponsors/reliability/all")
+def sponsors_reliability_all(country: str = "") -> dict[str, Any]:
+    """Every scored sponsor, optionally filtered by country (for job cards)."""
+    from .sources.sponsor_reliability import load_scores
+
+    scores = load_scores()
+    if country:
+        scores = {k: v for k, v in scores.items() if v.get("country") == country.upper()}
+    return {"count": len(scores), "scores": scores}
+
 
 @app.on_event("startup")
 def _startup() -> None:

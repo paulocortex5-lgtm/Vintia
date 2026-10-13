@@ -44,6 +44,7 @@ done
 | `0007_admin_role.sql` | `profiles.role` + first-Google-sign-in admin bootstrap (advisory-locked trigger) |
 | `0008_ingest_jobs.sql` | `ingest.jobs` (link-verification columns) + `ingest.rejected_jobs` anti-predatory audit (tasks 15.2/15.3) |
 | `0009_job_recommendations.sql` | `job_recommendations` 24h cache for CV-matched job lists (task 15.1) |
+| `0010_sponsor_reliability.sql` | `sponsor_reliability` 0-100 employer trust scores (task 15.4) |
 
 Each file is transactional (`begin; … commit;`) and idempotent
 (`if not exists`), so re-running is safe.

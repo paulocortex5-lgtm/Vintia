@@ -20,6 +20,7 @@ type RecommendedJob = {
   match_score: number;
   matched_skills: string[];
   rationale: string;
+  reliability?: { label: string; tone: "green" | "amber" | "red" | "neutral" };
 };
 
 const input =
@@ -145,8 +146,24 @@ export default function RecommendedJobs() {
                 Matched: {job.matched_skills.join(", ")} — {job.rationale}
               </p>
             )}
-            <div className="mt-3 flex items-center gap-3">
+            <div className="mt-3 flex flex-wrap items-center gap-3">
               <span className={reliabilityBadge()}>Direct employer link · {job.link_status}</span>
+              {job.reliability && (
+                <span
+                  className={
+                    "rounded-full px-2 py-0.5 text-[11px] font-medium " +
+                    (job.reliability.tone === "green"
+                      ? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300"
+                      : job.reliability.tone === "amber"
+                        ? "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300"
+                        : job.reliability.tone === "red"
+                          ? "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300"
+                          : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400")
+                  }
+                >
+                  {job.reliability.label}
+                </span>
+              )}
               {job.apply_url && job.link_status === "verified" && (
                 <a
                   href={job.apply_url}
