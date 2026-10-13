@@ -3,9 +3,9 @@
   "master_prompt_version": "4.0",
   "schema_version": 4,
   "created_at": "2026-10-03T22:15:00Z",
-  "updated_at": "2026-10-11T13:46:32Z",
-  "run_count": 20,
-  "last_completed_task": "7.3",
+  "updated_at": "2026-10-13T12:00:00+00:00",
+  "run_count": 21,
+  "last_completed_task": "15.3",
   "in_progress_task": null,
   "consecutive_failures": {},
   "deployment": {
@@ -1604,77 +1604,77 @@
     "13.1": {
       "name": "Workspace dashboard UI",
       "phase": 13,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "8.5",
         "5.3"
       ],
       "artifacts": [],
       "attempts": 0,
-      "commit_sha": null,
+      "commit_sha": "b1f893308a0acba1259d028cd99d2f20f8f3f324",
       "started_at": null,
-      "completed_at": null
+      "completed_at": "2026-10-12T14:35:20.119347+00:00"
     },
     "13.2": {
       "name": "ATS scan UI (upload + score view)",
       "phase": 13,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "9.6",
         "13.1"
       ],
       "artifacts": [],
       "attempts": 0,
-      "commit_sha": null,
+      "commit_sha": "b1f893308a0acba1259d028cd99d2f20f8f3f324",
       "started_at": null,
-      "completed_at": null
+      "completed_at": "2026-10-12T14:35:20.119401+00:00"
     },
     "13.3": {
       "name": "CV improvement UI",
       "phase": 13,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "10.5",
         "13.1"
       ],
       "artifacts": [],
       "attempts": 0,
-      "commit_sha": null,
+      "commit_sha": "b1f893308a0acba1259d028cd99d2f20f8f3f324",
       "started_at": null,
-      "completed_at": null
+      "completed_at": "2026-10-12T14:35:20.119410+00:00"
     },
     "13.4": {
       "name": "Cover letter UI",
       "phase": 13,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "10.6",
         "13.1"
       ],
       "artifacts": [],
       "attempts": 0,
-      "commit_sha": null,
+      "commit_sha": "b1f893308a0acba1259d028cd99d2f20f8f3f324",
       "started_at": null,
-      "completed_at": null
+      "completed_at": "2026-10-12T14:35:20.119418+00:00"
     },
     "13.5": {
       "name": "Credits dashboard UI",
       "phase": 13,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "11.6",
         "13.1"
       ],
       "artifacts": [],
       "attempts": 0,
-      "commit_sha": null,
+      "commit_sha": "b1f893308a0acba1259d028cd99d2f20f8f3f324",
       "started_at": null,
-      "completed_at": null
+      "completed_at": "2026-10-12T14:35:20.119426+00:00"
     },
     "13.6": {
       "name": "Full user journey E2E test",
       "phase": 13,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [
         "13.2",
         "13.3",
@@ -1683,7 +1683,194 @@
       ],
       "artifacts": [],
       "attempts": 0,
-      "commit_sha": null,
+      "commit_sha": "b1f893308a0acba1259d028cd99d2f20f8f3f324",
+      "started_at": null,
+      "completed_at": "2026-10-12T14:35:20.119433+00:00"
+    },
+    "15.1": {
+      "name": "job recommendations from CV",
+      "phase": 15,
+      "status": "pending",
+      "depends_on": [],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": "",
+      "started_at": null,
+      "completed_at": null
+    },
+    "15.2": {
+      "name": "direct application link verification",
+      "phase": 15,
+      "status": "complete",
+      "depends_on": [],
+      "artifacts": [
+        "engine/sources/ingest_store.py",
+        "engine/sources/verify_links.py",
+        "supabase/migrations/0008_ingest_jobs.sql",
+        ".github/workflows/verify-links.yml",
+        "tests/test_link_verification.py"
+      ],
+      "attempts": 1,
+      "commit_sha": "ec6a464",
+      "started_at": "2026-10-13T00:00:00Z",
+      "completed_at": "2026-10-13T00:00:00Z"
+    },
+    "15.3": {
+      "name": "anti-predatory enforcement",
+      "phase": 15,
+      "status": "complete",
+      "depends_on": [],
+      "artifacts": [
+        "engine/security/predatory.py",
+        "engine/security/data/scam_aggregators.txt",
+        "supabase/migrations/0008_ingest_jobs.sql",
+        "tests/test_predatory.py"
+      ],
+      "attempts": 1,
+      "commit_sha": "ec6a464",
+      "started_at": "2026-10-13T00:00:00Z",
+      "completed_at": "2026-10-13T00:00:00Z"
+    },
+    "15.4": {
+      "name": "sponsor reliability scoring",
+      "phase": 15,
+      "status": "pending",
+      "depends_on": [],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": "",
+      "started_at": null,
+      "completed_at": null
+    },
+    "15.5": {
+      "name": "CV-to-job spec mapping (Pro)",
+      "phase": 15,
+      "status": "pending",
+      "depends_on": [],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": "",
+      "started_at": null,
+      "completed_at": null
+    },
+    "15.6": {
+      "name": "CV refinement chatbot",
+      "phase": 15,
+      "status": "pending",
+      "depends_on": [],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": "",
+      "started_at": null,
+      "completed_at": null
+    },
+    "15.7": {
+      "name": "mock interview generator (Pro)",
+      "phase": 15,
+      "status": "pending",
+      "depends_on": [],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": "",
+      "started_at": null,
+      "completed_at": null
+    },
+    "15.8": {
+      "name": "application tracker",
+      "phase": 15,
+      "status": "pending",
+      "depends_on": [],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": "",
+      "started_at": null,
+      "completed_at": null
+    },
+    "15.9": {
+      "name": "job alert subscriptions",
+      "phase": 15,
+      "status": "pending",
+      "depends_on": [],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": "",
+      "started_at": null,
+      "completed_at": null
+    },
+    "15.10": {
+      "name": "scholarship calendar export",
+      "phase": 15,
+      "status": "pending",
+      "depends_on": [],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": "",
+      "started_at": null,
+      "completed_at": null
+    },
+    "15.11": {
+      "name": "referral program",
+      "phase": 15,
+      "status": "pending",
+      "depends_on": [],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": "",
+      "started_at": null,
+      "completed_at": null
+    },
+    "15.12": {
+      "name": "public API for universities",
+      "phase": 15,
+      "status": "pending",
+      "depends_on": [],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": "",
+      "started_at": null,
+      "completed_at": null
+    },
+    "15.13": {
+      "name": "add CA/AU/NZ sources + 50-country coverage",
+      "phase": 15,
+      "status": "pending",
+      "depends_on": [],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": "",
+      "started_at": null,
+      "completed_at": null
+    },
+    "15.14": {
+      "name": "real /status page",
+      "phase": 15,
+      "status": "pending",
+      "depends_on": [],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": "",
+      "started_at": null,
+      "completed_at": null
+    },
+    "15.15": {
+      "name": "eliminate all stubs",
+      "phase": 15,
+      "status": "pending",
+      "depends_on": [],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": "",
+      "started_at": null,
+      "completed_at": null
+    },
+    "15.16": {
+      "name": "country tabs on all search pages",
+      "phase": 15,
+      "status": "pending",
+      "depends_on": [],
+      "artifacts": [],
+      "attempts": 0,
+      "commit_sha": "",
       "started_at": null,
       "completed_at": null
     }
