@@ -76,7 +76,27 @@ each run.
    (79/88); `web/` build gate on every change.
 2. Runs 20–21 per `docs/BUILD_BOARD.md` §2 until ship-ready.
 
+## Run 22 — web: session-gated tools + two-track pipeline (2026-10-13)
+- `web/components/RequireSession.tsx` gates `/ats`, `/improve`,
+  `/cover-letter`, `/credits/dashboard`, `/credits/purchase` (tools
+  load `ssr: false`; marketing copy stays public). Purchase page now
+  uses the verified session user id — typed placeholder removed.
+- `/pipeline` page: job + scholarship tracks with honest live /
+  launching-soon badges; linked from home, dashboard, `/jobs`,
+  `/scholarships`; sitemap + `tests/test_web_pipeline.py` (6) added.
+- Gates green: pytest web suites, `next build` EXIT=0.
+
 ## Known Issues
+- **Google provider not enabled on the live Supabase project** (verified
+  2026-10-13: `/auth/v1/authorize?provider=google` → 400 `Unsupported
+  provider`) — "Continue with Google" dead-ends on that JSON page and the
+  favicon 404 comes from `*.supabase.co`, not the app. Dashboard action
+  required (docs/AUTH.md §3, step 2); no management PAT exists here to
+  script it. Email/password, migration 0007 and engine CORS verified OK.
+- Local dev: `web/.env.local` (git-ignored) carries the publishable
+  NEXT_PUBLIC trio — Next reads env from `web/`, not the repo root;
+  port 3000 on the dev machine is squatted by an unrelated server, so
+  `next dev` starts on **3001** (allowlist that URL in Supabase).
 - The 4.5 Supabase mirror schema is written and static-tested, but RLS
   policies and a real `supabase db push` are untested until real
   credentials exist — do not claim the migration as applied.

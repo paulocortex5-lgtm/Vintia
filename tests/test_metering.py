@@ -61,18 +61,38 @@ def test_broken_prices_refuse_instead_of_defaulting_to_free():
     assert e3.value.code == "unknown_operation"
 
 
-def test_config_loader_falls_back_to_the_packaged_seed():
+def test_config_loader_falls_back_to_the_packaged_seed(monkeypatch):
     from engine.credits.config import load_credits_config
+
+    # the developer's shell may export VANTIA_* credit overrides — this
+    # test asserts the seed values, so the overlay must not apply here
+    for name in (
+        "VANTIA_CREDITS_ENABLED",
+        "VANTIA_FREE_TIER_TOKENS",
+        "VANTIA_PRO_TIER_TOKENS",
+        "VANTIA_BUSINESS_TIER_TOKENS",
+    ):
+        monkeypatch.delenv(name, raising=False)
 
     cfg = load_credits_config(state_dir="/nonexistent/state")
     assert cfg["free_tier_tokens"] == 10_000  # seed values, not an error
     assert "cv_scan" in cfg["token_costs"]
 
 
-def test_config_loader_returns_only_the_credits_block(tmp_path):
+def test_config_loader_returns_only_the_credits_block(tmp_path, monkeypatch):
     import json
 
     from engine.credits.config import load_credits_config
+
+    # env overrides are real (see the test below) — drop them here so an
+    # exported VANTIA_* pair in the shell can't leak into this assertion
+    for name in (
+        "VANTIA_CREDITS_ENABLED",
+        "VANTIA_FREE_TIER_TOKENS",
+        "VANTIA_PRO_TIER_TOKENS",
+        "VANTIA_BUSINESS_TIER_TOKENS",
+    ):
+        monkeypatch.delenv(name, raising=False)
 
     state = tmp_path / "state.json"
     state.write_text(json.dumps({"credits": {"token_costs": {"x": 1}}}), encoding="utf-8")

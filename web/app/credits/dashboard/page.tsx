@@ -3,12 +3,15 @@
 /**
  * Credits dashboard (task 13.5) — balance, tier, allowance, recent ledger
  * entries, packs and the monthly statement, all read live from the engine.
- * Unauthenticated visitors see the pricing facts and a sign-in prompt;
- * nothing is estimated or faked client-side.
+ * The page renders only behind the session gate — balance, allowance, packs
+ * and invoices are account data, so signed-out visitors get the honest
+ * "sign in first" card instead of the dashboard. Nothing is estimated or
+ * faked client-side.
  */
 
 import { useEffect, useState } from "react";
 
+import RequireSession from "../../../components/RequireSession";
 import {
   ENGINE,
   engineError,
@@ -36,7 +39,7 @@ const button =
   "rounded-full bg-black px-5 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-zinc-300";
 const card = "rounded-2xl border border-black/10 bg-white p-6 dark:border-white/10 dark:bg-zinc-950";
 
-export default function CreditsDashboard() {
+function CreditsDashboardInner() {
   const [session, setSession] = useState<Session | null>(null);
   const [userId, setUserId] = useState("");
   const [balance, setBalance] = useState<Balance | null>(null);
@@ -229,6 +232,15 @@ export default function CreditsDashboard() {
         </p>
       </main>
     </div>
+  );
+}
+
+/** The credits dashboard is account data — signed-out visitors see the gate. */
+export default function CreditsDashboard() {
+  return (
+    <RequireSession tool="The credits dashboard">
+      <CreditsDashboardInner />
+    </RequireSession>
   );
 }
 

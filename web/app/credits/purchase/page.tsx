@@ -1,40 +1,45 @@
 "use client";
 
 /**
- * Credit purchase page (task 12.5).
+ * Credit purchase page (task 12.5) — gated behind the session since the
+ * tools became sign-in-only: packs are bought against the verified session
+ * user id (JWT `sub`), never a typed placeholder.
  *
  * UI data comes from the engine: `GET /credits/packs` renders the packs and
  * `POST /credits/checkout` opens Paddle Checkout (Paddle is the Merchant of
  * Record — no card data ever reaches Vantia). Failures are shown verbatim
  * from the engine's stable error codes; nothing is faked when Paddle keys
  * are unset.
- *
- * Identity: Phase 8's auth does not exist yet, so the user id is whatever
- * the browser stores locally — honest scaffolding, labelled as such, to be
- * replaced by the verified session when workspaces land.
  */
 
 import { useEffect, useState } from "react";
 
-type Pack = { id: string; tokens: number; price_usd: number | null };
+import RequireSession from "../../../components/RequireSession";
+import { ENGINE, loadSession, type Session } from "../../../lib/engine";
 
-const ENGINE = process.env.NEXT_PUBLIC_ENGINE_URL || "http://localhost:8000";
-const USER_KEY = "vantia_user_id";
+type Pack = { id: string; tokens: number; price_usd: number | null };
 
 function formatTokens(tokens: number): string {
   return tokens >= 1000 ? `${Math.round(tokens / 1000)}k` : String(tokens);
 }
 
 export default function CreditPurchasePage() {
+  return (
+    <RequireSession tool="Credit packs">
+      <PurchaseInner />
+    </RequireSession>
+  );
+}
+
+function PurchaseInner() {
+  const [session, setSession] = useState<Session | null>(null);
   const [packs, setPacks] = useState<Pack[]>([]);
   const [environment, setEnvironment] = useState("");
-  const [userId, setUserId] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState("");
-  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    setUserId(window.localStorage.getItem(USER_KEY) || "");
+    setSession(loadSession());
     let cancelled = false;
     fetch(`${ENGINE}/credits/packs`)
       .then((res) => res.json())
@@ -42,27 +47,21 @@ export default function CreditPurchasePage() {
         if (cancelled) return;
         setPacks(Array.isArray(data.packs) ? data.packs : []);
         setEnvironment(data.paddle_environment || "");
-        setLoaded(true);
       })
       .catch(() => {
         if (cancelled) return;
-        setError(`Engine unreachable at ${ENGINE} — set NEXT_PUBLIC_ENGINE_URL.`);
-        setLoaded(true);
+        setError(`Engine unreachable at ${ENGINE}.`);
       });
     return () => {
       cancelled = true;
     };
   }, []);
 
-  function remember(value: string) {
-    setUserId(value);
-    window.localStorage.setItem(USER_KEY, value);
-  }
-
   async function buy(pack: Pack) {
     setError("");
-    if (!userId.trim()) {
-      setError("Enter your user ID first (session auth arrives with Phase 8).");
+    const userId = session?.user.id;
+    if (!userId) {
+      setError("Session expired — sign in again to buy packs against your account.");
       return;
     }
     setBusy(pack.id);
@@ -70,7 +69,7 @@ export default function CreditPurchasePage() {
       const response = await fetch(`${ENGINE}/credits/checkout`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId.trim(), pack_id: pack.id }),
+        body: JSON.stringify({ user_id: userId, pack_id: pack.id }),
       });
       const data = await response.json();
       if (!response.ok) {
@@ -79,7 +78,7 @@ export default function CreditPurchasePage() {
       }
       window.location.href = data.checkout_url;
     } catch {
-      setError(`Engine unreachable at ${ENGINE} — set NEXT_PUBLIC_ENGINE_URL.`);
+      setError(`Engine unreachable at ${ENGINE}.`);
     } finally {
       setBusy("");
     }
@@ -94,21 +93,13 @@ export default function CreditPurchasePage() {
         <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
           One-time credit packs, paid through{" "}
           <strong>Paddle</strong> (Merchant of Record — we never see your card
-          details).{environment ? ` Currently in ${environment} mode.` : ""}
-        </p>
-
-        <label className="mt-8 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          Your user ID
-          <input
-            value={userId}
-            onChange={(e) => remember(e.target.value)}
-            placeholder="e.g. user-123"
-            className="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2 font-mono text-sm text-black outline-none focus:border-black/40 dark:border-white/20 dark:bg-zinc-900 dark:text-zinc-100"
-          />
-          <span className="mt-1 block text-xs font-normal text-zinc-500">
-            Placeholder until Phase 8 auth binds this to your signed-in session.
+          details).{environment ? ` Currently in ${environment} mode.` : ""} Bought
+          against{" "}
+          <span className="font-mono text-xs">
+            {session?.user.email ?? session?.user.id ?? "your account"}
           </span>
-        </label>
+          .
+        </p>
 
         {error ? (
           <p
@@ -120,11 +111,11 @@ export default function CreditPurchasePage() {
         ) : null}
 
         <ul className="mt-8 flex flex-col gap-4">
-          {!loaded && (
+          {packs.length === 0 && !error && (
             <li className="text-sm text-zinc-500">Loading packs…</li>
           )}
-          {loaded && packs.length === 0 && !error && (
-            <li className="text-sm text-zinc-500">No packs reported by the engine.</li>
+          {packs.length === 0 && error && (
+            <li className="text-sm text-zinc-500">No packs could be loaded.</li>
           )}
           {packs.map((pack) => (
             <li

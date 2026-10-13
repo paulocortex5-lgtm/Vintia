@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import AtsScanner from "./AtsScanner";
+import AtsTool from "./AtsTool";
 
 export const metadata: Metadata = {
   title: "ATS Resume Score Checker",
@@ -59,11 +59,12 @@ export default function AtsPage() {
             Build status
           </Link>
         </div>
-        <AtsScanner />
+        <AtsTool />
         <p className="mt-8 text-xs text-zinc-500">
           Scoring is deterministic and runs against the engine&apos;s twelve-point
-          rubric — the same code path the full pipeline uses. Sign in for
-          workspace uploads and metered runs at launch.
+          rubric — the same code path the full pipeline uses. The scanner below
+          opens for signed-in accounts; your free monthly allowance covers the
+          first runs.
         </p>
       </main>
     </div>

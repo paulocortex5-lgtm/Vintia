@@ -13,8 +13,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 WEB = ROOT / "web"
 
-#: The six SEO landing pages (task 5.5), sitemap parity enforced below.
-LANDING_PAGES = ("ats", "improve", "cover-letter", "scholarships", "jobs", "credits")
+#: The SEO landing pages (task 5.5) plus the two-track pipeline page —
+#: sitemap parity enforced below.
+LANDING_PAGES = ("ats", "improve", "cover-letter", "scholarships", "jobs", "credits", "pipeline")
 
 LAYOUT = (WEB / "app" / "layout.tsx").read_text("utf-8")
 SITEMAP = (WEB / "app" / "sitemap.xml" / "route.ts").read_text("utf-8")
@@ -54,7 +55,7 @@ def test_every_sitemap_entry_is_a_real_page():
         assert page.exists(), f"sitemap promises /{slug} but {page} is missing"
 
 
-# ── 5.5: the six landing pages ─────────────────────────────────────────
+# ── 5.5: the landing pages ─────────────────────────────────────────────
 
 
 def test_each_landing_page_has_metadata_json_ld_and_real_content():
@@ -70,7 +71,7 @@ def test_each_landing_page_has_metadata_json_ld_and_real_content():
         title = re.search(r'title: "([^"]+)"', text)
         assert title, slug
         titles.append(title.group(1))
-    assert len(set(titles)) == 6, "landing page titles must be unique for SEO"
+    assert len(set(titles)) == len(LANDING_PAGES), "landing page titles must be unique for SEO"
 
 
 def test_marketing_pages_retired_the_waitlist_cta():

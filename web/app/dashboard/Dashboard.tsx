@@ -213,6 +213,31 @@ export default function Dashboard() {
         )}
       </section>
 
+      {/* Two-track application pipeline */}
+      <section className={card}>
+        <h2 className="text-sm font-medium text-zinc-500">Your application pipeline</h2>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <Link
+            href="/pipeline#jobs"
+            className="block rounded-xl border border-black/10 p-4 transition hover:border-black/30 dark:border-white/10 dark:hover:border-white/30"
+          >
+            <span className="text-sm font-semibold text-black dark:text-zinc-100">Job track</span>
+            <span className="mt-1 block text-xs leading-5 text-zinc-500">
+              Account → screened jobs → ATS tailoring → ranked edits → cover letter → credits
+            </span>
+          </Link>
+          <Link
+            href="/pipeline#scholarships"
+            className="block rounded-xl border border-black/10 p-4 transition hover:border-black/30 dark:border-white/10 dark:hover:border-white/30"
+          >
+            <span className="text-sm font-semibold text-black dark:text-zinc-100">Scholarship track</span>
+            <span className="mt-1 block text-xs leading-5 text-zinc-500">
+              Account → funded programmes → CV tailoring → motivation letter → credits
+            </span>
+          </Link>
+        </div>
+      </section>
+
       {/* Tool links */}
       <section className="grid gap-3 sm:grid-cols-2">
         {TOOLS.map((tool) => (

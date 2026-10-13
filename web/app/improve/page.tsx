@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import CvImprover from "./CvImprover";
+import ImproveTool from "./ImproveTool";
 
 export const metadata: Metadata = {
   title: "CV Improvement — targeted rewrites that keep your facts",
@@ -59,11 +59,12 @@ export default function ImprovePage() {
             See the ATS checker
           </Link>
         </div>
-        <CvImprover />
+        <ImproveTool />
         <p className="mt-8 text-xs text-zinc-500">
           Edits run deterministically through the same improver the pipeline
           uses — your identity fields are re-stamped from your text and never
-          model-owned. Sign in for saved workspaces at launch.
+          model-owned. The improver below opens for signed-in accounts; your
+          free monthly allowance covers the first runs.
         </p>
       </main>
     </div>

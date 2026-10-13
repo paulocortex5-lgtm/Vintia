@@ -49,24 +49,54 @@ each displayed honestly. See `docs/ADMIN.md` for the second factor.
 
 ## 3. One-time setup (dashboard steps — cannot be scripted)
 
+> **Live status, verified 2026-10-13 with `curl`:**
+> - Google provider — **NOT enabled**. The live project answers
+>   `GET /auth/v1/authorize?provider=google` with HTTP 400
+>   `{"error_code":"validation_failed","msg":"Unsupported provider: provider is not enabled"}`
+>   — this is why "Continue with Google" dead-ends on a JSON error page
+>   (and the browser's favicon request to `*.supabase.co` 404s, which is
+>   the harmless console error seen next to it). No Supabase management
+>   PAT exists in this environment, so it must be enabled in the
+>   dashboard (step 2 below) — nothing in the repo can do it.
+> - Email/password — **enabled and working** (the password grant answers
+>   `invalid_credentials` for bad creds, i.e. the provider is live).
+> - Migration 0007 — **applied** (anon is refused on `profiles`:
+>   `permission denied for table profiles`).
+> - Engine CORS — **allows** `https://vantia-rho.vercel.app`.
+
 1. **Google Cloud Console** → APIs & Services → Credentials → OAuth
    client ID (Web application):
    - Authorised redirect URI:
      `https://{SUPABASE_PROJECT_REF}.supabase.co/auth/v1/callback`
-   - (Already done for the live project.)
 2. **Supabase Dashboard** → Authentication → Providers → Google:
    enable, paste the client ID + secret.
-   (Already done for the live project.)
+   (**Action pending on the live project** — step 1 above must be done
+   first; the flow cannot start until the provider is enabled.)
 3. **Supabase Dashboard** → Authentication → URL Configuration:
    - Site URL: `https://vantia-rho.vercel.app`
    - Redirect URLs: add `https://vantia-rho.vercel.app/auth/callback`
-     and (for local dev) `http://localhost:3000/auth/callback`.
+     and (for local dev) `http://localhost:3001/auth/callback`.
+   (Port 3001, not 3000: on the dev machine port 3000 is occupied by an
+   unrelated local server, so `next dev` starts on 3001.)
 4. **Apply the migration** (in order, after 0001–0006):
    `supabase db push` or paste
    `supabase/migrations/0007_admin_role.sql` into the SQL editor.
+   (Already applied on the live project.)
 5. **Vercel** → project `vantia` → Environment Variables: confirm
    `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   match the Supabase project (publishable values only).
+   match the Supabase project (publishable values only). For **local
+   dev**, the same publishable pair lives in the git-ignored
+   `web/.env.local` (Next reads env from `web/`, not the repo root — a
+   root `.env` alone leaves the buttons disabled).
+
+Verifying the provider without clicking through (run from the repo root):
+
+```sh
+SUPA=$(grep '^NEXT_PUBLIC_SUPABASE_URL=' .env | cut -d= -f2)
+curl -s -o /dev/null -w '%{http_code}\n' \
+  "$SUPA/auth/v1/authorize?provider=google&redirect_to=https://vantia-rho.vercel.app/auth/callback"
+# 302 → flow starts (Google consent next). 400 → provider still disabled.
+```
 
 ## 4. Verifying
 

@@ -5,6 +5,49 @@ All notable changes to Vantia are recorded here. Format loosely follows
 entry in the form `vantia(<task_id>): <name> (run N)`.
 
 ## [Unreleased]
+### Tools behind sign-in + two-track application pipeline (web)
+- **Session gate** new `web/components/RequireSession.tsx` — the ATS
+  scanner, CV improver, cover letter, credits dashboard and packs pages
+  now render only for a signed-in account (Supabase session in
+  localStorage); signed-out visitors get an honest "sign in first" card
+  (Google button + email link to `/dashboard`). The tools load via
+  `next/dynamic` with `ssr: false`, so the tool markup/bundle never
+  reaches signed-out visitors — the public marketing copy stays
+  (SEO surface unchanged, gated tool below it).
+- **Credits purchase hardened** — `/credits/purchase` is gated and now
+  buys packs against the verified session user id (JWT `sub`); the
+  Phase-8 "type your user id" placeholder is gone.
+- **Pipeline** new `/pipeline` page (noindex-free, sitemap-listed):
+  two ordered, honestly-badged tracks — *If you are looking for a job*
+  (account → baseline ATS → screened posting → posting ATS → ranked
+  edits → cover letter → credits) and *If you are looking for a
+  scholarship* (account → funded programmes → credential equivalence →
+  academic CV → ranked edits → motivation letter → credits); every step
+  links the page that performs it, launching-soon steps say so. Linked
+  from the homepage, `/dashboard` (both tracks), `/jobs` and
+  `/scholarships`.
+- Gates: `tests/test_web_pipeline.py` (6), sitemap/title parity in
+  `tests/test_web_seo.py` extended to seven pages; `next build` green.
+
+### Google sign-in live diagnosis — provider disabled on the Supabase project (config, not code)
+- **Root cause found (verified with `curl`, 2026-10-13)** — the live
+  Supabase project answers `GET /auth/v1/authorize?provider=google`
+  with HTTP 400 `Unsupported provider: provider is not enabled`; the
+  browser lands on that JSON error page and its favicon request to
+  `*.supabase.co` 404s (the console error seen next to the failure).
+  Email/password auth, migration 0007 and engine CORS were each probed
+  and are healthy; the `/admin` role gate is wired correctly.
+- **Local dev fix** — git-ignored `web/.env.local` now carries the
+  publishable `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+  / `NEXT_PUBLIC_ENGINE_URL` trio (Next reads env from `web/`, not the
+  repo root, so the buttons were disabled locally); docs note the
+  port-3000 squatter (dev server starts on 3001) and the 3001 callback
+  allowlist entry.
+- **Docs** `docs/AUTH.md` §3 no longer claims the Google provider is
+  "already done" on the live project — it records the verified status,
+  the exact dashboard steps that remain, and a one-line curl check
+  (302 = flow starts, 400 = still disabled).
+
 ### Google sign-in + role-gated `/admin`; waitlist CTA retired
 - **Web auth** `signInWithGoogle()` + `/auth/callback` (noindex; handles
   implicit-hash and PKCE-`?code=` flows, saves the session, redirects to
