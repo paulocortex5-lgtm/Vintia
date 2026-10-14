@@ -97,8 +97,11 @@ def test_pipeline_links_every_step_it_promises():
         "/credits/dashboard",
     ):
         assert f'"{href}"' in text, f"pipeline never links {href}"
-    # launching-soon steps are labelled, never dressed up as live
-    assert "launching soon" in text
+    # every step is now live or tier-gated — nothing ships as a stub. (This
+    # assertion was flipped from `in` to `not in` under RULE 0.3: the prior
+    # contract required a "launching soon" placeholder, which R29 / Part 19
+    # explicitly forbids. See tests/test_stub_elimination.py for the guard.)
+    assert "launching soon" not in text
 
 
 def test_pipeline_is_listed_in_the_sitemap():

@@ -64,7 +64,8 @@ export default function CreditsPage() {
         </div>
         <p className="mt-8 text-xs text-zinc-500">
           Prices are read live from the engine — nothing on this page is a
-          hard-coded guess. Part of Vantia, launching soon.
+          hard-coded guess. Your balance, allowance and packs all come straight
+          from the credit ledger.
         </p>
       </main>
     </div>

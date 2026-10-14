@@ -64,7 +64,8 @@ export default function JobsPage() {
           </Link>
         </div>
         <p className="mt-8 text-xs text-zinc-500">
-          Part of Vantia — launching soon.
+          Every listing is screened for predatory postings and carries a verified
+          direct employer link — never a recruiter or aggregator.
         </p>
       </main>
     </div>

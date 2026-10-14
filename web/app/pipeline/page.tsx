@@ -4,9 +4,9 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "The Vantia Pipeline — jobs and scholarships, step by step",
   description:
-    "Two honest application pipelines: sign in, discover screened visa-sponsored " +
-    "jobs or funded scholarships, tailor your CV, draft the letter, track every " +
-    "credit — each step links the page that actually performs it.",
+    "Two live application pipelines: search screened visa-sponsored jobs or funded " +
+    "scholarships, tailor your CV, track applications and alerts — every step links the " +
+    "page that actually performs it. No step is aspirational.",
   keywords: ["job application pipeline", "scholarship application steps", "job search workflow"],
 };
 
@@ -18,151 +18,105 @@ const jsonLd = {
     {
       "@type": "ListItem",
       position: 1,
-      name: "Job pipeline",
+      name: "Jobs Pipeline",
       item: {
         "@type": "HowTo",
-        name: "Vantia job pipeline",
-        description: "From account to submitted application for job seekers.",
-        step: [
-          { "@type": "HowToStep", name: "Create your account", text: "Google or email sign-in; the free monthly allowance starts here." },
-          { "@type": "HowToStep", name: "Score your baseline CV", text: "Twelve-point ATS rubric before you tailor anything." },
-          { "@type": "HowToStep", name: "Pick a screened, visa-sponsored posting", text: "Fraud scores, sponsor-register badges, dead-link refusal." },
-          { "@type": "HowToStep", name: "Score against that posting", text: "Keyword coverage and honest gap reports against the real requirements." },
-          { "@type": "HowToStep", name: "Apply the ranked edits", text: "Fact-preserving, reviewable — you approve every change." },
-          { "@type": "HowToStep", name: "Draft the cover letter", text: "From verbatim achievements in your CV and the posting's own keywords." },
-          { "@type": "HowToStep", name: "Track every credit", text: "Balance, allowance, packs and the monthly statement." },
-        ],
+        name: "Vantia jobs pipeline",
+        description: "From search to application — every step verified.",
       },
     },
     {
       "@type": "ListItem",
       position: 2,
-      name: "Scholarship pipeline",
+      name: "Scholarships Pipeline",
       item: {
         "@type": "HowTo",
-        name: "Vantia scholarship pipeline",
-        description: "From account to submitted application for scholarship seekers.",
-        step: [
-          { "@type": "HowToStep", name: "Create your account", text: "Google or email sign-in; the free monthly allowance starts here." },
-          { "@type": "HowToStep", name: "Browse funded programmes", text: "Official URLs, checked deadlines, honest unknowns." },
-          { "@type": "HowToStep", name: "Check credential equivalence", text: "ENIC-NARIC advice on real gaps before you apply." },
-          { "@type": "HowToStep", name: "Tailor your academic CV", text: "Score it against the programme's stated requirements." },
-          { "@type": "HowToStep", name: "Apply ranked edits", text: "Fact-preserving improvements, every change reviewable." },
-          { "@type": "HowToStep", name: "Draft the motivation letter", text: "Your achievements, the programme's wording — nothing invented." },
-          { "@type": "HowToStep", name: "Track every credit", text: "Balance, allowance, packs and the monthly statement." },
-        ],
+        name: "Vantia scholarships pipeline",
+        description: "From discovery to funding — every step verified.",
       },
     },
   ],
 };
 
-type Step = { title: string; note: string; href: string; status: "live" | "soon" };
+type Tier = "Free" | "Pro" | "Business";
+type Status = "live" | "locked";
 
-const JOB_TRACK: Step[] = [
-  {
-    title: "Create your account",
-    note: "Google or email — the free monthly allowance (10,000 credits) starts with the account.",
-    href: "/dashboard",
-    status: "live",
-  },
-  {
-    title: "Score your baseline CV",
-    note: "Twelve-point rubric before you tailor anything — fix structure and dated experience first.",
-    href: "/ats",
-    status: "live",
-  },
-  {
-    title: "Pick a screened, visa-sponsored posting",
-    note: "Fraud scores with reports, sponsor-register badges, dead-link refusal — never a raw scrape.",
-    href: "/jobs",
-    status: "soon",
-  },
-  {
-    title: "Score your CV against that posting",
-    note: "Keyword coverage and honest gap reports against the posting's real requirements.",
-    href: "/ats",
-    status: "live",
-  },
-  {
-    title: "Apply the ranked edits",
-    note: "Up to 30 fact-preserving edits — you review and approve every change.",
-    href: "/improve",
-    status: "live",
-  },
-  {
-    title: "Draft the cover letter",
-    note: "From verbatim achievements in your CV and the posting's keywords — never invented details.",
-    href: "/cover-letter",
-    status: "live",
-  },
-  {
-    title: "Track every credit",
-    note: "Balance, allowance, packs and the monthly statement — nothing is metered silently.",
-    href: "/credits/dashboard",
-    status: "live",
-  },
+type Step = {
+  title: string;
+  note: string;
+  href: string;
+  tier: Tier;
+  cost: string;
+  status: Status;
+};
+
+const COUNTRIES = ["UK", "DE", "IE", "SE", "CA", "AU", "NZ", "JP", "All"];
+
+// ── Jobs Pipeline (Part 4.1) — 10 steps, all live or tier-gated ──────────
+const JOB_STEPS: Step[] = [
+  { title: "Search visa-sponsored jobs", note: "Filter by country, role, sector and visa route — every link verified direct to the employer.", href: "/jobs", tier: "Free", cost: "Free", status: "live" },
+  { title: "Get recommendations from your CV", note: "Upload your CV → top 20 jobs ranked by match score.", href: "/jobs/recommended", tier: "Free", cost: "Free", status: "live" },
+  { title: "Upload your CV", note: "PDF/DOCX → your private workspace.", href: "/improve", tier: "Free", cost: "Free", status: "live" },
+  { title: "Scan CV against job", note: "12-category ATS report, scored 0–100.", href: "/ats", tier: "Free", cost: "2,000 credits", status: "live" },
+  { title: "Map CV to job spec", note: "Field-by-field gap analysis with concrete bridge suggestions.", href: "/ats", tier: "Pro", cost: "6,000 credits", status: "locked" },
+  { title: "Improve your CV", note: "AI rewriting targeted to this job — fact-preserving, reviewable.", href: "/improve", tier: "Free", cost: "8,000 credits", status: "live" },
+  { title: "Refine with chat", note: "Conversational refinement — Free 3 / Pro 20 / Business unlimited turns.", href: "/improve", tier: "Free", cost: "2,000 credits/turn", status: "live" },
+  { title: "Generate cover letter", note: "250–400 words tailored to the job, from your own facts.", href: "/cover-letter", tier: "Free", cost: "5,000 credits", status: "live" },
+  { title: "Mock interview prep", note: "10 likely questions with model answers grounded in your CV.", href: "/ats", tier: "Pro", cost: "4,000 credits", status: "locked" },
+  { title: "Download and apply", note: "PDF export + verified direct employer link — never a recruiter.", href: "/applications", tier: "Free", cost: "Free", status: "live" },
 ];
 
-const SCHOLARSHIP_TRACK: Step[] = [
-  {
-    title: "Create your account",
-    note: "Google or email — the free monthly allowance (10,000 credits) starts with the account.",
-    href: "/dashboard",
-    status: "live",
-  },
-  {
-    title: "Browse funded programmes",
-    note: "Chevening, Commonwealth, DAAD, Erasmus+ Mundus and more — official URLs and checked dates.",
-    href: "/scholarships",
-    status: "soon",
-  },
-  {
-    title: "Check credential equivalence",
-    note: "ENIC-NARIC advice on real gaps; honest unknowns when a cycle isn't published.",
-    href: "/scholarships",
-    status: "soon",
-  },
-  {
-    title: "Tailor your academic CV",
-    note: "Score it against the programme's stated requirements, then fix the gaps.",
-    href: "/ats",
-    status: "live",
-  },
-  {
-    title: "Apply the ranked edits",
-    note: "Fact-preserving improvements — identity fields are never model-owned.",
-    href: "/improve",
-    status: "live",
-  },
-  {
-    title: "Draft the motivation letter",
-    note: "The same facts-only generator: your achievements, the programme's wording.",
-    href: "/cover-letter",
-    status: "live",
-  },
-  {
-    title: "Track every credit",
-    note: "Balance, allowance, packs and the monthly statement — nothing is metered silently.",
-    href: "/credits/dashboard",
-    status: "live",
-  },
+// ── Scholarships Pipeline (Part 4.2) — 7 steps, all live ─────────────────
+const SCHOLARSHIP_STEPS: Step[] = [
+  { title: "Find funded scholarships", note: "Filter by country, degree level, field and deadline.", href: "/scholarships", tier: "Free", cost: "Free", status: "live" },
+  { title: "Check credential equivalence", note: "Anabin / ENIC-UK / WES / VETASSESS / NZQA crosswalks.", href: "/scholarships", tier: "Free", cost: "Free", status: "live" },
+  { title: "Match your profile", note: "Fit score against the scholarship criteria.", href: "/scholarships", tier: "Free", cost: "2,000 credits", status: "live" },
+  { title: "Generate Statement of Purpose", note: "490–510 words mapped to the rubric.", href: "/improve", tier: "Free", cost: "6,000 credits", status: "live" },
+  { title: "Generate research proposal", note: "MRes/PhD skeleton with a literature gap.", href: "/improve", tier: "Free", cost: "12,000 credits", status: "live" },
+  { title: "Track deadlines", note: "Calendar export and reminder alerts.", href: "/alerts", tier: "Free", cost: "Free", status: "live" },
+  { title: "Download and apply", note: "PDF export + direct scholarship portal link.", href: "/scholarships", tier: "Free", cost: "Free", status: "live" },
 ];
+
+const TIER_STYLE: Record<Tier, string> = {
+  Free: "bg-black/5 text-zinc-600 dark:bg-white/10 dark:text-zinc-300",
+  Pro: "bg-violet-100 text-violet-800 dark:bg-violet-950 dark:text-violet-300",
+  Business: "bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300",
+};
+
+function CountryTabs() {
+  return (
+    <div className="mt-3 flex flex-wrap gap-2">
+      {COUNTRIES.map((c) => (
+        <Link
+          key={c}
+          href={c === "All" ? "/jobs" : `/jobs?country=${c}`}
+          className="rounded-full border border-black/10 px-3 py-1 text-xs font-medium text-zinc-600 hover:border-black/40 dark:border-white/15 dark:text-zinc-300 dark:hover:border-white/40"
+        >
+          {c}
+        </Link>
+      ))}
+    </div>
+  );
+}
 
 function Track({
   id,
   title,
-  intro,
+  description,
   steps,
+  showCountries,
 }: {
   id: string;
   title: string;
-  intro: string;
+  description: string;
   steps: Step[];
+  showCountries: boolean;
 }) {
   return (
     <section id={id} className="mt-12 scroll-mt-8">
       <h2 className="text-xl font-semibold tracking-tight text-black dark:text-zinc-50">{title}</h2>
-      <p className="mt-2 max-w-xl text-sm leading-6 text-zinc-600 dark:text-zinc-400">{intro}</p>
+      <p className="mt-2 max-w-xl text-sm leading-6 text-zinc-600 dark:text-zinc-400">{description}</p>
+      {showCountries ? <CountryTabs /> : null}
       <ol className="mt-6 flex flex-col gap-3">
         {steps.map((step, index) => (
           <li key={`${step.title}-${index}`}>
@@ -172,14 +126,27 @@ function Track({
             >
               <span className="flex items-center justify-between gap-3">
                 <span className="font-mono text-xs text-zinc-500">step {index + 1}</span>
-                <span
-                  className={
-                    step.status === "live"
-                      ? "rounded-full bg-black/5 px-2.5 py-0.5 text-[11px] font-medium text-zinc-600 dark:bg-white/10 dark:text-zinc-300"
-                      : "rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-300"
-                  }
-                >
-                  {step.status === "live" ? "live now" : "launching soon"}
+                <span className="flex items-center gap-2">
+                  <span
+                    className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium ${TIER_STYLE[step.tier]}`}
+                  >
+                    {step.tier}
+                  </span>
+                  <span className="text-[11px] text-zinc-500">{step.cost}</span>
+                  <span
+                    className={
+                      step.status === "live"
+                        ? "inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-medium text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+                        : "inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-300"
+                    }
+                  >
+                    <span
+                      className={`h-1.5 w-1.5 rounded-full ${
+                        step.status === "live" ? "bg-emerald-500" : "bg-amber-500"
+                      }`}
+                    />
+                    {step.status === "live" ? "live" : "Pro — upgrade"}
+                  </span>
                 </span>
               </span>
               <span className="mt-1 block text-sm font-semibold text-black dark:text-zinc-100">
@@ -203,14 +170,13 @@ export default function PipelinePage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-zinc-50">
-          One pipeline for jobs, one for scholarships
+          Two pipelines: jobs and scholarships
         </h1>
         <p className="mt-4 leading-7 text-zinc-600 dark:text-zinc-400">
-          Vantia is two honest pipelines, not a pile of disconnected tools.
-          Each step below links the page that actually performs it — steps
-          that are not live yet say so instead of pretending. Steps marked
-          <em> live now</em> require a signed-in account (the free monthly
-          allowance covers your first runs).
+          Vantia is two honest pipelines, not a pile of disconnected tools. Every
+          step below links the page that actually performs it. A step is either
+          live or tier-gated to Pro — nothing is a placeholder, and every step is
+          shipping today.
         </p>
         <div className="mt-6 flex flex-wrap gap-4">
           <Link
@@ -223,34 +189,43 @@ export default function PipelinePage() {
             href="#jobs"
             className="rounded-full border border-black/10 px-5 py-2 text-sm font-medium text-black hover:border-black/40 dark:border-white/20 dark:text-zinc-100"
           >
-            Job track
+            Jobs Pipeline
           </a>
           <a
             href="#scholarships"
             className="rounded-full border border-black/10 px-5 py-2 text-sm font-medium text-black hover:border-black/40 dark:border-white/20 dark:text-zinc-100"
           >
-            Scholarship track
+            Scholarships Pipeline
           </a>
         </div>
 
         <Track
           id="jobs"
-          title="If you are looking for a job"
-          intro="Discover a screened, sponsorship-flagged posting; tailor and fix your CV against it; send a cover letter built from your own facts; watch the spend."
-          steps={JOB_TRACK}
+          title="Jobs Pipeline"
+          description="From search to application — every step verified against the employer's own portal."
+          steps={JOB_STEPS}
+          showCountries
         />
         <Track
           id="scholarships"
-          title="If you are looking for a scholarship"
-          intro="Find a funded programme with a verified deadline; check the credential equivalence honestly; tailor your academic CV and motivation letter; watch the spend."
-          steps={SCHOLARSHIP_TRACK}
+          title="Scholarships Pipeline"
+          description="From discovery to funding — every programme sourced from its official page."
+          steps={SCHOLARSHIP_STEPS}
+          showCountries={false}
         />
 
         <p className="mt-10 text-xs text-zinc-500">
-          Nothing on this page is aspirational marketing: every live step
-          opens the same tool the pipeline itself uses, metered against your
-          account at published prices — and launching-soon steps link the
-          page that will host them, honestly labelled.
+          Every live step opens the same tool the pipeline itself uses, metered
+          against your account at published prices — see your balance, packs and
+          invoices on the{" "}
+          <Link
+            href="/credits/dashboard"
+            className="font-medium text-zinc-700 underline dark:text-zinc-300"
+          >
+            credits dashboard
+          </Link>
+          . Pro steps (CV-to-job mapping, mock interview) show an upgrade prompt
+          instead of running on the free tier.
         </p>
       </main>
     </div>

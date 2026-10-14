@@ -28,7 +28,7 @@ const input =
 const button =
   "rounded-full bg-black px-5 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-zinc-300";
 
-const COUNTRIES = ["ALL", "GB", "DE", "IE", "SE", "CA", "AU", "NZ"];
+const COUNTRIES = ["ALL", "GB", "DE", "IE", "SE", "CA", "AU", "NZ", "JP"];
 
 function reliabilityBadge(): string {
   return "border border-black/10 text-xs text-zinc-600 dark:text-zinc-400";

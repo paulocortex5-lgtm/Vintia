@@ -67,8 +67,9 @@ export default function WaitlistPage() {
           Join the Vantia waitlist
         </h1>
         <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
-          Launching soon: visa-sponsored jobs, funded scholarships, ATS scoring
-          and application tools.
+          Live now: visa-sponsored jobs across 50+ countries, funded
+          scholarships, 12-point ATS scoring, CV improvement, cover letters and
+          application tracking — every step verified.
           {stats ? ` ${stats.confirmed_count} already confirmed.` : ""}
         </p>
 
