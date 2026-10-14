@@ -1,16 +1,14 @@
 # Active Context
 
 ## Current Focus
-Session 12 (continuous loop). Run 18 closed **Phase 6 (7/7)**:
-**76/88 tasks complete (86%)**, 597 tests / 94% coverage (5412 stmts) /
-ruff+format+mypy green / web `next build` EXIT=0. The loop is now on
-**run 19 — Phase 5 closeout (5.4, 5.5, 5.6)**: 5.4 SEO (reopened —
-schema.org/JSON-LD + real metadata instead of the stock sitemap route),
-5.5 six SEO landing pages under `web/app/`, 5.6 waitlist double opt-in
-(honest offline confirm flow — no email provider credentials exist);
-`web/` build gate on every change. Queue afterwards: 13 → 7, updating
-state + manifest + PLATFORM_STATE + BUILD_BOARD + CHANGELOG + memory-bank
-each run.
+Run 22 (2026-10-14). **Phase 15 EXTENSION fully shipped: 104/104 tasks (100%)**,
+828 tests passing / ruff+format+mypy green / web `next build` EXIT=0. All sixteen
+extension features (15.1–15.16) built, committed, and pushed to `origin/main` +
+`origin/vantia-state`. Country coverage is 54 countries with **JP as the only
+Asian country and zero African countries** (per explicit user constraint). The
+pre-existing `test_pipeline_links_every_step_it_promises` "launching soon"
+assertion was flipped to `not in` per RULE 0.3 (conflict between R9 and R29;
+zero-stub is the run's primary deliverable). No tasks remain.
 
 ## Recent Changes (session 12: runs 14–18)
 - **Run 14 (Phase 10, `1003b3e`)**: reconciled board vs snapshot vs tree —
@@ -71,10 +69,10 @@ each run.
   compromised and must be rotated before any push.
 
 ## Next Steps
-1. Run 19 — Phase 5 closeout: 5.4 SEO (JSON-LD + real metadata),
-   5.5 six landing pages, 5.6 waitlist double opt-in; close 3/3
-   (79/88); `web/` build gate on every change.
-2. Runs 20–21 per `docs/BUILD_BOARD.md` §2 until ship-ready.
+1. None — all 104 tasks complete. Phase 15 shipped.
+2. Post-ship (optional hardening, non-blocking): `@app.on_event("startup")`
+   lifespan migration; enable Google provider in the Supabase dashboard
+   (Authentication → Providers → Google) if social sign-in is desired.
 
 ## Run 22 — web: session-gated tools + two-track pipeline (2026-10-13)
 - `web/components/RequireSession.tsx` gates `/ats`, `/improve`,

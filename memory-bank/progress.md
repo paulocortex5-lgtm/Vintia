@@ -79,18 +79,55 @@
   commit `bb0b130` (pushed continuously with the disclosed token under
   user authorization; user rotates it at 100% build).
 
-## What's Left (9 tasks)
-- Phase 7 (3): acceptance (full E2E, failover, paid-model switching).
-- Phase 13 (6): workspace UI + full journey.
+## Phase 15 — EXTENSION (runs 21–22, all 16/16 complete, `d45d98a`)
+- **15.1 job recommendations from CV** (`d5a3b8a`): `engine/ats/recommender.py` —
+  six-signal weighted match (skill/experience/education/location/visa/recency),
+  24h cache by sha256(cv_hash+filters), unparseable-CV fallback; `POST/GET
+  /jobs/recommendations`; `web/app/jobs/recommended`.
+- **15.2 direct application link verification**: `engine/sources/verify_links.py`
+  — HTTPS-only, ATS allowlist, HEAD reachability, 6h freshness; `.github/workflows/verify-links.yml`.
+- **15.3 anti-predatory enforcement**: `engine/security/predatory.py` —
+  12 fee patterns, scam-aggregator list, PII-request + injection detectors;
+  `ingest.rejected_jobs` audit with reason_code.
+- **15.4 sponsor reliability scoring** (`5a8d276`): `engine/sources/sponsor_reliability.py`
+  — 0–100 tenure/volume/consistency/volatility/user-signal; weekly cron.
+- **15.5 CV-to-job spec mapping (Pro)** (`a2fd18e`): prompt `v1_cv_job_mapping.md`
+  + schema + `engine/generators/cv_job_mapping.py`; tier-gated, 6,000 credits, debit-after-persist.
+- **15.6 CV refinement chatbot**: `v1_chat_refine.md` + `engine/improve/chat_refine.py`
+  — tier turn limits (free 3 / pro 20 / business ∞), 2,000/turn, `POST /improve/chat`.
+- **15.7 mock interview generator (Pro)**: `v1_mock_interview.md` + schema; 10 questions, 4,000 credits.
+- **15.8 application tracker** (`084d50f`): `engine/applications/tracker.py` — kanban
+  (applied/interview/offer/rejected/withdrawn), job snapshot; `web/app/applications`.
+- **15.9 job alert subscriptions** (`084d50f`): `engine/alerts/manager.py` + `send_digests.py`
+  (Resend), `.github/workflows/job-alerts.yml` (daily 08:00 UTC); `web/app/alerts`.
+- **15.10 scholarship calendar export** (`fc2dd7d`): `engine/scholarships/calendar.py`
+  — RFC 5545 .ics; `/scholarships/{id}/ics` + `/scholarships/calendar.ics`.
+- **15.11 referral program** (`b38fa98`): `engine/referrals/manager.py` — 8-char codes,
+  5,000-credit both parties, idempotent; `web/app/referrals`.
+- **15.12 public API** (`fdeebeb`): `engine/public_api/keys.py` — `vantia_sk_` SHA-256
+  key auth, per-key rate limit; `/api/v1/ats/score` + equivalence; `docs/API.md`.
+- **15.13 50-country coverage** (`2aa4f73`): `engine/sources/world.py` + `countries.py`
+  — 54 countries (≥50), **JP the only Asian country, zero African countries** (per user).
+- **15.14 real /status page** (`ce39b9f`): `/metrics` endpoint + rewritten `web/app/status`
+  (data freshness / LLM providers / platform health / what's working).
+- **15.15 eliminate all stubs** (`d45d98a`): pipeline page fully live (10 job steps + 7
+  scholarship steps), all "launching soon" gone; `tests/test_stub_elimination.py`.
+- **15.16 country tabs everywhere** (`d45d98a`): UK/DE/IE/SE/CA/AU/NZ/JP/All tabs on
+  /jobs, /scholarships, /jobs/recommended, /pipeline; `?country=` shareable.
+
+**RULE 0.3 conflict resolved (run 22):** pre-existing `test_web_pipeline.py::
+test_pipeline_links_every_step_it_promises` asserted `"launching soon" in text`,
+contradicting R29/Part 19.4 (`grep -r "launching soon" web/` = 0). Flipped that one
+assertion to `not in` (kept the test + all other assertions; never removed it).
+
+## What's Left (0 tasks)
+- Phase 15 fully shipped (16/16). All 104 tasks complete. Suite green (828 passed),
+  ruff+mypy green, web `next build` EXIT=0. main pushed to `origin/main` + `origin/vantia-state`.
 
 ## Current Milestone
-Run 19 closed Phase 5 (3/3): **85/88 = 96%**, 617 tests / 94% coverage
-(5510 stmts) / gates green / web build green. The continuous loop is on
-run 20 — Phase 7 start, then 13 per `docs/BUILD_BOARD.md`.
+Run 22: **104/104 tasks (100%)**. Phase 15 extension fully built, tested, and shipped.
+Production: Vercel `vantia-rho.vercel.app`, Render `vantia-engine.onrender.com`,
+Supabase (EU) `zpzzrlxkmnmposdnxpeg`, Paddle, 12-provider LLM failover.
 
 ## Blockers
-- No Supabase / Render / Vercel / Paddle credentials (`REPLACE_ME`
-  placeholders) — network-success verification deferred to launch prep.
-- ~~Push blocked (disclosed token)~~ — **pushed 2026-10-10**
-  (`6c7ccfd..8ef642e`) under explicit user authorization; the user rotates
-  the token at 100% build. Inline `oauth2:` URL only; never in the repo.
+- None. All credentials live (Supabase, Paddle, Render, Vercel). Golden path + 828 tests green.

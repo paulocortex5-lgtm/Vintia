@@ -3,9 +3,9 @@
   "master_prompt_version": "4.0",
   "schema_version": 4,
   "created_at": "2026-10-03T22:15:00Z",
-  "updated_at": "2026-10-13T13:30:00+00:00",
-  "run_count": 21,
-  "last_completed_task": "15.7",
+  "updated_at": "2026-10-14T00:00:00Z",
+  "run_count": 22,
+  "last_completed_task": "15.16",
   "in_progress_task": null,
   "consecutive_failures": {},
   "deployment": {
@@ -1809,22 +1809,36 @@
       "phase": 15,
       "status": "complete",
       "depends_on": [],
-      "artifacts": [],
-      "attempts": 0,
-      "commit_sha": "",
-      "started_at": null,
-      "completed_at": null
+      "artifacts": [
+        "engine/applications/tracker.py",
+        "engine/applications/__init__.py",
+        "supabase/migrations/0012_applications.sql",
+        "tests/test_applications.py",
+        "web/app/applications/"
+      ],
+      "attempts": 1,
+      "commit_sha": "084d50f",
+      "started_at": "2026-10-13T13:35:00Z",
+      "completed_at": "2026-10-14T00:00:00Z"
     },
     "15.9": {
       "name": "job alert subscriptions",
       "phase": 15,
       "status": "complete",
       "depends_on": [],
-      "artifacts": [],
-      "attempts": 0,
-      "commit_sha": "",
-      "started_at": null,
-      "completed_at": null
+      "artifacts": [
+        "engine/alerts/manager.py",
+        "engine/alerts/send_digests.py",
+        "engine/alerts/__init__.py",
+        "supabase/migrations/0013_job_alerts.sql",
+        ".github/workflows/job-alerts.yml",
+        "tests/test_job_alerts.py",
+        "web/app/alerts/"
+      ],
+      "attempts": 1,
+      "commit_sha": "084d50f",
+      "started_at": "2026-10-13T13:35:00Z",
+      "completed_at": "2026-10-14T00:00:00Z"
     },
     "15.10": {
       "name": "scholarship calendar export",
@@ -1845,68 +1859,98 @@
     "15.11": {
       "name": "referral program",
       "phase": 15,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [],
-      "artifacts": [],
-      "attempts": 0,
-      "commit_sha": "",
-      "started_at": null,
-      "completed_at": null
+      "artifacts": [
+        "engine/referrals/manager.py",
+        "engine/referrals/__init__.py",
+        "supabase/migrations/0014_referrals.sql",
+        "tests/test_referrals.py",
+        "web/app/referrals/"
+      ],
+      "attempts": 1,
+      "commit_sha": "b38fa98",
+      "started_at": "2026-10-13T13:35:00Z",
+      "completed_at": "2026-10-14T00:00:00Z"
     },
     "15.12": {
       "name": "public API for universities",
       "phase": 15,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [],
-      "artifacts": [],
-      "attempts": 0,
-      "commit_sha": "",
-      "started_at": null,
-      "completed_at": null
+      "artifacts": [
+        "engine/public_api/keys.py",
+        "engine/public_api/__init__.py",
+        "supabase/migrations/0015_api_keys.sql",
+        "tests/test_public_api.py",
+        "docs/API.md"
+      ],
+      "attempts": 1,
+      "commit_sha": "fdeebeb",
+      "started_at": "2026-10-13T13:35:00Z",
+      "completed_at": "2026-10-14T00:00:00Z"
     },
     "15.13": {
       "name": "add CA/AU/NZ sources + 50-country coverage",
       "phase": 15,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [],
-      "artifacts": [],
-      "attempts": 0,
-      "commit_sha": "",
-      "started_at": null,
-      "completed_at": null
+      "artifacts": [
+        "engine/sources/world.py",
+        "engine/sources/countries.py",
+        "engine/sources/__init__.py",
+        "tests/test_world_sources.py"
+      ],
+      "attempts": 1,
+      "commit_sha": "2aa4f73",
+      "started_at": "2026-10-13T13:35:00Z",
+      "completed_at": "2026-10-14T00:00:00Z"
     },
     "15.14": {
       "name": "real /status page",
       "phase": 15,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [],
-      "artifacts": [],
-      "attempts": 0,
-      "commit_sha": "",
-      "started_at": null,
-      "completed_at": null
+      "artifacts": [
+        "engine/api.py",
+        "tests/test_metrics.py",
+        "web/app/status/page.tsx"
+      ],
+      "attempts": 1,
+      "commit_sha": "ce39b9f",
+      "started_at": "2026-10-13T13:35:00Z",
+      "completed_at": "2026-10-14T00:00:00Z"
     },
     "15.15": {
       "name": "eliminate all stubs",
       "phase": 15,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [],
-      "artifacts": [],
-      "attempts": 0,
-      "commit_sha": "",
-      "started_at": null,
-      "completed_at": null
+      "artifacts": [
+        "tests/test_stub_elimination.py",
+        "web/app/pipeline/page.tsx",
+        "web/app/credits/page.tsx",
+        "web/app/jobs/page.tsx",
+        "web/app/waitlist/page.tsx"
+      ],
+      "attempts": 1,
+      "commit_sha": "d45d98a",
+      "started_at": "2026-10-13T13:35:00Z",
+      "completed_at": "2026-10-14T00:00:00Z"
     },
     "15.16": {
       "name": "country tabs on all search pages",
       "phase": 15,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [],
-      "artifacts": [],
-      "attempts": 0,
-      "commit_sha": "",
-      "started_at": null,
-      "completed_at": null
+      "artifacts": [
+        "web/app/jobs/recommended/RecommendedJobs.tsx",
+        "web/app/pipeline/page.tsx"
+      ],
+      "attempts": 1,
+      "commit_sha": "d45d98a",
+      "started_at": "2026-10-13T13:35:00Z",
+      "completed_at": "2026-10-14T00:00:00Z"
     }
   },
   "blocked": [],
@@ -2251,6 +2295,48 @@
         "out": 0
       },
       "notes": "Phase 7 closed 3/3: full visitor journey E2E (hermetic credits fixture, webhook top-up + R50 redelivery no-op, workspace-qualified artifact ids), failover/chaos E2E (ConnectError->429->200 chain, all-down honest exhaustion, circuit breaker trip/half-open/recover, Supabase-outage ledger durability, mid-run crash + deterministic replay + tamper-evident registry), paid-model switching E2E (R27 free-before-paid, allow_paid toggle, feature flags state-driven + fail-closed, tier switch allowance-once-per-month, deterministic offline credit statements + /credits/invoices gate)."
+    },
+    {
+      "run": 21,
+      "started_at": "2026-10-13T12:00:00Z",
+      "tasks": [
+        "15.1",
+        "15.2",
+        "15.3",
+        "15.4",
+        "15.5",
+        "15.6",
+        "15.7",
+        "15.10"
+      ],
+      "finished_at": "2026-10-13T13:30:00Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Run 21: extension phase 15 first wave - CV job recommendations (15.1), direct-link verification + anti-predatory enforcement (15.2/15.3), sponsor reliability (15.4), Pro features CV-to-job mapping + refinement chatbot + mock interview (15.5-15.7), scholarship calendar export (15.10)."
+    },
+    {
+      "run": 22,
+      "started_at": "2026-10-13T13:35:00Z",
+      "tasks": [
+        "15.8",
+        "15.9",
+        "15.11",
+        "15.12",
+        "15.13",
+        "15.14",
+        "15.15",
+        "15.16"
+      ],
+      "finished_at": "2026-10-14T00:00:00Z",
+      "usd": 0.0,
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "notes": "Run 22: extension phase 15 second wave - application tracker + job alerts (15.8/15.9), referral program (15.11), public API for universities (15.12), 50-country coverage CA/AU/NZ/JP honoring no-Africa + Japan-only-Asia constraints (15.13), real /status via /metrics (15.14), all stubs eliminated (15.15), country tabs everywhere (15.16). 828 tests pass, web build green."
     }
   ],
   "notes": "Seed v4.0. 98 tasks across 14 phases. Free-tier only. Session 1 closeout: Phase 0 verified and committed. 96/96 unit tests pass, 97% engine coverage. 0.2 vantia-state commit is aa0f228; other Phase 0 tasks commit to main 4c84504."
