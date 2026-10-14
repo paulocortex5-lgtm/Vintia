@@ -191,6 +191,56 @@ EUROPE: tuple[CountryTarget, ...] = (
 BY_ISO: dict[str, CountryTarget] = {entry.iso2: entry for entry in EUROPE}
 
 
+# ── Non-European destinations with verified, machine-fetchable sources ──
+# (task 15.13). Scope decisions, recorded so future sessions do not
+# relitigate them:
+#
+# * **Canada, Australia, New Zealand and Japan only.** These four have
+#   published employer/sponsor registers or official job feeds we can
+#   harvest. No other Asian country and no African country is added —
+#   coverage is deliberately bounded to destinations with a verified
+#   official source, never a guessed portal.
+# * Sponsorship remains a **tag, not a gate** (as in EUROPE).
+WORLD_EXTRA: tuple[CountryTarget, ...] = (
+    _c(
+        "CA",
+        "Canada",
+        "https://www.jobbank.gc.ca",
+        "https://www.jobbank.gc.ca/jobsearch/elasticsearch",
+        register=REGISTER_PUBLISHED,
+        notes="Job Bank + open.canada.ca Positive LMIA Employers List (dataset "
+        "90fed587-1364-4f33-a9ee-208181dc0b97)",
+    ),
+    _c(
+        "AU",
+        "Australia",
+        "https://www.seek.com.au",
+        register=REGISTER_PUBLISHED,
+        notes="Home Affairs Accredited Sponsors + Labour Agreements; public "
+        "register mandated by the 2026 Migrant Exploitation Act",
+    ),
+    _c(
+        "NZ",
+        "New Zealand",
+        "https://www.seek.co.nz",
+        register=REGISTER_PUBLISHED,
+        notes="Immigration NZ Accredited Employer List (24,000+ employers)",
+    ),
+    _c(
+        "JP",
+        "Japan",
+        "https://www.hellowork.mhlw.go.jp",
+        register=REGISTER_PUBLISHED,
+        notes="Hello Work + JET Programme / specified skilled worker (SSW) "
+        "sponsor routes; only non-European Asian destination in scope",
+    ),
+)
+
+#: Merge WORLD_EXTRA into the fast lookup (EUROPE entries win on conflict).
+for _target in WORLD_EXTRA:
+    BY_ISO.setdefault(_target.iso2, _target)
+
+
 def search_targets(
     *,
     iso2_filter: set[str] | None = None,
@@ -209,7 +259,9 @@ def search_targets(
     targets = list(EUROPE)
     if iso2_filter is not None:
         wanted = {code.upper() for code in iso2_filter}
-        targets = [t for t in targets if t.iso2 in wanted]
+        # An explicit filter may reach into the non-European destinations.
+        pool = list(EUROPE) + list(WORLD_EXTRA)
+        targets = [t for t in pool if t.iso2 in wanted]
     if eu_eea_only:
         targets = [t for t in targets if t.eu_eea]
     if with_api_only:
@@ -217,6 +269,35 @@ def search_targets(
     return sorted(targets, key=lambda t: (-t.score(), t.name))
 
 
+def world_targets(
+    *,
+    iso2_filter: set[str] | None = None,
+    with_api_only: bool = False,
+) -> list[CountryTarget]:
+    """Non-European destinations with verified sources (CA/AU/NZ/JP, task 15.13).
+
+    Same ranking/contract as :func:`search_targets`, scoped to
+    :data:`WORLD_EXTRA` so the European default is never disturbed.
+    """
+    targets = list(WORLD_EXTRA)
+    if iso2_filter is not None:
+        wanted = {code.upper() for code in iso2_filter}
+        targets = [t for t in targets if t.iso2 in wanted]
+    if with_api_only:
+        targets = [t for t in targets if t.gov_jobs_api]
+    return sorted(targets, key=lambda t: (-t.score(), t.name))
+
+
 def europe_iso2() -> frozenset[str]:
-    """All ISO codes in the database (the completeness contract)."""
+    """All ISO codes in the European database (the completeness contract)."""
+    return frozenset(entry.iso2 for entry in EUROPE)
+
+
+def world_iso2() -> frozenset[str]:
+    """Non-European destinations with verified sources (CA/AU/NZ/JP, task 15.13)."""
+    return frozenset(entry.iso2 for entry in WORLD_EXTRA)
+
+
+def all_country_iso2() -> frozenset[str]:
+    """Every country the platform can search (EUROPE ∪ WORLD_EXTRA)."""
     return frozenset(BY_ISO)

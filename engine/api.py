@@ -891,7 +891,76 @@ def sponsors_reliability_all(country: str = "") -> dict[str, Any]:
     return {"count": len(scores), "scores": scores}
 
 
+# ── Task 15.13 — non-European source coverage (CA/AU/NZ/JP) ─────────────
+
+
+@app.get("/sources/world")
+def sources_world() -> dict[str, Any]:
+    """List the non-European visa + scholarship sources (task 15.13 §17.4).
+
+    CA/AU/NZ/JP only — no other Asian or African destination ships.
+    """
+    from .sources.world import source_summary
+
+    return source_summary()
+
+
+@app.post("/sources/world/seed")
+def sources_world_seed() -> dict[str, Any]:
+    """Seed the sponsored-employer listings for CA/AU/NZ/JP (idempotent)."""
+    from .sources.world import seed_visa_jobs
+
+    return seed_visa_jobs()
+
+
 # ── Task 15.10 — scholarship calendar export (.ics, RFC 5545) ──────────────
+
+
+@app.get("/scholarships")
+def scholarships_list(
+    country: str = "",
+    level: str = "",
+    funding: str = "",
+) -> dict[str, Any]:
+    """List funded programmes, European DB + non-European (CA/AU/NZ/JP).
+
+    New endpoint (task 15.13): merges the curated European
+    :data:`~engine.scholarships.database.SCHOLARSHIPS` with the world
+    sources so a ``?country=CA`` filter returns results. Additive only —
+    it never changes the calendar/ics routes.
+    """
+    from .scholarships.database import search_scholarships
+    from .sources.world import SCHOLARSHIP_SOURCES
+
+    rows: list[dict[str, Any]] = []
+    for sch in search_scholarships(
+        level=level or None,
+        funding=funding or None,
+        host_country=country or None,
+    ):
+        rows.append(
+            {
+                "id": sch.id,
+                "name": sch.name,
+                "provider": sch.provider,
+                "country": (country or sch.host_countries[0] if sch.host_countries else "").upper(),
+                "countries": list(sch.host_countries),
+                "level": sch.level,
+                "funding": sch.funding,
+                "window_close": sch.window_close,
+                "url": sch.url,
+                "basis": sch.basis,
+            }
+        )
+    for sch in SCHOLARSHIP_SOURCES:
+        if country and sch.country != country.upper():
+            continue
+        if level and sch.level not in (level, "any"):
+            continue
+        if funding and sch.funding != funding:
+            continue
+        rows.append(sch.to_dict())
+    return {"scholarships": rows, "total": len(rows), "country": country.upper()}
 
 
 @app.get("/scholarships/calendar.ics")

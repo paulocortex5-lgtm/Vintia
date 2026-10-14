@@ -71,6 +71,12 @@ from .verify_links import (
     is_known_ats,
     verify_batch,
 )
+from .world import (
+    SCHOLARSHIP_SOURCES,
+    VISA_SOURCES,
+    seed_visa_jobs,
+    source_summary,
+)
 
 __all__ = [
     "BY_ISO",
@@ -88,6 +94,8 @@ __all__ = [
     "REGISTER_PENDING",
     "REGISTER_PUBLISHED",
     "RELIABILITY_WEIGHTS",
+    "SCHOLARSHIP_SOURCES",
+    "VISA_SOURCES",
     "CountryTarget",
     "DomainRateLimiter",
     "FederalEmploymentAgency",
@@ -130,6 +138,8 @@ __all__ = [
     "score_for",
     "search_jobs",
     "search_targets",
+    "seed_visa_jobs",
+    "source_summary",
     "upsert",
     "upsert_many",
     "verify_batch",
