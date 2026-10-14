@@ -1038,6 +1038,64 @@ def improve_chat(body: ChatRefineRequest) -> dict[str, Any]:
         raise _feature_http(exc) from exc
 
 
+# ── Task 15.11 — referral program ───────────────────────────────────────
+
+
+class RecordSignupRequest(BaseModel):
+    """Body of ``POST /referrals/signup`` (task 15.11 §15.2)."""
+
+    code: str
+    referee_id: str
+    referee_email: str = ""
+
+
+@app.post("/referrals/invite")
+def referrals_invite(user_id: str = "") -> dict[str, Any]:
+    """Return the user's shareable referral link + code (task 15.11 §15.3)."""
+    from .referrals.manager import code_for
+
+    owner = _require_user_id(user_id)
+    code = code_for(owner)
+    base = os.environ.get("VANTIA_PUBLIC_URL", "https://vantia-rho.vercel.app")
+    return {
+        "code": code,
+        "link": f"{base}/?ref={code}",
+        "bonus_each": 5000,
+        "share_text": (
+            f"Join me on Vantia — visa-sponsored jobs and funded scholarships, "
+            f"screened for predatory postings. We both get 5,000 credits: {base}/?ref={code}"
+        ),
+    }
+
+
+@app.get("/referrals")
+def referrals_history(user_id: str = "") -> dict[str, Any]:
+    """The user's referral history + live counts (task 15.11 §15.3)."""
+    from .referrals.manager import REFERRAL_BONUS, history_for
+
+    owner = _require_user_id(user_id)
+    rows = history_for(owner)
+    completed = [r for r in rows if r.get("status") == "completed"]
+    return {
+        "referrals": rows,
+        "total": len(rows),
+        "completed": len(completed),
+        "credits_earned": len(completed) * REFERRAL_BONUS,
+    }
+
+
+@app.post("/referrals/signup")
+def referrals_signup(body: RecordSignupRequest) -> dict[str, Any]:
+    """Credit both parties when a referee signs up through a code (§15.2)."""
+    from .referrals.manager import record_signup
+
+    try:
+        row = record_signup(body.code, body.referee_id, body.referee_email)
+    except VantiaError as exc:
+        raise _feature_http(exc) from exc
+    return {"referral": row}
+
+
 # ── Task 15.9 — job alert subscriptions ─────────────────────────────────
 
 
