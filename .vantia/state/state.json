@@ -1867,7 +1867,7 @@
     "15.13": {
       "name": "add CA/AU/NZ sources + 50-country coverage",
       "phase": 15,
-      "status": "pending",
+      "status": "complete",
       "depends_on": [],
       "artifacts": [],
       "attempts": 0,
