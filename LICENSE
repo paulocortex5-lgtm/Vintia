@@ -1,21 +1,87 @@
-MIT License
+VANTIA PROPRIETARY SOFTWARE LICENSE
 
-Copyright (c) 2026 Vantia
+Copyright (c) 2026 Vantia. All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This software and associated documentation files, source code, object code,
+prompts, schemas, data models, algorithms, designs, and all other materials
+contained in this repository (collectively, the "Software") are the
+proprietary and confidential property of Vantia ("Licensor").
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. OWNERSHIP
+   The Software is licensed, not sold. Licensor owns and retains all right,
+   title, and interest in and to the Software, including all intellectual
+   property rights therein. No ownership rights are transferred to you under
+   this License.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+2. GRANT OF LIMITED, REVOCABLE PERMISSION
+   Subject to the terms of this License, Licensor grants you a limited,
+   non-exclusive, non-transferable, and revocable permission to access and
+   view the Software solely for internal evaluation purposes. This permission
+   does not constitute a license to use the Software in production, nor does
+   it grant any rights to distribute, publish, or expose the Software to any
+   third party.
+
+3. RESTRICTIONS
+   Except with the prior written permission of Licensor, you may NOT:
+     (a) copy, reproduce, publish, or distribute the Software, in whole or in
+         part, in any form or by any means;
+     (b) modify, adapt, translate, or create derivative works of the Software;
+     (c) reverse engineer, decompile, or disassemble the Software, except to
+         the extent such restriction is prohibited by applicable law;
+     (d) rent, lease, lend, sell, sublicense, or otherwise commercially exploit
+         the Software or make it available to any third party;
+     (e) remove, alter, or obscure any proprietary notices on the Software;
+     (f) use the Software to develop a competing product or service;
+     (g) use the Software in any way that violates applicable law or the
+         rights of any third party.
+
+4. CONFIDENTIALITY
+   The Software, including its source code, prompts, schemas, architecture, and
+   documentation, constitutes Licensor's confidential information and trade
+   secrets. You agree to protect it with at least the same degree of care you
+   use for your own confidential information, and in no event less than
+   reasonable care, and not to disclose it to any unauthorized party.
+
+5. NO OPEN-SOURCE GRANT
+   The Software is NOT licensed under any open-source license. No rights are
+   granted under any permissive license (including, without limitation, MIT,
+   Apache-2.0, BSD, or GPL). Any prior open-source designation of this
+   repository is hereby revoked and superseded by this License.
+
+6. TERMINATION
+   This License and the permission granted hereunder are effective until
+   terminated. Your permission terminates automatically, without notice, upon
+   any breach of this License. Upon termination, you must immediately cease all
+   use of the Software and destroy all copies in your possession. Termination
+   does not limit any of Licensor's other rights or remedies.
+
+7. NO WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT. THE ENTIRE
+   RISK ARISING OUT OF THE USE OR PERFORMANCE OF THE SOFTWARE REMAINS WITH YOU.
+
+8. LIMITATION OF LIABILITY
+   TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL
+   LICENSOR BE LIABLE FOR ANY SPECIAL, INCIDENTAL, INDIRECT, CONSEQUENTIAL, OR
+   PUNITIVE DAMAGES, OR ANY DAMAGES FOR LOSS OF PROFITS, REVENUE, DATA, OR
+   BUSINESS OPPORTUNITY, ARISING OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
+   THIS LICENSE, REGARDLESS OF THE THEORY OF LIABILITY AND EVEN IF LICENSOR HAS
+   BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. LICENSOR'S TOTAL AGGREGATE
+   LIABILITY SHALL NOT EXCEED THE AMOUNT PAID BY YOU TO LICENSOR, IF ANY, FOR
+   THE SOFTWARE.
+
+9. GOVERNING LAW
+   This License is governed by the laws applicable to Licensor's principal
+   place of business, without regard to its conflict-of-laws principles. Any
+   dispute arising hereunder shall be subject to the exclusive jurisdiction of
+   the competent courts of that jurisdiction.
+
+10. ENTIRE AGREEMENT
+    This License constitutes the entire agreement between you and Licensor
+    concerning the Software and supersedes any prior agreement or
+    communication, written or oral, relating to its subject matter.
+
+For licensing inquiries, contact: agent@vantia.local
+
+ALL RIGHTS RESERVED.

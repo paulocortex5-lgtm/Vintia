@@ -8,7 +8,7 @@ version = "0.4.0"
 description = "Vantia — Universal Opportunity Engine"
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "MIT" }
+license = { text = "LicenseRef-PROPRIETARY" }
 authors = [{ name = "Vantia", email = "agent@vantia.local" }]
 keywords = ["jobs", "scholarships", "ats", "visa", "opportunity-engine"]
 dependencies = [

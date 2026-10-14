@@ -65,4 +65,4 @@ Built incrementally across sessions. See [`CHANGELOG.md`](CHANGELOG.md) and
 
 ## License
 
-MIT — see [`LICENSE`](LICENSE).
+**Proprietary — All rights reserved.** This software is not open source. See [`LICENSE`](LICENSE) for the full terms.
