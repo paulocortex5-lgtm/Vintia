@@ -29,7 +29,7 @@ import time
 from datetime import UTC, datetime
 from typing import Any
 
-from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -1036,6 +1036,143 @@ def improve_chat(body: ChatRefineRequest) -> dict[str, Any]:
         )
     except VantiaError as exc:
         raise _feature_http(exc) from exc
+
+
+# ── Task 15.12 — public API for universities (Bearer vantia_sk_ keys) ────
+
+
+class V1ScoreRequest(BaseModel):
+    """Body of ``POST /v1/ats/score`` (task 15.12 §16.2)."""
+
+    cv: str = ""
+    job_description: str = ""
+    job_title: str = ""
+
+
+class CreateApiKeyRequest(BaseModel):
+    """Body of ``POST /api-keys`` (admin, task 15.12 §16.2)."""
+
+    owner_email: str
+    name: str = ""
+    tier: str = "free"
+    rate_limit_per_min: int | None = None
+
+
+def _bearer_record(authorization: str) -> dict[str, Any]:
+    """Resolve + rate-limit a ``Bearer vantia_sk_...`` key; 401/429 on failure."""
+    from .public_api.keys import rate_limit_for, resolve_key, window_allowance
+
+    scheme, _, token = (authorization or "").partition(" ")
+    if scheme.lower() != "bearer" or not token.strip():
+        raise HTTPException(
+            status_code=401,
+            detail=VantiaError("missing or malformed API key", code="api_key_required").as_dict(),
+        )
+    record = resolve_key(token)
+    if record is None:
+        raise HTTPException(
+            status_code=401,
+            detail=VantiaError("invalid API key", code="api_key_invalid").as_dict(),
+        )
+    limit = int(record.get("rate_limit_per_min") or rate_limit_for(record.get("tier", "free")))
+    allowed, meta = window_allowance(str(record["key_hash"]), limit)
+    if not allowed:
+        raise HTTPException(
+            status_code=429,
+            detail=VantiaError(
+                f"rate limit exceeded ({limit}/min)", code="rate_limited"
+            ).as_dict(),
+            headers={
+                "X-RateLimit-Limit": str(meta["limit"]),
+                "X-RateLimit-Remaining": "0",
+                "Retry-After": str(meta["reset"]),
+            },
+        )
+    record["_ratelimit"] = meta
+    return record
+
+
+@app.post("/v1/ats/score")
+def v1_ats_score(
+    body: V1ScoreRequest,
+    authorization: str = Header(default=""),
+) -> dict[str, Any]:
+    """Public 12-point ATS score (task 15.12 §16.2). Bearer key required."""
+    from .ats import parse_resume, score_resume
+
+    _bearer_record(authorization)
+    if not body.cv.strip():
+        raise HTTPException(
+            status_code=422,
+            detail=VantiaError("cv text is required", code="cv_required").as_dict(),
+        )
+    parsed = parse_resume(body.cv.encode("utf-8"), content_type="text/plain")
+    report = score_resume(
+        parsed, job_title=body.job_title, job_description=body.job_description
+    )
+    payload = report.payload()
+    return {"overall_score": payload.get("overall_score"), "report": payload}
+
+
+@app.get("/v1/equivalence/{country}/{credential}")
+def v1_equivalence(
+    country: str,
+    credential: str,
+    authorization: str = Header(default=""),
+) -> dict[str, Any]:
+    """Public credential-equivalence lookup (task 15.12 §16.2)."""
+    from .credentials.equivalence import equivalence
+
+    _bearer_record(authorization)
+    result = equivalence(credential, country=country.upper())
+    return {
+        "country": country.upper(),
+        "credential": credential,
+        "match": result.get("match"),
+        "target_title": result.get("target_title"),
+        "advice": result.get("advice"),
+    }
+
+
+@app.post("/api-keys")
+def api_keys_create(body: CreateApiKeyRequest, request: Request) -> dict[str, Any]:
+    """Create an API key (admin-gated); returns the raw key once (§16.2)."""
+    _require_admin(request)
+    from .public_api.keys import create_key
+
+    try:
+        created = create_key(
+            body.owner_email,
+            name=body.name,
+            tier=body.tier,
+            rate_limit_per_min=body.rate_limit_per_min,
+        )
+    except VantiaError as exc:
+        raise _admin_http(exc) from exc
+    return created
+
+
+@app.get("/api-keys")
+def api_keys_list(request: Request) -> dict[str, Any]:
+    """List API keys (admin-gated; hashes redacted)."""
+    _require_admin(request)
+    from .public_api.keys import list_keys
+
+    keys = list_keys()
+    return {"keys": keys, "total": len(keys)}
+
+
+@app.delete("/api-keys/{key_id}")
+def api_keys_delete(key_id: str, request: Request) -> dict[str, Any]:
+    """Revoke an API key (admin-gated)."""
+    _require_admin(request)
+    from .public_api.keys import delete_key
+
+    try:
+        delete_key(key_id)
+    except VantiaError as exc:
+        raise _admin_http(exc) from exc
+    return {"deleted": True, "id": key_id}
 
 
 # ── Task 15.11 — referral program ───────────────────────────────────────
