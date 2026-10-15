@@ -50,6 +50,7 @@ done
 | `0013_job_alerts.sql` | `job_alerts` saved-search subscriptions with digest windows (task 15.9) |
 | `0014_referrals.sql` | `profiles.referral_code` + `referrals` two-sided credit log (task 15.11) |
 | `0015_api_keys.sql` | `api_keys` hash-only keys for the public university API (task 15.12) |
+| `0016_chat.sql` | `chat_conversations` + `chat_messages` with RLS keyed on `auth.uid()`::text = `user_id`; grants to `authenticated` (task 12.4 chatbot) |
 
 Each file is transactional (`begin; … commit;`) and idempotent
 (`if not exists`), so re-running is safe.
