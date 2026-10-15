@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import SessionCta from "../../components/SessionCta";
 import CoverLetterTool from "./CoverLetterTool";
 
 export const metadata: Metadata = {
@@ -45,11 +46,12 @@ export default function CoverLetterPage() {
           <li>• Loaded through the same robots/rate-limit respecting fetchers as the job trail</li>
         </ul>
         <div className="mt-8 flex flex-wrap gap-4">
+          <SessionCta />
           <Link
-            className="rounded-full bg-black px-5 py-2 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-white dark:text-black dark:hover:bg-zinc-300"
+            className="rounded-full border border-black/10 px-5 py-2 text-sm font-medium text-black hover:border-black/40 dark:border-white/20 dark:text-zinc-100"
             href="/dashboard"
           >
-            Sign in
+            Open your workspace
           </Link>
           <Link
             className="rounded-full border border-black/10 px-5 py-2 text-sm font-medium text-black hover:border-black/40 dark:border-white/20 dark:text-zinc-100"

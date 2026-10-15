@@ -69,7 +69,52 @@ def test_credits_dashboard_and_packs_are_gated():
     assert "loadSession" in purchase
 
 
-# ── the two-track pipeline ─────────────────────────────────────────────
+# ── live pipelines (schema/tests static surface for /jobs + /scholarships) ─
+
+
+BOARD_CONTRACTS = {
+    "web/app/jobs/JobsBoard.tsx": (
+        "`${ENGINE}/jobs",  # fetches the live store
+        "apply_url",  # every card links somewhere
+        'target="_blank"',
+        'aria-label="Live visa-sponsored jobs"',
+    ),
+    "web/app/scholarships/ScholarshipsBoard.tsx": (
+        "`${ENGINE}/scholarships",  # fetches the live programmes
+        "Official page",  # clickable official link
+        "/scholarships/${encodeURIComponent(row.id)}/ics",
+        'aria-label="Live funded scholarships"',
+    ),
+}
+
+
+def test_jobs_board_fetches_live_jobs_and_links_every_card():
+    text = (WEB / "app" / "jobs" / "JobsBoard.tsx").read_text("utf-8")
+    for anchor in BOARD_CONTRACTS["web/app/jobs/JobsBoard.tsx"]:
+        assert anchor in text, f"jobs board lost {anchor!r}"
+
+
+def test_scholarships_board_fetches_live_programmes_and_links_every_card():
+    text = (WEB / "app" / "scholarships" / "ScholarshipsBoard.tsx").read_text("utf-8")
+    for anchor in BOARD_CONTRACTS["web/app/scholarships/ScholarshipsBoard.tsx"]:
+        assert anchor in text, f"scholarships board lost {anchor!r}"
+
+
+def test_marketing_pages_render_the_live_boards_and_session_aware_cta():
+    for page, board in (
+        ("jobs", "JobsBoard"),
+        ("scholarships", "ScholarshipsBoard"),
+    ):
+        text = (WEB / "app" / page / "page.tsx").read_text("utf-8")
+        assert f'from "./{board}"' in text and f"<{board} />" in text, page
+        assert "SessionCta" in text, f"/{page} still nags signed-in users"
+        assert 'href="/dashboard"\n          >\n            Sign in' not in text, page
+
+
+def test_session_cta_offers_workspace_once_signed_in():
+    cta = (WEB / "components" / "SessionCta.tsx").read_text("utf-8")
+    assert "useSession" in cta
+    assert "Open your workspace" in cta
 
 
 def test_pipeline_page_ships_with_both_tracks_and_metadata():
@@ -86,7 +131,7 @@ def test_pipeline_links_every_step_it_promises():
     text = PIPELINE.read_text("utf-8")
     # the Track renderer links `step.href`, so the paths appear as data
     # literals (plus /dashboard as the CTA link)
-    assert 'href={step.href}' in text
+    assert "href={step.href}" in text
     for href in (
         "/dashboard",
         "/ats",
@@ -118,6 +163,4 @@ def test_marketing_pages_point_at_the_pipeline():
     home = (APP / "page.tsx").read_text("utf-8")
     assert 'href="/pipeline"' in home
     assert 'href="/pipeline#jobs"' in (APP / "jobs" / "page.tsx").read_text("utf-8")
-    assert 'href="/pipeline#scholarships"' in (APP / "scholarships" / "page.tsx").read_text(
-        "utf-8"
-    )
+    assert 'href="/pipeline#scholarships"' in (APP / "scholarships" / "page.tsx").read_text("utf-8")

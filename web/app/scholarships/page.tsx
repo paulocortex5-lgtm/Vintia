@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
+
+import SessionCta from "../../components/SessionCta";
+import ScholarshipsBoard from "./ScholarshipsBoard";
 
 const ENGINE =
   process.env.NEXT_PUBLIC_ENGINE_URL || "https://vantia-engine.onrender.com";
@@ -46,11 +50,12 @@ export default function ScholarshipsPage() {
           <li>• SOP + research proposal drafts built only from your facts</li>
         </ul>
         <div className="mt-8 flex flex-wrap gap-4">
+          <SessionCta />
           <Link
-            className="rounded-full bg-black px-5 py-2 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-white dark:text-black dark:hover:bg-zinc-300"
+            className="rounded-full border border-black/10 px-5 py-2 text-sm font-medium text-black hover:border-black/40 dark:border-white/20 dark:text-zinc-100"
             href="/dashboard"
           >
-            Sign in
+            Open your workspace
           </Link>
           <Link
             className="rounded-full border border-black/10 px-5 py-2 text-sm font-medium text-black hover:border-black/40 dark:border-white/20 dark:text-zinc-100"
@@ -72,6 +77,9 @@ export default function ScholarshipsPage() {
             Export all deadlines to calendar (.ics)
           </a>
         </div>
+        <Suspense>
+          <ScholarshipsBoard />
+        </Suspense>
         <p className="mt-8 text-xs text-zinc-500">
           Part of Vantia — every programme above links its official source; the
           calendar export marks month-precision deadlines as such.

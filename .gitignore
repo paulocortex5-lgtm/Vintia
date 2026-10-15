@@ -37,6 +37,9 @@ supabase/.temp/
 # ─── Stray process output ─────────────────────────────────────────────
 nohup.out
 
+# ─── Vantia test evidence (live runs; may name test accounts) ─
+test-evidence/
+
 # ─── OS / editor ──────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db

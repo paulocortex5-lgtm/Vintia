@@ -21,7 +21,7 @@ def test_metrics_returns_all_sections():
 def test_metrics_world_sources_lists_countries():
     client = TestClient(app)
     data = client.get("/metrics").json()
-    assert data["world_sources"]["countries"] == ["AU", "CA", "JP", "NZ"]
+    assert data["world_sources"]["countries"] == ["AU", "CA", "NZ", "US"]
 
 
 def test_metrics_ingest_counts_are_integers():

@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
+
+import SessionCta from "../../components/SessionCta";
+import JobsBoard from "./JobsBoard";
 
 export const metadata: Metadata = {
   title: "Visa-Sponsored Jobs with Register-Checked Badges",
@@ -44,11 +48,12 @@ export default function JobsPage() {
           <li>• Generates an ATS-tailored resume from your verified profile</li>
         </ul>
         <div className="mt-8 flex flex-wrap gap-4">
+          <SessionCta />
           <Link
-            className="rounded-full bg-black px-5 py-2 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-white dark:text-black dark:hover:bg-zinc-300"
+            className="rounded-full border border-black/10 px-5 py-2 text-sm font-medium text-black hover:border-black/40 dark:border-white/20 dark:text-zinc-100"
             href="/dashboard"
           >
-            Sign in
+            Open your workspace
           </Link>
           <Link
             className="rounded-full border border-black/10 px-5 py-2 text-sm font-medium text-black hover:border-black/40 dark:border-white/20 dark:text-zinc-100"
@@ -63,6 +68,9 @@ export default function JobsPage() {
             Score your CV first
           </Link>
         </div>
+        <Suspense>
+          <JobsBoard />
+        </Suspense>
         <p className="mt-8 text-xs text-zinc-500">
           Every listing is screened for predatory postings and carries a verified
           direct employer link — never a recruiter or aggregator.

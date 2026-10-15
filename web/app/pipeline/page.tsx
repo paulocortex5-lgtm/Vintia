@@ -50,7 +50,7 @@ type Step = {
   status: Status;
 };
 
-const COUNTRIES = ["UK", "DE", "IE", "SE", "CA", "AU", "NZ", "JP", "All"];
+const COUNTRIES = ["UK", "DE", "IE", "SE", "CA", "AU", "NZ", "US", "All"];
 
 // ── Jobs Pipeline (Part 4.1) — 10 steps, all live or tier-gated ──────────
 const JOB_STEPS: Step[] = [

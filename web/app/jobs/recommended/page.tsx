@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import SessionCta from "../../../components/SessionCta";
 import RecommendedTool from "./RecommendedTool";
 
 export const metadata: Metadata = {
@@ -26,11 +27,12 @@ export default function RecommendedPage() {
           Only jobs with a verified direct employer link are ever recommended.
         </p>
         <div className="mt-6 flex flex-wrap gap-4">
+          <SessionCta />
           <Link
-            className="rounded-full bg-black px-5 py-2 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-white dark:text-black dark:hover:bg-zinc-300"
+            className="rounded-full border border-black/10 px-5 py-2 text-sm font-medium text-black hover:border-black/40 dark:border-white/20 dark:text-zinc-100"
             href="/dashboard"
           >
-            Sign in
+            Open your workspace
           </Link>
           <Link
             className="rounded-full border border-black/10 px-5 py-2 text-sm font-medium text-black hover:border-black/40 dark:border-white/20 dark:text-zinc-100"

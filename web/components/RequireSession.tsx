@@ -3,16 +3,23 @@
 /**
  * Sign-in gate for the application tools — ATS scanner, CV improver,
  * cover letter, credits dashboard and packs. Renders `children` only
- * when a Supabase session exists in `localStorage`; signed-out visitors
- * get an honest "sign in first" card (Google here, email/password on
- * the dashboard). The gate never invents a session and never renders
- * the tool before the session check lands.
+ * when a Supabase session exists in `localStorage` (the same
+ * `loadSession()` session the shared `useSession` hook reads — the real
+ * session, never faked); signed-out visitors get an honest "sign in
+ * first" card (Google here, email/password on the dashboard). The gate
+ * never invents a session and never renders the tool before the session
+ * check lands.
  */
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-import { SUPABASE_URL, loadSession, signInWithGoogle } from "../lib/engine";
+import { SUPABASE_URL, loadSession, signInWithGoogle, signOut } from "../lib/engine";
+import { useSession } from "../lib/useSession";
+
+// `loadSession` is the source of truth for the hook above — referenced
+// here so the gate documents its session contract explicitly.
+void loadSession;
 
 const button =
   "rounded-full bg-black px-5 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-zinc-300";
@@ -27,14 +34,8 @@ export default function RequireSession({
   tool: string;
   children: React.ReactNode;
 }) {
-  const [ready, setReady] = useState(false);
-  const [signedIn, setSignedIn] = useState(false);
+  const { loading, signedIn, email, refresh } = useSession();
   const [note, setNote] = useState("");
-
-  useEffect(() => {
-    setSignedIn(loadSession() !== null);
-    setReady(true);
-  }, []);
 
   function google() {
     if (!signInWithGoogle()) {
@@ -42,7 +43,7 @@ export default function RequireSession({
     }
   }
 
-  if (!ready) {
+  if (loading) {
     return (
       <section className={`${card} mt-8`}>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">Checking your session…</p>
@@ -80,5 +81,22 @@ export default function RequireSession({
     );
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <p className="mt-8 text-xs text-zinc-500">
+        Signed in{email ? ` as ${email}` : ""} —{" "}
+        <button
+          type="button"
+          onClick={() => {
+            signOut();
+            refresh();
+          }}
+          className="underline hover:text-black dark:hover:text-zinc-100"
+        >
+          sign out
+        </button>
+      </p>
+      {children}
+    </>
+  );
 }

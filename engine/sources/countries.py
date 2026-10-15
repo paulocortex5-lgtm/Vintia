@@ -195,11 +195,12 @@ BY_ISO: dict[str, CountryTarget] = {entry.iso2: entry for entry in EUROPE}
 # (task 15.13). Scope decisions, recorded so future sessions do not
 # relitigate them:
 #
-# * **Canada, Australia, New Zealand and Japan only.** These four have
-#   published employer/sponsor registers or official job feeds we can
-#   harvest. No other Asian country and no African country is added —
-#   coverage is deliberately bounded to destinations with a verified
-#   official source, never a guessed portal.
+# * **Canada, Australia, New Zealand and the United States only.** These
+#   four have published employer/sponsor registers or official job feeds
+#   we can harvest. **No Asian country and no African country** is added
+#   (task 15.17 removed Japan, the platform's only Asian destination, and
+#   added the US) — coverage is deliberately bounded to destinations with
+#   a verified official source, never a guessed portal.
 # * Sponsorship remains a **tag, not a gate** (as in EUROPE).
 WORLD_EXTRA: tuple[CountryTarget, ...] = (
     _c(
@@ -227,12 +228,13 @@ WORLD_EXTRA: tuple[CountryTarget, ...] = (
         notes="Immigration NZ Accredited Employer List (24,000+ employers)",
     ),
     _c(
-        "JP",
-        "Japan",
-        "https://www.hellowork.mhlw.go.jp",
+        "US",
+        "United States",
+        "https://www.usajobs.gov",
+        api="https://data.usajobs.gov/api/search",
         register=REGISTER_PUBLISHED,
-        notes="Hello Work + JET Programme / specified skilled worker (SSW) "
-        "sponsor routes; only non-European Asian destination in scope",
+        notes="USAJOBS API (developer.data.gov) + DOL permanent labour certification "
+        "(PERM) H-1B sponsor disclosures; largest non-Asian English-speaking market",
     ),
 )
 
@@ -274,7 +276,7 @@ def world_targets(
     iso2_filter: set[str] | None = None,
     with_api_only: bool = False,
 ) -> list[CountryTarget]:
-    """Non-European destinations with verified sources (CA/AU/NZ/JP, task 15.13).
+    """Non-European destinations with verified sources (CA/AU/NZ/US, task 15.17).
 
     Same ranking/contract as :func:`search_targets`, scoped to
     :data:`WORLD_EXTRA` so the European default is never disturbed.
@@ -294,7 +296,7 @@ def europe_iso2() -> frozenset[str]:
 
 
 def world_iso2() -> frozenset[str]:
-    """Non-European destinations with verified sources (CA/AU/NZ/JP, task 15.13)."""
+    """Non-European destinations with verified sources (CA/AU/NZ/US, task 15.17)."""
     return frozenset(entry.iso2 for entry in WORLD_EXTRA)
 
 

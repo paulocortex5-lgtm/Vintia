@@ -16,6 +16,7 @@ def test_all_expected_prompts_shipped():
         "v1_cv_improve.md",
         "v1_cv_job_mapping.md",
         "v1_mock_interview.md",
+        "v1_platform_chat.md",
         "v1_research_proposal.md",
         "v1_sop.md",
     }

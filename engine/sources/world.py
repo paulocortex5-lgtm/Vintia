@@ -1,20 +1,22 @@
-"""Non-European source registry + seed data (task 15.13).
+"""Non-European source registry + seed data (tasks 15.13, 15.17).
 
-Canada, Australia, New Zealand and Japan — the four non-European
-destinations with **verified, machine-fetchable official sources**. No
-other Asian country and no African country is in scope; coverage is
-bounded to destinations whose government publishes a register or feed we
-can harvest, never a guessed portal.
+Canada, Australia, New Zealand and the United States — the four
+non-European destinations with **verified, machine-fetchable official
+sources**. **No Asian country and no African country is in scope**
+(task 15.17 removed Japan, the platform's only Asian destination);
+coverage is bounded to destinations whose government publishes a
+register or feed we can harvest, never a guessed portal.
 
 This module is the git-authoritative record layer for those sources:
 
 * :data:`VISA_SOURCES` — the employer/sponsor register adapters
   (CA Positive LMIA list, AU accredited sponsors, NZ accredited
-  employers, JP SSW sponsoring employers), each with >=10 seeded employer
+  employers, US PERM/DFCW disclosures), each with >=10 seeded employer
   rows so a country filter returns results before any live fetch.
 * :data:`SCHOLARSHIP_SOURCES` — the funded-programme adapters
   (Vanier/Pearson/McCall MacBain; Australia Awards/Melbourne/Monash;
-  Manaaki/Auckland; MEXT/JET), each carrying sourced programmes.
+  Manaaki/Auckland; Fulbright/Gates Cambridge-adjacent US awards), each
+  carrying sourced programmes.
 * :func:`seed_visa_jobs` — upserts the sponsored-employer job listings
   into the ingest store so ``search_jobs(country=...)`` and the
   recommender see them (they pass through the normal link-verification
@@ -160,26 +162,26 @@ VISA_SOURCES: tuple[WorldVisaSource, ...] = (
         ),
     ),
     WorldVisaSource(
-        source_id="jp_sponsors",
-        country="JP",
-        name="Japan — Specified Skilled Worker / sponsoring employers",
+        source_id="us_perm",
+        country="US",
+        name="United States — Permanent Labour Certification (PERM) sponsor disclosures",
         kind="visa",
-        url="https://www.mhlw.go.jp/staff/topics/ssw-t.html",
-        basis="Ministry of Health, Labour and Welfare — Specified Skilled Worker (SSW) "
-        "sponsoring organisations + Hello Work; the only Asian destination in scope",
+        url="https://www.dol.gov/agencies/eta/foreign-labor/performance",
+        basis="US DOL Office of Foreign Labor Certification — PERM disclosure data "
+        "(H-1B/EB-2/EB-3 sponsors); largest non-Asian English-speaking job market",
         employers=(
-            "Toyota Motor Corporation",
-            "Sony Group",
-            "Panasonic Holdings",
-            "Hitachi",
-            "Mitsubishi Corporation",
-            "Rakuten Group",
-            "SoftBank Group",
-            "Nissan Motor",
-            "Tokyo Electron",
-            "Fanuc",
-            "Komatsu",
-            "Daikin Industries",
+            "Microsoft Corporation",
+            "Google LLC",
+            "Amazon.com Services",
+            "Apple Inc",
+            "Meta Platforms",
+            "Intel Corporation",
+            "JPMorgan Chase",
+            "Goldman Sachs",
+            "IBM Corporation",
+            "Deloitte LLP",
+            "Accenture",
+            "Walmart Inc",
         ),
     ),
 )
@@ -278,29 +280,30 @@ SCHOLARSHIP_SOURCES: tuple[WorldScholarship, ...] = (
         url="https://www.auckland.ac.nz/en/study/scholarships-and-awards.html",
         basis="Up to NZD $10,000 toward tuition for international students",
     ),
-    # ── Japan ─────────────────────────────────────────────────────────
+    # ── United States ─────────────────────────────────────────────────
     WorldScholarship(
-        id="mext-japan",
-        name="MEXT Japanese Government Scholarship",
-        provider="Ministry of Education, Culture, Sports, Science and Technology (MEXT)",
-        country="JP",
+        id="fulbright-foreign-student",
+        name="Fulbright Foreign Student Program",
+        provider="Bureau of Educational and Cultural Affairs (US Dept of State)",
+        country="US",
         level="any",
         funding="fully_funded",
         window_close=None,
-        url="https://www.studyinjapan.go.jp/en/",
-        basis="MEXT — full tuition, monthly stipend, return airfare (research student / "
-        "undergraduate / postgraduate tracks)",
+        url="https://foreign.fulbrightonline.org/",
+        basis="Fulbright — full tuition, monthly stipend, health coverage, airfare for "
+        "graduate study/research in the United States",
     ),
     WorldScholarship(
-        id="jet-programme",
-        name="JET Programme (Assistant Language Teacher)",
-        provider="Council of Local Authorities for International Relations (CLAIR)",
-        country="JP",
+        id="hubert-h-humphrey",
+        name="Hubert H. Humphrey Fellowship Program",
+        provider="Bureau of Educational and Cultural Affairs (US Dept of State)",
+        country="US",
         level="any",
-        funding="varies",
+        funding="fully_funded",
         window_close=None,
-        url="https://jetprogramme.org/",
-        basis="JET — salaried placement on a Japanese local government; airfare covered",
+        url="https://humphreyfellowship.org/",
+        basis="Humphrey — full funding for mid-career professionals: tuition, stipend, "
+        "professional development, airfare",
     ),
 )
 
@@ -320,7 +323,7 @@ def source_summary() -> dict[str, Any]:
 
 
 def seed_visa_jobs(*, store_dir: str | None = None) -> dict[str, Any]:
-    """Upsert sponsored-employer listings for CA/AU/NZ/JP into the ingest store.
+    """Upsert sponsored-employer listings for CA/AU/NZ/US into the ingest store.
 
     Each employer becomes one listing (a representative sponsored role)
     tagged ``visa_sponsorship=True`` with the register URL as its apply

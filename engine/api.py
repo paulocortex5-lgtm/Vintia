@@ -64,11 +64,15 @@ def _allowed_origins() -> list[str]:
     """Browser origins allowed to call the engine (Vercel → Render).
 
     Set ``VANTIA_ALLOWED_ORIGINS`` (comma-separated) in deployment; the
-    default matches the Next dev server. Never ``*`` — the credit routes
-    are keyed by ``user_id``. Read once at import: deployment config, not
-    a per-request knob.
+    default matches the Next dev server plus the alternate local ports
+    developers actually use. Never ``*`` — the credit routes are keyed
+    by ``user_id``. Read once at import: deployment config, not a
+    per-request knob.
     """
-    raw = os.environ.get("VANTIA_ALLOWED_ORIGINS", "http://localhost:3000")
+    raw = os.environ.get(
+        "VANTIA_ALLOWED_ORIGINS",
+        "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001",
+    )
     origins = [o.strip() for o in raw.split(",") if o.strip()]
     return origins or ["http://localhost:3000"]
 
@@ -854,6 +858,53 @@ def jobs_recommendations_cached(role: str = "", country: str = "") -> dict[str, 
     return recommend(None, filters=filters)
 
 
+@app.get("/jobs")
+def jobs_browse(
+    country: str = "",
+    role: str = "",
+    limit: int = 50,
+) -> dict[str, Any]:
+    """Browse verified, active jobs straight from the live ingest store.
+
+    The public listing the web jobs board renders — no CV, no credits,
+    no session required: every row carries its verified direct-apply
+    URL so each listing is genuinely clickable. ``country`` is an ISO2
+    code, ``role`` a case-insensitive title substring, ``limit`` caps the
+    rows (1–200, default 50). Rows arrive newest-first.
+    """
+    from .sources.ingest_store import search_jobs
+
+    rows = search_jobs(
+        country=country.upper() or None,
+        role=role or None,
+        verified_only=True,
+        active_only=True,
+    )
+    capped = rows[: max(1, min(limit, 200))]
+    jobs: list[dict[str, Any]] = []
+    for job in capped:
+        jobs.append(
+            {
+                "job_id": f"{job.get('portal')}:{job.get('external_id')}",
+                "title": job.get("title", ""),
+                "company": job.get("company", ""),
+                "country": job.get("country", ""),
+                "location": job.get("location", ""),
+                "posted_at": job.get("posted_at"),
+                "apply_url": job.get("apply_url", ""),
+                "link_status": job.get("link_status", ""),
+                "visa_sponsorship": job.get("visa_sponsorship"),
+                "description": (job.get("description") or "")[:500],
+            }
+        )
+    return {
+        "jobs": jobs,
+        "total": len(rows),
+        "country": country.upper(),
+        "role": role,
+    }
+
+
 # ── Task 15.4 — sponsor reliability scoring ──────────────────────────────
 
 
@@ -891,14 +942,15 @@ def sponsors_reliability_all(country: str = "") -> dict[str, Any]:
     return {"count": len(scores), "scores": scores}
 
 
-# ── Task 15.13 — non-European source coverage (CA/AU/NZ/JP) ─────────────
+# ── Task 15.13/15.17 — non-European source coverage (CA/AU/NZ/US) ────────
 
 
 @app.get("/sources/world")
 def sources_world() -> dict[str, Any]:
     """List the non-European visa + scholarship sources (task 15.13 §17.4).
 
-    CA/AU/NZ/JP only — no other Asian or African destination ships.
+    CA/AU/NZ/US only — no Asian or African destination ships (task 15.17
+    removed Japan).
     """
     from .sources.world import source_summary
 
@@ -907,7 +959,7 @@ def sources_world() -> dict[str, Any]:
 
 @app.post("/sources/world/seed")
 def sources_world_seed() -> dict[str, Any]:
-    """Seed the sponsored-employer listings for CA/AU/NZ/JP (idempotent)."""
+    """Seed the sponsored-employer listings for CA/AU/NZ/US (idempotent)."""
     from .sources.world import seed_visa_jobs
 
     return seed_visa_jobs()
@@ -922,7 +974,7 @@ def scholarships_list(
     level: str = "",
     funding: str = "",
 ) -> dict[str, Any]:
-    """List funded programmes, European DB + non-European (CA/AU/NZ/JP).
+    """List funded programmes, European DB + non-European (CA/AU/NZ/US).
 
     New endpoint (task 15.13): merges the curated European
     :data:`~engine.scholarships.database.SCHOLARSHIPS` with the world
@@ -943,8 +995,10 @@ def scholarships_list(
                 "id": sch.id,
                 "name": sch.name,
                 "provider": sch.provider,
-                "country": (country or sch.host_countries[0] if sch.host_countries else "").upper(),
-                "countries": list(sch.host_countries),
+                "country": (
+                    country or min(sch.host_countries) if sch.host_countries else ""
+                ).upper(),
+                "countries": sorted(sch.host_countries),
                 "level": sch.level,
                 "funding": sch.funding,
                 "window_close": sch.window_close,
@@ -1033,6 +1087,14 @@ class ChatRefineRequest(BaseModel):
     user_id: str = ""
 
 
+class ChatRequest(BaseModel):
+    """Body of ``POST /chat`` (task 1.1 / Part 12.4)."""
+
+    user_id: str = ""
+    message: str = ""
+    conversation_id: str = ""
+
+
 def _feature_http(exc: VantiaError) -> HTTPException:
     status = 403 if exc.code == "feature_not_available" else 402
     if exc.code == "turn_limit_exceeded":
@@ -1085,6 +1147,22 @@ def mock_interview(body: MockInterviewRequest) -> dict[str, Any]:
             user_id=_require_user_id(body.user_id),
             scan_id=body.scan_id,
             company_name=body.company_name,
+        )
+    except VantiaError as exc:
+        raise _feature_http(exc) from exc
+
+
+@app.post("/chat")
+@app.post("/api/chat")
+def platform_chat(body: ChatRequest) -> dict[str, Any]:
+    """Platform chatbot with tier daily rate limits (task 1.1 / Part 12.4)."""
+    from .chat import chat
+
+    try:
+        return chat(
+            user_id=_require_user_id(body.user_id),
+            message=body.message,
+            conversation_id=body.conversation_id,
         )
     except VantiaError as exc:
         raise _feature_http(exc) from exc
@@ -1148,9 +1226,7 @@ def _bearer_record(authorization: str) -> dict[str, Any]:
     if not allowed:
         raise HTTPException(
             status_code=429,
-            detail=VantiaError(
-                f"rate limit exceeded ({limit}/min)", code="rate_limited"
-            ).as_dict(),
+            detail=VantiaError(f"rate limit exceeded ({limit}/min)", code="rate_limited").as_dict(),
             headers={
                 "X-RateLimit-Limit": str(meta["limit"]),
                 "X-RateLimit-Remaining": "0",
@@ -1176,9 +1252,7 @@ def v1_ats_score(
             detail=VantiaError("cv text is required", code="cv_required").as_dict(),
         )
     parsed = parse_resume(body.cv.encode("utf-8"), content_type="text/plain")
-    report = score_resume(
-        parsed, job_title=body.job_title, job_description=body.job_description
-    )
+    report = score_resume(parsed, job_title=body.job_title, job_description=body.job_description)
     payload = report.payload()
     return {"overall_score": payload.get("overall_score"), "report": payload}
 
@@ -1509,6 +1583,20 @@ def metrics() -> dict[str, Any]:
 def _startup() -> None:
     if os.environ.get("VANTIA_SELF_PING", "1") != "0":
         start_self_ping()
+    # Seed the sponsored-employer job pool on every boot (idempotent,
+    # fail-soft): the ingest store is ephemeral on hosted runtimes and
+    # gitignored locally, so without this the jobs boards and the
+    # recommendation pool would be empty after each cold start.
+    try:
+        from .sources.world import seed_visa_jobs
+
+        seed_visa_jobs()
+    except Exception:  # a seeding failure must never block boot
+        import logging
+
+        logging.getLogger("vantia.api.startup").warning(
+            "startup: world job seed unavailable; jobs pool may be empty", exc_info=True
+        )
 
 
 if __name__ == "__main__":  # pragma: no cover
