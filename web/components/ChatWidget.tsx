@@ -30,12 +30,13 @@ export default function ChatWidget() {
   };
   useEffect(scroll, [messages, open]);
 
-  const userId = session?.user?.id ?? "";
+  // Authenticated users carry their real session id; anonymous visitors get
+  // a stable device-scoped id so the chat still works without signing in.
+  const userId =
+    session?.user?.id ?? `anon-${typeof window !== "undefined" ? (window.localStorage.getItem("vantia_anon_id") || (() => { const id = crypto.randomUUID?.() ?? `anon-${Date.now()}`; window.localStorage.setItem("vantia_anon_id", id); return id; })()) : ""}`;
 
-  // `send` is defined before the early return so the hook always runs in
-  // the same order on every render (fixes React #310: "Rendered more hooks
-  // than during the previous render"). It is only invoked once the widget
-  // is mounted, at which point `session` is guaranteed to exist.
+  // `send` is defined before any early return so the hook always runs in
+  // the same order on every render (fixes React #310).
   const send = useCallback(async () => {
     const text = input.trim();
     if (!text || sending) return;
@@ -70,8 +71,6 @@ export default function ChatWidget() {
       setSending(false);
     }
   }, [input, sending, userId, conversationId]);
-
-  if (!session) return null;
 
   return (
     <div className="fixed bottom-5 right-5 z-50">

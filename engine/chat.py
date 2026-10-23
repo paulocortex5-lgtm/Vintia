@@ -19,6 +19,7 @@ When every configured LLM provider is offline the endpoint returns an honest
 from __future__ import annotations
 
 import os
+import re
 import threading
 from datetime import UTC, datetime
 from typing import Any
@@ -50,6 +51,22 @@ PROMPT_VERSION = "1.0.0"
 
 _store_lock = threading.RLock()
 _supabase = SupabaseClient()  # best-effort; degrades when unconfigured
+
+#: Keywords that signal a job search request — the chatbot will surface
+#: live, verified, visa-sponsored listings with direct apply links.
+_JOB_KEYWORDS = re.compile(
+    r"\b(job|jobs|work|hiring|hire|employment|visa|sponsor|sponsorship|"
+    r"skilled.worker|employer|position|vacancy|opening|career)\b",
+    re.IGNORECASE,
+)
+
+#: Keywords that signal a scholarship search request — the chatbot will
+#: surface funded programmes with official pages and deadlines.
+_SCHOLARSHIP_KEYWORDS = re.compile(
+    r"\b(scholarship|scholarships|funding|grant|fellowship|chevening|"
+    r"commonwealth|daad|erasmus|fulbright|award|fully.funded)\b",
+    re.IGNORECASE,
+)
 
 
 def _default_dir() -> str:
@@ -128,6 +145,110 @@ def _call_llm(history: list[dict[str, Any]], user_message: str, *, run_id: str) 
         return None
 
 
+def _format_jobs(jobs: list[dict[str, Any]], limit: int = 6) -> str:
+    """Format verified job listings into a chat-friendly reply with apply links."""
+    if not jobs:
+        return (
+            "I couldn't find any live, verified job postings matching your search. "
+            "Try browsing the jobs board at /jobs — every listing carries a direct "
+            "employer link and visa-sponsorship badge."
+        )
+    lines = ["Here are live, verified, visa-sponsored jobs you can apply to directly:\n"]
+    for j in jobs[:limit]:
+        title = j.get("title") or "Untitled role"
+        company = j.get("company") or "Employer"
+        country = j.get("country") or ""
+        apply_url = j.get("apply_url") or ""
+        visa = j.get("visa_sponsorship")
+        badge = " • Visa sponsorship" if visa else ""
+        lines.append(
+            f"• **{title}** — {company}{f' ({country})' if country else ''}{badge}\n"
+            f"  Apply: {apply_url}\n"
+        )
+    lines.append(
+        "\nBrowse more at /jobs — every listing is link-verified and screened for predatory postings."
+    )
+    return "\n".join(lines)
+
+
+def _format_scholarships(
+    scholarships: list[dict[str, Any]], limit: int = 6
+) -> str:
+    """Format funded scholarship programmes into a chat-friendly reply."""
+    if not scholarships:
+        return (
+            "I couldn't find any funded scholarship programmes matching your search. "
+            "Try browsing the scholarships board at /scholarships — every programme "
+            "links its official page and deadline."
+        )
+    lines = ["Here are funded scholarships you can apply to:\n"]
+    for s in scholarships[:limit]:
+        name = s.get("name") or "Untitled programme"
+        provider = s.get("provider") or "Provider"
+        country = s.get("country") or ""
+        level = s.get("level") or ""
+        url = s.get("url") or ""
+        window = s.get("window_close")
+        deadline = f" — closes {window}" if window else ""
+        lines.append(
+            f"• **{name}** — {provider}{f' ({country})' if country else ''}"
+            f"{f' [{level}]' if level else ''}{deadline}\n"
+            f"  Official page: {url}\n"
+        )
+    lines.append(
+        "\nBrowse more at /scholarships — every programme carries its official URL "
+        "and verified deadline wording."
+    )
+    return "\n".join(lines)
+
+
+def _search_jobs(message: str) -> list[dict[str, Any]]:
+    """Return verified jobs matching a keyword extracted from the message."""
+    from .sources.ingest_store import search_jobs
+
+    # Extract a crude role keyword (first capitalised phrase after job/work role words).
+    role = None
+    m = re.search(r"(?:for|as|a|an)\s+([A-Z][a-zA-Z\s]+?)(?:\s+(?:in|at|visa|job|$)|$)", message)
+    if m:
+        role = m.group(1).strip()
+    return search_jobs(verified_only=True, active_only=True, role=role)
+
+
+def _search_scholarships(message: str) -> list[dict[str, Any]]:
+    """Return funded scholarship programmes (country-filtered if mentioned)."""
+    from .scholarships.database import search_scholarships
+
+    country = None
+    for code in ("GB", "DE", "IE", "SE", "CA", "AU", "NZ", "US", "JP"):
+        if code in message.upper():
+            country = code
+            break
+    rows = search_scholarships(
+        level=None,
+        funding=None,
+        host_country=country,
+    )
+    # Convert Scholarship dataclasses to plain dicts for the chat reply.
+    out: list[dict[str, Any]] = []
+    for s in rows:
+        host = list(s.host_countries) if s.host_countries else []
+        out.append(
+            {
+                "id": s.id,
+                "name": s.name,
+                "provider": s.provider,
+                "country": (country or (host[0] if host else "")).upper(),
+                "countries": sorted(host),
+                "level": s.level,
+                "funding": s.funding,
+                "window_close": s.window_close,
+                "url": s.url,
+                "basis": s.basis,
+            }
+        )
+    return out
+
+
 def _mirror_to_supabase(rows: list[dict[str, Any]]) -> None:
     """Best-effort write to chat_messages; never raises (STEP K)."""
     try:
@@ -180,6 +301,73 @@ def chat(
         )
         if used_today >= limit:
             raise MessageRateLimitExceeded(tier, limit, used_today)
+
+        # ── Job / scholarship search (direct, no LLM needed) ──────────
+        msg_lower = message.lower()
+        if _JOB_KEYWORDS.search(message):
+            jobs = _search_jobs(message)
+            reply = _format_jobs(jobs)
+            now = utc_now()
+            user_msg = {
+                "conversation_id": conversation_id,
+                "user_id": user_id,
+                "role": "user",
+                "content": message,
+                "created_at": now,
+            }
+            assistant_msg = {
+                "conversation_id": conversation_id,
+                "user_id": user_id,
+                "role": "assistant",
+                "content": reply,
+                "created_at": now,
+            }
+            store = _load_all()
+            store.setdefault("messages", {}).setdefault(user_id, [])
+            store["messages"][user_id].extend([user_msg, assistant_msg])
+            _save_all(store)
+            _mirror_to_supabase([user_msg, assistant_msg])
+            return {
+                "status": "ok",
+                "reply": reply,
+                "conversation_id": conversation_id,
+                "tier": tier,
+                "used_today": used_today + 1,
+                "limit": limit if limit < 10**9 else None,
+                "jobs": jobs,
+            }
+        if _SCHOLARSHIP_KEYWORDS.search(message):
+            scholarships = _search_scholarships(message)
+            reply = _format_scholarships(scholarships)
+            now = utc_now()
+            user_msg = {
+                "conversation_id": conversation_id,
+                "user_id": user_id,
+                "role": "user",
+                "content": message,
+                "created_at": now,
+            }
+            assistant_msg = {
+                "conversation_id": conversation_id,
+                "user_id": user_id,
+                "role": "assistant",
+                "content": reply,
+                "created_at": now,
+            }
+            store = _load_all()
+            store.setdefault("messages", {}).setdefault(user_id, [])
+            store["messages"][user_id].extend([user_msg, assistant_msg])
+            _save_all(store)
+            _mirror_to_supabase([user_msg, assistant_msg])
+            return {
+                "status": "ok",
+                "reply": reply,
+                "conversation_id": conversation_id,
+                "tier": tier,
+                "used_today": used_today + 1,
+                "limit": limit if limit < 10**9 else None,
+                "scholarships": scholarships,
+            }
 
         reply = _call_llm(history, message, run_id=run_id)
         if reply is None:

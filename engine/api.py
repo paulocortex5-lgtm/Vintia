@@ -71,7 +71,7 @@ def _allowed_origins() -> list[str]:
     """
     raw = os.environ.get(
         "VANTIA_ALLOWED_ORIGINS",
-        "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001",
+        "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001,https://vantia-rho.vercel.app",
     )
     origins = [o.strip() for o in raw.split(",") if o.strip()]
     return origins or ["http://localhost:3000"]

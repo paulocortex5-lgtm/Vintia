@@ -6,7 +6,7 @@
  * tier, no credits; results are cached engine-side for 24 hours.
  */
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { ENGINE, engineError } from "../../../lib/engine";
 
 type RecommendedJob = {
@@ -36,6 +36,7 @@ function reliabilityBadge(): string {
 
 export default function RecommendedJobs() {
   const [resumeText, setResumeText] = useState("");
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [country, setCountry] = useState("ALL");
   const [jobs, setJobs] = useState<RecommendedJob[]>([]);
   const [note, setNote] = useState("");
@@ -70,6 +71,38 @@ export default function RecommendedJobs() {
     }
   }
 
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadFile(file);
+    setBusy(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const response = await fetch(`${ENGINE}/ats/upload`, {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.detail?.message || `Upload failed (${response.status})`);
+        return;
+      }
+      const extracted = data.extracted_text || data.resume_text || "";
+      if (extracted) {
+        setResumeText(extracted);
+      } else {
+        setNote(
+          "File uploaded successfully but no text could be extracted — please paste your CV text above instead.",
+        );
+      }
+    } catch {
+      setError("Could not reach the engine to upload your CV.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <section className="mt-8 rounded-2xl border border-black/10 bg-white p-6 dark:border-white/10 dark:bg-zinc-950">
       <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300" htmlFor="cv">
@@ -82,6 +115,22 @@ export default function RecommendedJobs() {
         onChange={(e) => setResumeText(e.target.value)}
         placeholder={"# Jane Doe\nBackend Engineer\n…"}
         className={`${input} mt-1 font-mono`}
+      />
+      {uploadFile && (
+        <p className="mt-1 text-xs text-zinc-500">
+          File selected: {uploadFile.name}{" · " + Math.round(uploadFile.size / 1024) + " KB"}
+        </p>
+      )}
+      <label className="text-xs font-medium text-zinc-500 block mt-3 mb-1" htmlFor="cv-file">
+        Or upload CV file (PDF/DOCX/TXT)
+      </label>
+      <input
+        id="cv-file"
+        type="file"
+        accept=".pdf,.docx,.doc,.txt"
+        onChange={handleFileUpload}
+        disabled={busy}
+        className={input}
       />
       <div className="mt-4 flex flex-wrap items-center gap-2">
         {COUNTRIES.map((c) => (
