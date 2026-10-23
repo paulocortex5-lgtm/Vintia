@@ -32,14 +32,13 @@ export default function CreditPurchasePage() {
 }
 
 function PurchaseInner() {
-  const [session, setSession] = useState<Session | null>(null);
+  const [session] = useState<Session | null>(() => loadSession());
   const [packs, setPacks] = useState<Pack[]>([]);
   const [environment, setEnvironment] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState("");
 
   useEffect(() => {
-    setSession(loadSession());
     let cancelled = false;
     fetch(`${ENGINE}/credits/packs`)
       .then((res) => res.json())
@@ -76,7 +75,7 @@ function PurchaseInner() {
         setError(data?.detail?.message || `Checkout failed (${response.status}).`);
         return;
       }
-      window.location.href = data.checkout_url;
+      window.location.assign(data.checkout_url);
     } catch {
       setError(`Engine unreachable at ${ENGINE}.`);
     } finally {

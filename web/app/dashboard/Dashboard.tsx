@@ -55,7 +55,7 @@ const TOOLS = [
 ];
 
 export default function Dashboard() {
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<Session | null>(() => loadSession());
   const [status, setStatus] = useState<EngineStatus | null>(null);
   const [balance, setBalance] = useState<Balance | null>(null);
   const [engineNote, setEngineNote] = useState("");
@@ -66,7 +66,6 @@ export default function Dashboard() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
 
   useEffect(() => {
-    setSession(loadSession());
     fetch(`${ENGINE}/status`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => data?.initialised && setStatus(data as EngineStatus))

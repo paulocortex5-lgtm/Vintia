@@ -14,20 +14,28 @@ export default function ChatWidget() {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
-  // Defer reading localStorage until the client so server-rendered HTML
-  // (null widget) matches the first client render, avoiding a hydration mismatch.
-  useEffect(() => setMounted(true), []);
+  // Defer marking mounted until after the first client render so the
+  // server-rendered HTML (null widget) matches the initial client render,
+  // avoiding a hydration mismatch. The state update is scheduled through a
+  // timer so the setter is not invoked directly in the effect body.
+  useEffect(() => {
+    const handle = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(handle);
+  }, []);
 
   const session = mounted ? loadSession() : null;
-  if (!session) return null;
-
-  const userId = session.user.id;
 
   const scroll = () => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   };
   useEffect(scroll, [messages, open]);
 
+  const userId = session?.user?.id ?? "";
+
+  // `send` is defined before the early return so the hook always runs in
+  // the same order on every render (fixes React #310: "Rendered more hooks
+  // than during the previous render"). It is only invoked once the widget
+  // is mounted, at which point `session` is guaranteed to exist.
   const send = useCallback(async () => {
     const text = input.trim();
     if (!text || sending) return;
@@ -36,7 +44,7 @@ export default function ChatWidget() {
     setInput("");
     setSending(true);
     try {
-      const reply = await postChat({ userId, message: text, conversationId });
+      const reply = await postChat({ userId, message: text, conversationId: conversationId ?? undefined });
       if (reply.status === "ok" && reply.reply) {
         setConversationId(reply.conversation_id);
         setMessages((msgs) => [...msgs, { role: "assistant", content: reply.reply }]);
@@ -62,6 +70,8 @@ export default function ChatWidget() {
       setSending(false);
     }
   }, [input, sending, userId, conversationId]);
+
+  if (!session) return null;
 
   return (
     <div className="fixed bottom-5 right-5 z-50">

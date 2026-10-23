@@ -34,7 +34,7 @@ type Gate = "loading" | "signin" | "forbidden" | "error" | "allowed";
 
 export default function AdminGate({ children }: { children: React.ReactNode }) {
   const [gate, setGate] = useState<Gate>("loading");
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<Session | null>(() => loadSession());
   const [note, setNote] = useState("");
 
   const evaluate = useCallback(async (current: Session) => {
@@ -59,14 +59,18 @@ export default function AdminGate({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const current = loadSession();
-    setSession(current);
-    if (!current) {
+    // Session is seeded lazily on first render; this effect evaluates the
+    // admin role (async, which calls setState) and sets the gate.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (!session) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setGate("signin");
       return;
     }
-    void evaluate(current);
-  }, [evaluate]);
+    // `evaluate` updates gate state (setState inside its body).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void evaluate(session);
+  }, [session, evaluate]);
 
   function google() {
     if (!signInWithGoogle()) {

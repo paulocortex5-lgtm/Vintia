@@ -19,6 +19,9 @@ export default function WaitlistConfirmPage() {
   useEffect(() => {
     const token = new URLSearchParams(window.location.search).get("token") || "";
     if (!token) {
+      // Token comes from the URL (client-only), so this initial state is set
+      // after mount rather than during render.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setState("error");
       setMessage("Missing confirmation token — open the link from your email.");
       return;

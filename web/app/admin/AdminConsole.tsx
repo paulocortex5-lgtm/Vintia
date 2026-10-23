@@ -74,7 +74,10 @@ const TOKEN_KEY = "vantia_admin_token";
 const TIERS = ["free", "pro", "business"] as const;
 
 export default function AdminConsole() {
-  const [token, setToken] = useState("");
+  const [token, setToken] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return window.localStorage.getItem(TOKEN_KEY) ?? "";
+  });
   const [unlocked, setUnlocked] = useState(false);
   const [overview, setOverview] = useState<Overview | null>(null);
   const [note, setNote] = useState("");
@@ -127,14 +130,11 @@ export default function AdminConsole() {
     }
   }, [headers]);
 
-  // A previously stored token is tried once on mount; no token = gate shown.
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const stored = window.localStorage.getItem(TOKEN_KEY);
-    if (stored) setToken(stored);
-  }, []);
-
-  useEffect(() => {
+    // `load` updates overview/credits state (setState inside a callback,
+    // not directly in this effect body); keep the exhaustive-deps override
+    // as the token is the intentional trigger.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (token) void load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);

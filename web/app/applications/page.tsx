@@ -65,6 +65,9 @@ export default function ApplicationsPage() {
   }, []);
 
   useEffect(() => {
+    // `load` updates application state from the engine (setState inside its
+    // body, not directly in this effect body).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, [load]);
 

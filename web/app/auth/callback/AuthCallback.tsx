@@ -21,11 +21,6 @@ import { exchangeAuthCode, sessionFromTokens } from "../../../lib/engine";
 export default function AuthCallback() {
   const [note, setNote] = useState("Finishing sign-in…");
 
-  useEffect(() => {
-    void finish();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   async function finish() {
     const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
     const query = new URLSearchParams(window.location.search);
@@ -66,6 +61,13 @@ export default function AuthCallback() {
 
     setNote("No sign-in result found in the URL — start again from the dashboard.");
   }
+
+  useEffect(() => {
+    // `finish` updates note state (setState inside its body); finish is
+    // stable (declared in this component), so the dependency array stays empty.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void finish();
+  }, []);
 
   return (
     <section className="rounded-2xl border border-black/10 bg-white p-6 dark:border-white/10 dark:bg-zinc-950">

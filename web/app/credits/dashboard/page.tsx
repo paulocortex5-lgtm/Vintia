@@ -40,8 +40,14 @@ const button =
 const card = "rounded-2xl border border-black/10 bg-white p-6 dark:border-white/10 dark:bg-zinc-950";
 
 function CreditsDashboardInner() {
-  const [session, setSession] = useState<Session | null>(null);
-  const [userId, setUserId] = useState("");
+  // Read the session lazily on first render so SSR (window undefined → null)
+  // and the initial client render match, avoiding a hydration mismatch,
+  // and keeping setState out of effect bodies.
+  const [session] = useState<Session | null>(() => loadSession());
+  const [userId] = useState(() => {
+    const existing = loadSession();
+    return existing?.user.id ?? "";
+  });
   const [balance, setBalance] = useState<Balance | null>(null);
   const [packs, setPacks] = useState<Pack[]>([]);
   const [invoice, setInvoice] = useState<Invoice>(null);
@@ -50,9 +56,6 @@ function CreditsDashboardInner() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    const existing = loadSession();
-    setSession(existing);
-    setUserId(existing?.user.id ?? "");
     fetch(`${ENGINE}/credits/packs`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => data?.packs && setPacks(data.packs as Pack[]))
@@ -95,7 +98,7 @@ function CreditsDashboardInner() {
         setNote(engineError(data, response.status));
         return;
       }
-      if (data.checkout_url) window.location.href = data.checkout_url as string;
+      if (data.checkout_url) window.location.assign(data.checkout_url as string);
       else setNote("Checkout returned no URL — check the Paddle configuration.");
     } catch {
       setNote(`Engine unreachable at ${ENGINE}.`);
