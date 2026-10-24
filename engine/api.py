@@ -49,6 +49,10 @@ from .credits import (
 )
 from .errors import PaddleError, SchemaValidationError, VantiaError
 from .generators.cover import generate_cover_letter
+
+#: Supabase service-role key for admin writes to profiles (role promotion).
+#: Set ``SUPABASE_SERVICE_ROLE_KEY`` in deployment; never the anon key.
+SUPABASE_SERVICE_ROLE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
 from .improve.cv import improve_cv
 from .json_utils import load_json, validate
 from .keep_alive import start_self_ping
@@ -802,6 +806,18 @@ class AdminUserTierRequest(BaseModel):
     tier: str = Field("", description="free | pro | business")
 
 
+class AdminUserRoleRequest(BaseModel):
+    """Body of ``POST /admin/users/role`` — promotes a user to admin.
+
+    Uses the Supabase service role to write ``profiles.role`` directly,
+    since the platform's auth bootstrap only makes the *first* Google
+    sign-in admin. Any existing admin may promote additional accounts.
+    """
+
+    user_id: str = Field("", description="Target auth.users id (UUID)")
+    role: str = Field("admin", description="user | admin")
+
+
 @app.post("/admin/users/tier")
 def admin_set_user_tier(request: Request, body: AdminUserTierRequest) -> dict[str, Any]:
     """Record a user's usage tier (token-gated; ``unknown_tier`` refused)."""
@@ -812,6 +828,96 @@ def admin_set_user_tier(request: Request, body: AdminUserTierRequest) -> dict[st
         return admin_service.set_user_tier(_require_user_id(body.user_id), body.tier)
     except VantiaError as exc:
         raise _admin_http(exc) from exc
+
+
+@app.post("/admin/users/role")
+def admin_set_user_role(request: Request, body: AdminUserRoleRequest) -> dict[str, Any]:
+    """Promote ``user_id`` to ``role`` in Supabase ``profiles`` (token-gated).
+
+    Writes through the Supabase service role so any existing admin can
+    promote additional accounts beyond the bootstrap-first-Google rule.
+    Returns the updated profile row on success.
+    """
+    _require_admin(request)
+    if not SUPABASE_SERVICE_ROLE_KEY:
+        raise HTTPException(
+            status_code=503,
+            detail=VantiaError(
+                "SUPABASE_SERVICE_ROLE_KEY is not configured; role promotion is closed",
+                code="admin_not_configured",
+            ).as_dict(),
+        )
+    if body.role not in ("user", "admin"):
+        raise HTTPException(
+            status_code=422,
+            detail=VantiaError(
+                "role must be 'user' or 'admin'", code="invalid_role"
+            ).as_dict(),
+        )
+    if not body.user_id:
+        raise HTTPException(
+            status_code=422,
+            detail=VantiaError(
+                "user_id is required", code="user_id_required"
+            ).as_dict(),
+        )
+    import httpx
+
+    supabase_url = os.environ.get("NEXT_PUBLIC_SUPABASE_URL", "").rstrip("/")
+    if not supabase_url:
+        raise HTTPException(
+            status_code=503,
+            detail=VantiaError(
+                "NEXT_PUBLIC_SUPABASE_URL is not configured",
+                code="admin_not_configured",
+            ).as_dict(),
+        )
+    try:
+        with httpx.Client(timeout=15.0) as client:
+            resp = client.patch(
+                f"{supabase_url}/rest/v1/profiles",
+                params={"user_id": f"eq.{body.user_id}"},
+                headers={
+                    "apikey": SUPABASE_SERVICE_ROLE_KEY,
+                    "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
+                    "Content-Type": "application/json",
+                    "Prefer": "return=representation",
+                },
+                json={"role": body.role},
+            )
+    except httpx.RequestError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=VantiaError(
+                f"Supabase unreachable: {exc}", code="supabase_unreachable"
+            ).as_dict(),
+        ) from exc
+    if resp.status_code not in (200, 204):
+        raise HTTPException(
+            status_code=resp.status_code,
+            detail=VantiaError(
+                f"Supabase profiles update failed ({resp.status_code})",
+                code="supabase_update_failed",
+            ).as_dict(),
+        )
+    try:
+        rows = resp.json()
+    except Exception:
+        rows = []
+    if not rows:
+        raise HTTPException(
+            status_code=404,
+            detail=VantiaError(
+                f"profile not found for user_id {body.user_id}",
+                code="profile_not_found",
+            ).as_dict(),
+        )
+    return {
+        "user_id": body.user_id,
+        "role": rows[0].get("role", body.role),
+        "email": rows[0].get("email", ""),
+        "ts": datetime.now(UTC).isoformat(),
+    }
 
 
 # ── Task 15.1 — job recommendations from CV ──────────────────────────────
